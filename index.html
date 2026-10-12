@@ -552,7 +552,7 @@ panneau
 <div id="bravo">
   <div class="bravo-emoji">🏆</div>
   <div class="bravo-t" id="bravo-t"></div>
-  <div class="bravo-s">Programme du jour terminé<br>Reviens demain !</div>
+  <div class="bravo-s" id="bravo-s">Programme du jour terminé<br>Reviens demain !</div>
   <div id="bravo-stats" style="display:flex;gap:16px;justify-content:center;margin:20px 0 8px;">
     <div style="text-align:center;">
       <div id="bravo-flame" style="font-size:28px;font-weight:700;color:#fff;animation:flammeAnim 0.6s ease;"></div>
@@ -623,7 +623,7 @@ async function sbUpload(file,path){
   return SB_URL+'/storage/v1/object/public/exercice-images/'+path;
 }
 
-var ST={pid:null,pname:'',exos:[],days:[],reps:{},chronoDone:{},evalScores:{},timer:300,timerOn:false,timerInt:null,editPid:null,editPname:'',editExos:[],hasLecture:false,hasEpell:false,lectDays:[],lectSessions:[],isOrthoSuivi:false,evalHistory:[],autoEval:true,modeTest:false,_sbReal:null,epellConfig:null};
+var ST={pid:null,pname:'',exos:[],days:[],reps:{},chronoDone:{},evalScores:{},timer:300,timerOn:false,timerInt:null,editPid:null,editPname:'',editExos:[],hasLecture:false,hasEpell:false,lectDays:[],lectSessions:[],isOrthoSuivi:false,evalHistory:[],autoEval:true,modeTest:false,_sbReal:null,epellConfig:null,dailySessions:{}};
 
 function show(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});document.getElementById(id).classList.add('active');}
 
@@ -714,13 +714,26 @@ async function selectPatient(pid,pname){
   }
 
   var nb=Math.min(ST.exosParJour,allExos.length);
-  var selectionnes=tirerN(allExos,nb);
-  var selIds=selectionnes.map(function(e){return e.id;});
-  var restants=allExos.filter(function(e){return selIds.indexOf(e.id)<0;});
-  var bonus=restants.length>0?tirerN(restants,1):[]; 
-
-  ST.exos=selectionnes;
-  ST.exoBonus=bonus.length>0?bonus[0]:null;
+  var sessionKey=pid+'_'+todayStr();
+  var session=ST.dailySessions[sessionKey];
+  if(!session){
+    var selectionnes=tirerN(allExos,nb);
+    var sessionIds=selectionnes.map(function(e){return e.id;});
+    var restants=allExos.filter(function(e){return sessionIds.indexOf(e.id)<0;});
+    var bonus=restants.length>0?tirerN(restants,1):[];
+    session={
+      exoIds:selectionnes.map(function(e){return e.id;}),
+      bonusId:bonus.length>0?bonus[0].id:null,
+      bonusDone:false
+    };
+    ST.dailySessions[sessionKey]=session;
+  }
+  ST.exos=session.exoIds.map(function(id){
+    return allExos.find(function(exo){return exo.id===id;});
+  }).filter(Boolean);
+  ST.exoBonus=session.bonusId?allExos.find(function(exo){return exo.id===session.bonusId;})||null:null;
+  ST.bonusDone=session.bonusDone;
+  ST._dailySessionKey=sessionKey;
 
   if(ST.hasLecture&&(!ST.exos||ST.exos.length===0)){
     showLecture();return;
@@ -809,8 +822,11 @@ function showCurrentExo(){
     if(bonusBtn&&ST.exoBonus&&!ST.bonusDone){
       bonusBtn.style.display='block';
       bonusBtn.innerHTML='💪 Exercice bonus du jour <span class="xp-badge">⭐ '+(ST.exoBonus.xp||10)+'+5 XP</span>';
+      document.getElementById('exo-card').innerHTML='';
+    } else {
+      if(bonusBtn)bonusBtn.style.display='none';
+      document.getElementById('exo-card').innerHTML='<div class="empty-state">Tu as tout fait aujourd\'hui ! 🎉</div>';
     }
-    document.getElementById('exo-card').innerHTML='';
     return;
   }
   if(bonusBtn)bonusBtn.style.display='none';
@@ -878,6 +894,9 @@ async function showBravo(){
   var xpAll=await sb('xp_log?patient_id=eq.'+ST.pid+'&select=xp');
   var xpTotal=xpAll?xpAll.reduce(function(s,r){return s+r.xp;},0):0;
   var streak=calcStreak(ST.days);
+  document.getElementById('bravo-s').textContent=ST.exoBonus
+    ?'Programme du jour terminé. Reviens demain !'
+    :"Tu as tout fait aujourd'hui ! 🎉";
   // Remplir l'écran Bravo
   document.getElementById('bravo-flame').textContent='🔥 '+streak;
   document.getElementById('bravo-xp-today').textContent='+'+xpToday+' XP';
@@ -961,8 +980,8 @@ async function submitInlineEval(exoId){
     showCurrentExo();
   }
 }
-function hideBravo(){document.getElementById('bravo').classList.remove('show');ST.reps={};ST.chronoDone={};ST.evalScores={};ST.bonusDone=false;ST.exoIndex=0;resetTimer();buildExos();}
-function resetDay(){ST.reps={};ST.chronoDone={};ST.evalScores={};ST.bonusDone=false;ST.exoIndex=0;resetTimer();buildExos();}
+function hideBravo(){document.getElementById('bravo').classList.remove('show');ST.reps={};ST.chronoDone={};ST.evalScores={};ST.exoIndex=0;resetTimer();buildExos();}
+function resetDay(){ST.reps={};ST.chronoDone={};ST.evalScores={};ST.exoIndex=0;resetTimer();buildExos();}
 
 /* ── SUIVI ── */
 async function showSuivi(fromOrtho,pid,pname,days){
@@ -1961,9 +1980,14 @@ function lancerBonus(){
   if(!ST.exoBonus)return;
   // Ajouter temporairement l'exo bonus à la liste et marquer comme bonus
   ST.exoBonus._isBonus=true;
-  ST.exos.push(ST.exoBonus);
+  var bonusIndex=ST.exos.findIndex(function(exo){return exo.id===ST.exoBonus.id;});
+  if(bonusIndex<0){
+    ST.exos.push(ST.exoBonus);
+    bonusIndex=ST.exos.length-1;
+  }
   document.getElementById('btn-bonus').style.display='none';
-  buildExos();
+  ST.exoIndex=bonusIndex;
+  showCurrentExo();
 }
 
 /* ── GAMIFICATION ── */
@@ -1989,7 +2013,12 @@ async function enregistrerXP(exo){
     xp:xp,
     date_session:todayStr()
   })});
-  if(exo._isBonus)ST.bonusDone=true;
+  if(exo._isBonus){
+    ST.bonusDone=true;
+    if(ST._dailySessionKey&&ST.dailySessions[ST._dailySessionKey]){
+      ST.dailySessions[ST._dailySessionKey].bonusDone=true;
+    }
+  }
 }
 
 async function showProfil(){
