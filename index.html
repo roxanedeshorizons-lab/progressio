@@ -43,11 +43,10 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a
 .exo-list{display:flex;flex-direction:column;gap:10px;}
 .exo{background:#fff;border:1.5px solid #e0dfd8;border-radius:14px;overflow:hidden;transition:border-color 0.15s,background 0.15s;}
 .exo.done{border-color:#1D9E75;background:#f0fbf6;}
-.exo-top-row{display:flex;align-items:stretch;flex:1;}
-.exo-acc{width:5px;flex-shrink:0;align-self:stretch;}
-.exo-inner{display:flex;flex-direction:column;flex:1;}
+.exo-top-row{display:flex;align-items:stretch;}
+.exo-acc{width:5px;flex-shrink:0;}
 .exo-main{flex:1;padding:12px 14px 8px;}
-.exo-img{width:100%;max-height:200px;object-fit:contain;background:#f5f4f0;border-bottom:1px solid #e0dfd8;display:block;border-top:1px solid #e0dfd8;margin-bottom:8px;}
+.exo-img{width:100%;max-height:160px;object-fit:cover;border-bottom:1px solid #e0dfd8;display:block;}
 .exo-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px;}
 .exo-nm{font-size:14px;font-weight:600;line-height:1.3;}
 .exo.done .exo-nm{color:#085041;}
@@ -72,83 +71,8 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a
 .suivi-btn{font-size:12px;font-weight:600;color:#185FA5;background:#E6F1FB;border:none;border-radius:8px;padding:5px 14px;cursor:pointer;}
 .suivi-btn:hover{background:#cce0f5;}
 
-.edit-tab{font-size:13px;font-weight:500;padding:7px 16px;border-radius:20px;border:1.5px solid #e0dfd8;background:#fff;color:#6b6b66;cursor:pointer;transition:all 0.15s;}
-.edit-tab.active{background:#1D9E75;border-color:#1D9E75;color:#fff;}
-
-/* BIBLIOTHÈQUE */
-.biblio-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
-.biblio-tab{font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;border:1.5px solid #e0dfd8;background:#fff;color:#6b6b66;cursor:pointer;transition:all 0.15s;}
-.biblio-tab.active{background:#7F77DD;border-color:#7F77DD;color:#fff;}
-.biblio-exo{background:#fff;border:1px solid #e0dfd8;border-radius:12px;padding:14px 16px;margin-bottom:8px;}
-.biblio-exo-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px;}
-.biblio-exo-name{font-size:14px;font-weight:600;color:#1a1a18;}
-.biblio-exo-meta{font-size:11px;color:#9b9b96;margin-bottom:4px;}
-.biblio-exo-how{font-size:12px;color:#6b6b66;line-height:1.4;}
-.biblio-cat-select{font-size:12px;padding:3px 8px;border:1px solid #d0cfc8;border-radius:6px;outline:none;color:#6b6b66;background:#f5f4f0;cursor:pointer;}
-.biblio-empty{text-align:center;color:#9b9b96;font-size:13px;padding:32px 0;line-height:1.6;}
-
-/* RÉCAP */
-.recap-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:98;align-items:center;justify-content:center;}
-.recap-overlay.show{display:flex;}
-.recap-box{background:#fff;border-radius:20px;padding:32px 24px;width:min(340px,90vw);text-align:center;animation:rise 0.3s ease;}
-.recap-name{font-size:18px;font-weight:600;color:#1a1a18;margin-bottom:24px;}
-.recap-flame-anim{margin-bottom:8px;}
-.recap-flame-popup{font-size:32px;font-weight:700;color:#E0A020;animation:flammeAnim 0.6s ease;}
-@keyframes flammeAnim{0%{transform:scale(0.3) rotate(-10deg);opacity:0;}50%{transform:scale(1.3) rotate(5deg);opacity:1;}70%{transform:scale(0.95) rotate(-3deg);}100%{transform:scale(1) rotate(0deg);opacity:1;}}
-.recap-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;}
-.recap-stat{background:#f5f4f0;border-radius:12px;padding:14px 8px;}
-.recap-stat-val{font-size:22px;font-weight:700;color:#1D9E75;}
-.recap-stat-lbl{font-size:11px;color:#9b9b96;margin-top:4px;}
-.recap-btn{width:100%;font-size:15px;font-weight:600;color:#fff;background:#1D9E75;border:none;border-radius:12px;padding:14px;cursor:pointer;}
-.recap-btn:hover{background:#0F6E56;}
-
-/* GAMIFICATION */
-.profil-rang{text-align:center;padding:24px 0 16px;}
-.profil-rang-emoji{font-size:64px;display:block;margin-bottom:8px;}
-.profil-rang-nom{font-size:22px;font-weight:700;color:#1a1a18;}
-.profil-rang-xp{font-size:13px;color:#6b6b66;margin-top:4px;}
-.profil-xp-bar{background:#e0dfd8;border-radius:6px;height:10px;margin:12px 0 20px;overflow:hidden;}
-.profil-xp-fill{height:100%;background:linear-gradient(90deg,#1D9E75,#7F77DD);border-radius:6px;transition:width 0.5s ease;}
-.profil-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;}
-.profil-stat{background:#fff;border:1px solid #e0dfd8;border-radius:12px;padding:14px;text-align:center;}
-.profil-stat-val{font-size:24px;font-weight:700;color:#1D9E75;}
-.profil-stat-lbl{font-size:11px;color:#9b9b96;margin-top:3px;}
-.profil-rangs{background:#fff;border:1px solid #e0dfd8;border-radius:14px;padding:16px;}
-.profil-rang-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #f0efe8;}
-.profil-rang-row:last-child{border-bottom:none;}
-.profil-rang-row.current{font-weight:700;}
-.profil-rang-row-emoji{font-size:20px;width:28px;text-align:center;}
-.profil-rang-row-info{flex:1;}
-.profil-rang-row-name{font-size:13px;font-weight:500;color:#1a1a18;}
-.profil-rang-row-req{font-size:11px;color:#9b9b96;}
-.profil-rang-row-check{font-size:16px;color:#1D9E75;}
-
-.xp-badge{display:inline-flex;align-items:center;gap:4px;background:#FEF9E7;color:#7a5c00;border-radius:6px;padding:2px 7px;font-size:11px;font-weight:600;}
-.chrono-display{font-size:48px;font-weight:700;text-align:center;padding:16px 0 8px;color:#1a1a18;font-variant-numeric:tabular-nums;}
-.chrono-unit{font-size:18px;font-weight:400;color:#6b6b66;margin-left:4px;}
-.chrono-btns{display:flex;gap:8px;justify-content:center;padding-bottom:8px;}
-.chrono-btn-start{font-size:14px;font-weight:600;color:#fff;background:#1D9E75;border:none;border-radius:10px;padding:10px 28px;cursor:pointer;min-width:120px;}
-.chrono-btn-start:hover{background:#0F6E56;}
-.chrono-btn-stop{font-size:14px;font-weight:600;color:#fff;background:#E24B4A;border:none;border-radius:10px;padding:10px 28px;cursor:pointer;min-width:120px;}
-.chrono-btn-stop:hover{background:#A32D2D;}
-.chrono-scores{padding:10px 0 4px;border-top:1px solid #e0dfd8;margin-top:8px;}
-.chrono-scores-title{font-size:11px;color:#9b9b96;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;}
-.chrono-scores-row{display:flex;gap:10px;justify-content:center;}
-.chrono-score-box{text-align:center;background:#f5f4f0;border-radius:8px;padding:8px 14px;}
-.chrono-score-val{font-size:18px;font-weight:700;color:#1D9E75;}
-.chrono-score-lbl{font-size:11px;color:#9b9b96;margin-top:2px;}
-.inline-eval{background:#f5f4f0;border-radius:0 0 14px 14px;padding:12px 14px 14px;border-top:1px solid #e0dfd8;transition:opacity 0.3s;}
-.inline-eval-label{font-size:12px;color:#6b6b66;margin-bottom:10px;font-weight:500;}
-.eval-exo{background:#fff;border:1px solid #e0dfd8;border-radius:14px;padding:16px;margin-bottom:12px;}
-.eval-exo-name{font-size:14px;font-weight:600;color:#1a1a18;margin-bottom:12px;}
-.eval-dots{display:flex;gap:5px;justify-content:center;margin-bottom:8px;}
-.eval-dot{width:30px;height:30px;border-radius:50%;border:2px solid transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:transform 0.1s;flex-shrink:0;}
-.eval-dot:hover{transform:scale(1.15);}
-.eval-dot.eval-dot-selected{transform:scale(1.2);border-color:#1a1a18 !important;}
-.eval-dot-num{font-size:10px;font-weight:700;color:#1a1a18;line-height:1;}
-.eval-labels{display:flex;justify-content:space-between;font-size:11px;color:#9b9b96;padding:0 4px;}
-
-.chrono-done-msg{font-size:14px;font-weight:600;color:#085041;text-align:center;padding:14px 0;}
+/* LECTURE */
+.lect-progress{display:flex;gap:6px;margin-bottom:20px;justify-content:center;}
 .lect-dot{width:10px;height:10px;border-radius:50%;background:#e0dfd8;transition:background 0.2s;}
 .lect-dot.ok{background:#1D9E75;}
 .lect-dot.err{background:#E24B4A;}
@@ -166,7 +90,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a
 .lect-btn-err{font-size:14px;font-weight:600;color:#fff;background:#E24B4A;border:none;border-radius:0 0 14px 0;padding:16px;cursor:pointer;}
 .lect-btn-err:hover{background:#A32D2D;}
 .lect-score-final{text-align:center;padding:32px 20px;}
-.lect-score-num{font-size:28px;font-weight:700;color:#1D9E75;}
+.lect-score-num{font-size:48px;font-weight:700;color:#1D9E75;}
 .lect-score-label{font-size:15px;color:#6b6b66;margin-top:8px;}
 .lect-btn-retour{margin-top:20px;font-size:14px;font-weight:600;color:#fff;background:#1D9E75;border:none;border-radius:10px;padding:12px 28px;cursor:pointer;}
 
@@ -209,13 +133,13 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a
 .login-err{font-size:12px;color:#c0392b;margin-top:8px;display:none;}
 
 /* VUE ORTHO — LISTE PATIENTS */
-.patient-row{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #e0dfd8;border-radius:12px;padding:12px 14px;margin-bottom:8px;gap:10px;}
+.patient-row{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #e0dfd8;border-radius:12px;padding:14px 16px;margin-bottom:8px;}
 .patient-row-name{font-size:15px;font-weight:600;}
 .patient-row-info{font-size:12px;color:#6b6b66;margin-top:2px;}
 .patient-row-link{font-size:11px;color:#185FA5;margin-top:4px;cursor:pointer;}
 .patient-row-link:hover{text-decoration:underline;}
-.patient-row-actions{display:flex;gap:5px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;max-width:55%;}
-.btn-sm{font-size:11px;padding:4px 8px;border-radius:7px;cursor:pointer;border:1px solid #d0cfc8;background:#f5f4f0;color:#1a1a18;white-space:nowrap;}
+.patient-row-actions{display:flex;gap:6px;flex-shrink:0;}
+.btn-sm{font-size:12px;padding:5px 10px;border-radius:8px;cursor:pointer;border:1px solid #d0cfc8;background:#f5f4f0;color:#1a1a18;white-space:nowrap;}
 .btn-sm:hover{background:#e8e7e2;}
 .btn-sm.danger{border-color:#f5c4b3;background:#faece7;color:#993c1d;}
 .btn-sm.danger:hover{background:#f5c4b3;}
@@ -235,7 +159,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a
 .color-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
 .color-dot{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:border-color 0.15s;}
 .color-dot.selected{border-color:#1a1a18;}
-.img-preview{width:100%;max-height:200px;object-fit:contain;background:#f5f4f0;border-radius:8px;margin-top:6px;display:none;}
+.img-preview{width:100%;max-height:120px;object-fit:cover;border-radius:8px;margin-top:6px;display:none;}
 .img-upload-btn{font-size:12px;color:#185FA5;background:#E6F1FB;border:none;border-radius:7px;padding:5px 12px;cursor:pointer;margin-top:4px;}
 .img-upload-btn:hover{background:#cce0f5;}
 .img-remove-btn{font-size:12px;color:#993c1d;background:#faece7;border:none;border-radius:7px;padding:5px 12px;cursor:pointer;margin-top:4px;margin-left:6px;display:none;}
@@ -273,37 +197,35 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a
 <div id="s-profiles" class="screen active">
   <div style="padding:1rem 0 2rem;">
     <div class="page-title">Exercices orthophonie</div>
-    <div class="page-sub">Ouvre ton lien personnel pour accéder à tes exercices.</div>
+    <div class="page-sub">Qui fait ses exercices aujourd'hui ?</div>
+    <div id="profile-loading" class="loading">Chargement...</div>
+    <div class="p-grid" id="profile-grid" style="display:none;"></div>
+    <button class="add-btn" id="add-patient-btn" onclick="openAddModal()" style="display:none;">+ Ajouter un jeune</button>
     <button class="ortho-link" onclick="showLogin()">Accès orthophoniste</button>
   </div>
 </div>
 
 <!-- EXERCICES PATIENT -->
 <div id="s-exos" class="screen">
-  <div id="mode-test-banner" style="display:none;background:#EF9F27;color:#fff;font-size:13px;font-weight:600;text-align:center;padding:8px;margin:-24px -16px 16px;letter-spacing:0.03em;">
-    🧪 MODE TEST — les actions ne sont pas sauvegardées
-    <button onclick="quitterModeTest()" style="margin-left:12px;background:rgba(255,255,255,0.3);border:none;color:#fff;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:12px;">Quitter</button>
-  </div>
   <div style="padding:1rem 0 2rem;">
     <div class="page-header">
       <h2 id="ex-name"></h2>
       <button class="back-btn" onclick="goProfiles()">← Retour</button>
     </div>
-    <!-- Barre de progression -->
+    <div class="timer-row">
+      <span class="timer-val" id="tval">5:00</span>
+      <button class="timer-btn" id="tbtn" onclick="toggleTimer()">Démarrer</button>
+    </div>
     <div class="prog-row">
       <div class="prog-track"><div class="prog-fill" id="pfill" style="width:0%"></div></div>
       <div class="prog-lbl" id="plbl">0/0</div>
     </div>
-    <!-- Carte exercice unique -->
-    <div id="exo-card"></div>
-    <!-- Boutons bas -->
-    <div class="foot-row" style="margin-top:16px;">
+    <div class="exo-list" id="exo-list"></div>
+    <div class="foot-row">
       <button class="reset-btn" onclick="resetDay()" id="btn-reset" style="display:none">↺ Réinitialiser</button>
-      <button class="suivi-btn" onclick="showSuivi()">📅 Suivi</button>
-      <button class="suivi-btn" onclick="showProfil()" style="background:#7F77DD;">🏆 Profil</button>
+      <button class="suivi-btn" onclick="showLecture()" id="btn-lecture" style="display:none">📖 Lecture</button>
+      <button class="suivi-btn" onclick="showSuivi()" id="btn-suivi">📅 Suivi</button>
     </div>
-    <button id="btn-bonus" onclick="lancerBonus()" style="display:none;width:100%;margin-top:12px;font-size:14px;font-weight:600;color:#fff;background:#E0A020;border:none;border-radius:10px;padding:12px;cursor:pointer;text-align:center;"></button>
-    <button id="btn-epell" onclick="lancerEpellation()" style="display:none;width:100%;margin-top:10px;font-size:14px;font-weight:600;color:#fff;background:#7F6FCC;border:none;border-radius:10px;padding:12px;cursor:pointer;text-align:center;">⌨️ Exercice d'épellation</button>
   </div>
 </div>
 
@@ -323,55 +245,10 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a
 <div id="s-login" class="screen">
   <div class="login-box">
     <h2>Espace orthophoniste</h2>
-    <p>Connexion avec votre compte</p>
-    <input type="email" id="login-email" placeholder="Email" onkeydown="if(event.key==='Enter')document.getElementById('login-pwd').focus();" />
-    <input type="password" id="login-pwd" placeholder="Mot de passe" onkeydown="if(event.key==='Enter')checkLogin();" />
+    <p>Accès réservé</p>
+    <input type="password" id="pwd-input" placeholder="Mot de passe" onkeydown="if(event.key==='Enter')checkLogin();" />
     <button onclick="checkLogin()">Connexion</button>
-    <div class="login-err" id="login-err">Email ou mot de passe incorrect</div>
-    <div style="margin-top:12px;text-align:center;display:flex;flex-direction:column;gap:8px;">
-      <button onclick="showForgot()" style="background:none;border:none;font-size:12px;color:#6b6b66;cursor:pointer;text-decoration:underline;">Mot de passe oublié ?</button>
-      <button onclick="showInvite()" style="background:none;border:none;font-size:12px;color:#6b6b66;cursor:pointer;text-decoration:underline;">Créer un compte</button>
-    </div>
-  </div>
-</div>
-
-<!-- RESET MOT DE PASSE -->
-<div id="s-reset" class="screen">
-  <div class="login-box">
-    <h2>Nouveau mot de passe</h2>
-    <p>Choisis ton nouveau mot de passe.</p>
-    <input type="password" id="reset-pwd" placeholder="Nouveau mot de passe" />
-    <input type="password" id="reset-pwd2" placeholder="Confirmer" onkeydown="if(event.key==='Enter')doReset();" />
-    <button onclick="doReset()">Enregistrer</button>
-    <div class="login-err" id="reset-err"></div>
-  </div>
-</div>
-
-<!-- MOT DE PASSE OUBLIÉ -->
-<div id="s-forgot" class="screen">
-  <div class="login-box">
-    <h2>Mot de passe oublié</h2>
-    <p>Entre ton email — tu recevras un lien de réinitialisation.</p>
-    <input type="email" id="forgot-email" placeholder="Email" onkeydown="if(event.key==='Enter')sendReset();" />
-    <button onclick="sendReset()">Envoyer le lien</button>
-    <div class="login-err" id="forgot-err"></div>
-    <div style="margin-top:12px;text-align:center;">
-      <button onclick="showLogin()" style="background:none;border:none;font-size:12px;color:#6b6b66;cursor:pointer;text-decoration:underline;">← Retour connexion</button>
-    </div>
-  </div>
-</div>
-<div id="s-invite" class="screen">
-  <div class="login-box">
-    <h2>Créer un compte</h2>
-    <p>Réservé aux orthophonistes</p>
-    <input type="email" id="invite-email" placeholder="Email" />
-    <input type="password" id="invite-pwd" placeholder="Mot de passe (min. 6 caractères)" />
-    <input type="password" id="invite-pwd2" placeholder="Confirmer le mot de passe" onkeydown="if(event.key==='Enter')createAccount();" />
-    <button onclick="createAccount()">Créer mon compte</button>
-    <div class="login-err" id="invite-err"></div>
-    <div style="margin-top:12px;text-align:center;">
-      <button onclick="showLogin()" style="background:none;border:none;font-size:12px;color:#6b6b66;cursor:pointer;text-decoration:underline;">← Retour connexion</button>
-    </div>
+    <div class="login-err" id="login-err">Mot de passe incorrect</div>
   </div>
 </div>
 
@@ -385,19 +262,6 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a
     <div id="ortho-loading" class="loading">Chargement...</div>
     <div id="ortho-patients"></div>
     <button class="add-btn" id="ortho-add-btn" onclick="openAddModal()" style="display:none;margin-top:8px;">+ Nouveau patient</button>
-    <button class="add-btn" id="ortho-biblio-btn" onclick="showBibliotheque()" style="display:none;margin-top:4px;border-style:solid;background:#7F77DD;color:#fff;border-color:#7F77DD;">📚 Bibliothèque d'exercices</button>
-  </div>
-</div>
-
-<!-- BIBLIOTHÈQUE -->
-<div id="s-biblio" class="screen">
-  <div style="padding:1rem 0 2rem;">
-    <div class="page-header">
-      <h2>Bibliothèque</h2>
-      <button class="back-btn" onclick="show('s-ortho');loadOrtho();">← Retour</button>
-    </div>
-    <div class="biblio-tabs" id="biblio-tabs"></div>
-    <div id="biblio-content"><div class="loading">Chargement...</div></div>
   </div>
 </div>
 
@@ -408,57 +272,9 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a
       <h2 id="edit-title">Programme</h2>
       <button class="back-btn" onclick="show('s-ortho');loadOrtho();">← Retour</button>
     </div>
-    <div id="edit-subtitle" style="display:none;font-size:12px;color:#9b9b96;margin-top:-12px;margin-bottom:16px;font-style:italic;"></div>
-
-    <!-- ONGLETS TYPES -->
-    <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
-      <button class="edit-tab active" id="tab-myo" onclick="switchEditTab('myo')">💪 Myofonctionnel</button>
-      <button class="edit-tab" id="tab-lecture" onclick="switchEditTab('lecture')">📖 Lecture</button>
-      <button class="edit-tab" id="tab-epell" onclick="switchEditTab('epell')">⌨️ Épellation</button>
-    </div>
-
-    <!-- SECTION MYO -->
-    <div id="edit-section-myo">
-      <div class="field-row" style="margin-bottom:16px;">
-        <label style="font-size:11px;color:#9b9b96;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">Exercices obligatoires par jour</label>
-        <input type="number" id="edit-exos-par-jour" min="1" max="20" value="3" style="width:80px;font-size:14px;padding:7px 10px;border:1px solid #d0cfc8;border-radius:8px;outline:none;" />
-      </div>
-      <div id="edit-exos-list"></div>
-      <button class="add-exo-btn" onclick="addExoEditor()">+ Ajouter un exercice</button>
-    </div>
-
-    <!-- SECTION LECTURE -->
-    <div id="edit-section-lecture" style="display:none;">
-      <div class="field-row" style="margin-bottom:12px;">
-        <label style="font-size:11px;color:#9b9b96;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">Mots par jour</label>
-        <input type="number" id="edit-lect-nb" min="1" max="20" value="5" style="width:80px;font-size:14px;padding:7px 10px;border:1px solid #d0cfc8;border-radius:8px;outline:none;" />
-      </div>
-      <div class="field-row">
-        <label style="font-size:11px;color:#9b9b96;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">Liste de mots (un mot par ligne)</label>
-        <textarea id="edit-lect-mots" style="width:100%;min-height:200px;font-size:14px;padding:10px;border:1px solid #d0cfc8;border-radius:8px;outline:none;font-family:inherit;margin-top:4px;line-height:1.8;" placeholder="bateau&#10;gâteau&#10;chapeau&#10;manteau&#10;..."></textarea>
-      </div>
-    </div>
-
-    <!-- SECTION ÉPELLATION -->
-    <div id="edit-section-epell" style="display:none;">
-      <p style="font-size:13px;color:#6b6b66;margin-bottom:16px;line-height:1.5;">Le patient voit le mot lettre par lettre, tape sur le clavier physique, puis identifie le bon pictogramme ARASAAC parmi 3 propositions.</p>
-      <div class="field-row" style="margin-bottom:16px;">
-        <label style="font-size:11px;color:#9b9b96;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">Mots par session</label>
-        <input type="number" id="edit-epell-nb" min="1" max="20" value="5" style="width:80px;font-size:14px;padding:7px 10px;border:1px solid #d0cfc8;border-radius:8px;outline:none;" />
-      </div>
-      <div class="field-row" style="margin-bottom:12px;">
-        <label style="font-size:11px;color:#9b9b96;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">Filtrer par catégorie</label>
-        <div id="epell-cat-filter" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>
-      </div>
-      <div style="margin-bottom:12px;">
-        <label style="font-size:11px;color:#9b9b96;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">Mots sélectionnés pour ce patient</label>
-        <div style="font-size:12px;color:#6b6b66;margin-top:4px;margin-bottom:8px;">Cliquez sur les mots de la banque pour les ajouter / retirer. Les mots sélectionnés apparaissent en vert.</div>
-        <div id="epell-selected-count" style="font-size:13px;font-weight:600;color:#1D9E75;margin-bottom:10px;"></div>
-        <div id="epell-word-bank" style="display:flex;flex-wrap:wrap;gap:6px;max-height:320px;overflow-y:auto;padding:8px;background:#f9f9f6;border-radius:10px;border:1px solid #e0dfd8;"></div>
-      </div>
-    </div>
-
-    <div class="save-bar"><button onclick="saveAllEdits()">Enregistrer le programme</button></div>
+    <div id="edit-exos-list"></div>
+    <button class="add-exo-btn" onclick="addExoEditor()">+ Ajouter un exercice</button>
+    <div class="save-bar"><button onclick="saveAllExos()">Enregistrer le programme</button></div>
   </div>
 </div>
 
@@ -500,94 +316,12 @@ panneau
   </div>
 </div>
 
-<!-- ÉPELLATION : VUE PATIENT -->
-<div id="s-epell" class="screen">
-  <div style="padding:1rem 0 2rem;">
-    <div class="page-header">
-      <h2 id="epell-patient-name"></h2>
-      <button class="back-btn" onclick="goExos()">← Retour</button>
-    </div>
-    <!-- Progression -->
-    <div class="prog-row" style="margin-bottom:20px;">
-      <div class="prog-track"><div class="prog-fill" id="epell-prog-fill" style="width:0%"></div></div>
-      <div class="prog-lbl" id="epell-prog-lbl">0/0</div>
-    </div>
-
-    <!-- Zone mot lettre par lettre -->
-    <div id="epell-word-display" style="text-align:center;margin-bottom:28px;">
-      <div id="epell-letters" style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;"></div>
-      <div id="epell-clavier-hint" style="font-size:12px;color:#9b9b96;margin-top:4px;">Tape le mot sur ton clavier</div>
-    </div>
-
-    <!-- Zone feedback OK / erreur -->
-    <div id="epell-feedback" style="text-align:center;font-size:20px;font-weight:700;min-height:32px;margin-bottom:16px;"></div>
-
-    <!-- Zone pictos (quand mot tapé correctement) -->
-    <div id="epell-pictos-zone" style="display:none;">
-      <p style="text-align:center;font-size:14px;font-weight:600;color:#1a1a18;margin-bottom:16px;">Quel image va avec ce mot ?</p>
-      <div id="epell-pictos" style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;"></div>
-    </div>
-
-    <!-- Zone résultat après picto -->
-    <div id="epell-result-zone" style="display:none;text-align:center;padding:20px 0;">
-      <div id="epell-result-emoji" style="font-size:48px;margin-bottom:8px;"></div>
-      <div id="epell-result-msg" style="font-size:16px;font-weight:600;color:#1D9E75;"></div>
-      <button onclick="epellNext()" style="margin-top:20px;background:#1D9E75;color:#fff;border:none;border-radius:12px;padding:12px 32px;font-size:15px;font-weight:700;cursor:pointer;">Mot suivant →</button>
-    </div>
-  </div>
-</div>
-
-<!-- PROFIL PATIENT -->
-<div id="s-profil" class="screen">
-  <div style="padding:1rem 0 2rem;">
-    <div class="page-header">
-      <h2 id="profil-name"></h2>
-      <button class="back-btn" onclick="show('s-exos')">← Retour</button>
-    </div>
-    <div id="profil-content"><div class="loading">Chargement...</div></div>
-  </div>
-</div>
-
 <!-- BRAVO -->
 <div id="bravo">
   <div class="bravo-emoji">🏆</div>
   <div class="bravo-t" id="bravo-t"></div>
-  <div class="bravo-s" id="bravo-s">Programme du jour terminé<br>Reviens demain !</div>
-  <div id="bravo-stats" style="display:flex;gap:16px;justify-content:center;margin:20px 0 8px;">
-    <div style="text-align:center;">
-      <div id="bravo-flame" style="font-size:28px;font-weight:700;color:#fff;animation:flammeAnim 0.6s ease;"></div>
-      <div style="font-size:11px;color:#B8EDD8;margin-top:2px;">flammes</div>
-    </div>
-    <div style="text-align:center;">
-      <div id="bravo-xp-today" style="font-size:28px;font-weight:700;color:#FFE08A;"></div>
-      <div style="font-size:11px;color:#B8EDD8;margin-top:2px;">aujourd'hui</div>
-    </div>
-    <div style="text-align:center;">
-      <div id="bravo-xp-total" style="font-size:28px;font-weight:700;color:#fff;"></div>
-      <div style="font-size:11px;color:#B8EDD8;margin-top:2px;">XP total</div>
-    </div>
-  </div>
-  <div id="bravo-bonus-zone" style="display:none;margin-top:8px;width:100%;max-width:320px;">
-    <button id="bravo-bonus-btn" onclick="lancerBonusDepuisBravo()" style="width:100%;font-size:15px;font-weight:700;color:#fff;background:#E0A020;border:none;border-radius:12px;padding:14px;cursor:pointer;margin-bottom:10px;"></button>
-    <button class="bravo-back" onclick="hideBravo()">C'est bon pour aujourd'hui</button>
-  </div>
-  <div id="bravo-retour-zone">
-    <button class="bravo-back" onclick="hideBravo()">Retour</button>
-  </div>
-</div>
-
-<!-- MODAL COPIE PROFIL -->
-<div class="modal-bg" id="copy-modal">
-  <div class="modal">
-    <h3>Copier le profil</h3>
-    <p style="font-size:13px;color:#6b6b66;margin-bottom:16px;">Les exercices de <strong id="copy-source-name"></strong> seront copiés. Seul le prénom change.</p>
-    <label style="font-size:13px;color:#6b6b66;display:block;margin-bottom:4px;">Prénom du nouveau patient</label>
-    <input type="text" id="copy-new-name" placeholder="Ex : Mehdi" maxlength="30" onkeydown="if(event.key==='Enter')confirmerCopie();" />
-    <div class="modal-btns">
-      <button onclick="document.getElementById('copy-modal').classList.remove('show')">Annuler</button>
-      <button class="primary" onclick="confirmerCopie()">Créer la copie</button>
-    </div>
-  </div>
+  <div class="bravo-s">Programme du jour terminé<br>Reviens demain !</div>
+  <button class="bravo-back" onclick="hideBravo()">Retour</button>
 </div>
 
 <!-- MODAL AJOUT PATIENT -->
@@ -606,12 +340,20 @@ panneau
 <script>
 var SB_URL='https://hvltfhnliwjqpyuxrheh.supabase.co';
 var SB_KEY='sb_publishable_4DGJMbg1YS-0Akg5maWtcg_U9PwQpPg';
+var ORTHO_PWD='ortho2024';
 var COLORS=['#5DCAA5','#7F77DD','#378ADD','#D85A30','#E0A020','#D4537E','#639922','#888780'];
 
 function pad(n){return n<10?'0'+n:''+n;}
 function todayStr(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
+async function sb(path,opts){
+  var res=await fetch(SB_URL+'/rest/v1/'+path,Object.assign({
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'}
+  },opts||{}));
+  if(!res.ok){console.error(await res.text());return null;}
+  var t=await res.text();return t?JSON.parse(t):[];
+}
 
 async function sbUpload(file,path){
   var res=await fetch(SB_URL+'/storage/v1/object/exercice-images/'+path,{
@@ -623,7 +365,7 @@ async function sbUpload(file,path){
   return SB_URL+'/storage/v1/object/public/exercice-images/'+path;
 }
 
-var ST={pid:null,pname:'',exos:[],days:[],reps:{},chronoDone:{},evalScores:{},timer:300,timerOn:false,timerInt:null,editPid:null,editPname:'',editExos:[],hasLecture:false,hasEpell:false,lectDays:[],lectSessions:[],isOrthoSuivi:false,evalHistory:[],autoEval:true,modeTest:false,_sbReal:null,epellConfig:null,dailySessions:{}};
+var ST={pid:null,pname:'',exos:[],days:[],reps:{},timer:300,timerOn:false,timerInt:null,editPid:null,editPname:'',editExos:[]};
 
 function show(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});document.getElementById(id).classList.add('active');}
 
@@ -657,101 +399,26 @@ async function selectPatient(pid,pname){
   document.getElementById('ex-name').textContent=pname;
   document.getElementById('bravo-t').textContent='Bravo '+pname+' !';
   show('s-exos');
-  document.getElementById('exo-card').innerHTML='<div class="loading">Chargement...</div>';
+  document.getElementById('exo-list').innerHTML='<div class="loading">Chargement...</div>';
   var exos=await sb('exercices?patient_id=eq.'+pid+'&order=position');
-  var allExos=exos||[];
+  ST.exos=exos||[];
   var days=await sb('suivi?patient_id=eq.'+pid+'&select=date');
   ST.days=days?days.map(function(d){return d.date;}):[];
-  var patientData=await sb('patients?id=eq.'+pid+'&select=auto_eval,exos_par_jour');
-  ST.autoEval=patientData&&patientData[0]?patientData[0].auto_eval!==false:true;
-  ST.exosParJour=patientData&&patientData[0]&&patientData[0].exos_par_jour||3;
   var listes=await sb('lecture_listes?patient_id=eq.'+pid+'&select=id,mots');
   ST.hasLecture=listes&&listes.length>0&&listes[0].mots&&listes[0].mots.length>0;
-  var epellCfg=await sb('epell_config?patient_id=eq.'+pid+'&select=id,mots');
-  ST.hasEpell=epellCfg&&epellCfg.length>0&&epellCfg[0].mots&&epellCfg[0].mots.length>0;
-  ST.lectDays=[];
-
-  // Charger historique auto-éval pour pondérer
-  var evalLog=await sb('eval_scores?patient_id=eq.'+pid+'&select=exercice_id,score');
-  var evalMoy={};
-  if(evalLog){
-    var evalCount={};
-    evalLog.forEach(function(e){
-      if(!evalMoy[e.exercice_id]){evalMoy[e.exercice_id]=0;evalCount[e.exercice_id]=0;}
-      evalMoy[e.exercice_id]+=e.score;
-      evalCount[e.exercice_id]++;
-    });
-    Object.keys(evalMoy).forEach(function(id){evalMoy[id]=evalMoy[id]/evalCount[id];});
-  }
-
-  // Pondérer : difficile(7-10)→poids 5, moyen(4-6)→3, facile(1-3)→1, jamais évalué→3
-  function poids(exo){
-    var moy=evalMoy[exo.id];
-    if(moy===undefined)return 3;
-    if(moy>=7)return 5;
-    if(moy>=4)return 3;
-    return 1;
-  }
-
-  // Tirage pondéré sans remise
-  function tirerN(pool,n){
-    var result=[];
-    var disponibles=pool.slice();
-    while(result.length<n&&disponibles.length>0){
-      var totalPoids=disponibles.reduce(function(s,e){return s+poids(e);},0);
-      var rand=Math.random()*totalPoids;
-      var cum=0;
-      for(var i=0;i<disponibles.length;i++){
-        cum+=poids(disponibles[i]);
-        if(rand<=cum){
-          result.push(disponibles[i]);
-          disponibles.splice(i,1);
-          break;
-        }
-      }
-    }
-    return result;
-  }
-
-  var nb=Math.min(ST.exosParJour,allExos.length);
-  var sessionKey=pid+'_'+todayStr();
-  var session=ST.dailySessions[sessionKey];
-  if(!session){
-    var selectionnes=tirerN(allExos,nb);
-    var sessionIds=selectionnes.map(function(e){return e.id;});
-    var restants=allExos.filter(function(e){return sessionIds.indexOf(e.id)<0;});
-    var bonus=restants.length>0?tirerN(restants,1):[];
-    session={
-      exoIds:selectionnes.map(function(e){return e.id;}),
-      bonusId:bonus.length>0?bonus[0].id:null,
-      bonusDone:false
-    };
-    ST.dailySessions[sessionKey]=session;
-  }
-  ST.exos=session.exoIds.map(function(id){
-    return allExos.find(function(exo){return exo.id===id;});
-  }).filter(Boolean);
-  ST.exoBonus=session.bonusId?allExos.find(function(exo){return exo.id===session.bonusId;})||null:null;
-  ST.bonusDone=session.bonusDone;
-  ST._dailySessionKey=sessionKey;
-
+  // Si que lecture, aller directement
   if(ST.hasLecture&&(!ST.exos||ST.exos.length===0)){
     showLecture();return;
   }
   buildExos();
 }
 
-function goProfiles(){
-  clearTimer();ST.reps={};ST.chronoDone={};
-  if(ST.modeTest){quitterModeTest();return;}
-  show('s-profiles');
-}
+function goProfiles(){clearTimer();ST.reps={};loadProfiles();}
 
 /* ── EXERCICES ── */
 function isExoDone(exo){
   if(exo.type==='reps')return (ST.reps[exo.id]||0)>=(exo.reps||10);
   if(exo.type==='sounds')return (exo.sounds||[]).every(function(s,si){return (ST.reps[exo.id+'_'+si]||0)>=s.reps;});
-  if(exo.type==='chrono')return ST.chronoDone[exo.id]===true;
   return false;
 }
 
@@ -764,392 +431,82 @@ function buildCircles(key,total,color){
   return html+'</div>';
 }
 
-function goExos(){
-  document.removeEventListener('keydown', epellKeyHandler);
-  show('s-exos');
-  buildExos();
-}
-
 function buildExos(){
-  ST.exoIndex=0;
-  // Afficher bouton épellation si configuré
-  var btnEpell=document.getElementById('btn-epell');
-  if(btnEpell) btnEpell.style.display=ST.hasEpell?'block':'none';
-  showCurrentExo();
-}
-
-function buildExoCard(exo){
-  var html='<div class="exo done" id="exo_'+exo.id+'" style="display:flex;">';
-  html+='<div class="exo-acc" style="background:'+esc(exo.color)+'"></div>';
-  html+='<div class="exo-inner">';
-  html+='<div class="exo-main">';
-  if(exo.image_url){html+='<img class="exo-img" src="'+esc(exo.image_url)+'" alt="" />';}
-  html+='<div class="exo-title-row"><span class="exo-nm">'+esc(exo.name)+'</span><span class="exo-dose">'+esc(exo.dose)+'</span></div>';
-  html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><span class="xp-badge">⭐ '+(exo.xp||10)+(exo._isBonus?' +5':'')+' XP</span></div>';
-  html+='<div class="exo-how">'+esc(exo.how)+'</div><div class="exo-why">'+esc(exo.why)+'</div></div>';
-  html+='<div class="reps-section">';
-  if(exo.type==='reps'){
-    html+='<div class="reps-label">Coche chaque répétition</div>'+buildCircles(exo.id,exo.reps||10,exo.color);
-  } else if(exo.type==='sounds'){
-    html+='<div class="sound-group">';
-    (exo.sounds||[]).forEach(function(s,si){
-      html+='<div><div class="sound-row-label">'+esc(s.label)+'</div>'+buildCircles(exo.id+'_'+si,s.reps,exo.color)+'</div>';
-    });
-    html+='</div>';
-  } else if(exo.type==='chrono'){
-    if(exo.chrono_type==='countdown'){
-      var secs=exo.chrono_secs||30;
-      html+='<div class="chrono-display" id="cd_'+exo.id+'">'+secs+'<span class="chrono-unit">sec</span></div>';
-      html+='<div class="chrono-btns"><button class="chrono-btn-start" id="cbtn_'+exo.id+'" onclick="startCountdown(\''+exo.id+'\','+secs+',\''+exo.color+'\')">Démarrer</button></div>';
-    } else {
-      html+='<div class="chrono-display" id="cd_'+exo.id+'">0<span class="chrono-unit">sec</span></div>';
-      html+='<div class="chrono-btns"><button class="chrono-btn-start" id="cbtn_'+exo.id+'" onclick="startStopwatch(\''+exo.id+'\',\''+exo.color+'\')">Démarrer</button></div>';
+  var html='';
+  ST.exos.forEach(function(exo){
+    var done=isExoDone(exo);
+    html+='<div class="exo'+(done?' done':'')+'" id="exo_'+exo.id+'">';
+    if(exo.image_url){html+='<img class="exo-img" src="'+esc(exo.image_url)+'" alt="" />';}
+    html+='<div class="exo-top-row"><div class="exo-acc" style="background:'+esc(exo.color)+'"></div>';
+    html+='<div class="exo-main"><div class="exo-title-row"><span class="exo-nm">'+esc(exo.name)+'</span><span class="exo-dose">'+esc(exo.dose)+'</span></div>';
+    html+='<div class="exo-how">'+esc(exo.how)+'</div><div class="exo-why">'+esc(exo.why)+'</div></div></div>';
+    html+='<div class="reps-section">';
+    if(exo.type==='reps'){
+      html+='<div class="reps-label">Coche chaque répétition</div>'+buildCircles(exo.id,exo.reps||10,exo.color);
+    } else if(exo.type==='sounds'){
+      html+='<div class="sound-group">';
+      (exo.sounds||[]).forEach(function(s,si){
+        html+='<div><div class="sound-row-label">'+esc(s.label)+'</div>'+buildCircles(exo.id+'_'+si,s.reps,exo.color)+'</div>';
+      });
+      html+='</div>';
     }
-  }
-  html+='</div></div></div>';
-  return html;
-}
-
-function showCurrentExo(){
-  var allExos=ST.exos;
-  var idx=ST.exoIndex||0;
+    html+='</div></div>';
+  });
+  document.getElementById('exo-list').innerHTML=html||'';
+  // Boutons conditionnels
+  var hasExos=ST.exos&&ST.exos.length>0;
+  document.getElementById('btn-reset').style.display=hasExos?'block':'none';
+  document.getElementById('btn-lecture').style.display=ST.hasLecture?'inline-block':'none';
   updateProg();
-
-  // Afficher bouton bonus si tous les exos principaux sont faits
-  var bonusBtn=document.getElementById('btn-bonus');
-  if(idx>=allExos.length){
-    // Tous faits — montrer bonus si disponible
-    if(bonusBtn&&ST.exoBonus&&!ST.bonusDone){
-      bonusBtn.style.display='block';
-      bonusBtn.innerHTML='💪 Exercice bonus du jour <span class="xp-badge">⭐ '+(ST.exoBonus.xp||10)+'+5 XP</span>';
-      document.getElementById('exo-card').innerHTML='';
-    } else {
-      if(bonusBtn)bonusBtn.style.display='none';
-      document.getElementById('exo-card').innerHTML='<div class="empty-state">Tu as tout fait aujourd\'hui ! 🎉</div>';
-    }
-    return;
-  }
-  if(bonusBtn)bonusBtn.style.display='none';
-
-  var exo=allExos[idx];
-  // Réinitialiser les reps de cet exo
-  if(exo.type==='reps'){ST.reps[exo.id]=0;}
-  else if(exo.type==='sounds'){(exo.sounds||[]).forEach(function(s,si){ST.reps[exo.id+'_'+si]=0;});}
-  else if(exo.type==='chrono'){ST.chronoDone[exo.id]=false;}
-
-  document.getElementById('exo-card').innerHTML=buildExoCard(exo);
-  document.getElementById('btn-reset').style.display='block';
 }
-
-function passerExoSuivant(){
-  ST.exoIndex=(ST.exoIndex||0)+1;
-  showCurrentExo();
-}
-
-function verifierBonusOuBravo(){
-  setTimeout(showBravo,300);
-}
-
 
 function dotClick(key,idx,total,color){
   var cur=ST.reps[key]||0;
   ST.reps[key]=(idx===cur-1)?cur-1:idx+1;
   var c=document.getElementById('c_'+key);
   if(c){var f=ST.reps[key];c.querySelectorAll('.rep-dot').forEach(function(d,i){if(i<f){d.classList.add('filled');d.style.background=color;d.style.borderColor=color;}else{d.classList.remove('filled');d.style.background='';d.style.borderColor='';}});}
+  ST.exos.forEach(function(exo){var el=document.getElementById('exo_'+exo.id);if(el){if(isExoDone(exo))el.classList.add('done');else el.classList.remove('done');}});
   updateProg();
-  var exo=ST.exos[ST.exoIndex||0];
-  if(exo&&isExoDone(exo)){
-    setTimeout(function(){onExoComplete(exo);},300);
-  }
-}
-
-function onExoComplete(exo){
-  if(ST.autoEval){
-    showExoEval(exo);
-  } else {
-    ST.evalScores=ST.evalScores||{};
-    ST.evalScores[exo.id]=0;
-    enregistrerXP(exo);
-    ST.exoIndex=(ST.exoIndex||0)+1;
-    if(ST.exoIndex>=ST.exos.length){verifierBonusOuBravo();}
-    else{showCurrentExo();}
-  }
+  if(ST.exos.length&&ST.exos.every(function(e){return isExoDone(e);}))setTimeout(showBravo,400);
 }
 
 function updateProg(){
-  var done=ST.exoIndex||0;
-  var total=ST.exos.length;
+  var done=ST.exos.filter(function(e){return isExoDone(e);}).length,total=ST.exos.length;
   document.getElementById('pfill').style.width=(total?Math.round(done/total*100):0)+'%';
   document.getElementById('plbl').textContent=done+'/'+total;
 }
 
 async function showBravo(){
   var today=todayStr();
-  var isNewDay=ST.days.indexOf(today)<0;
-  if(isNewDay){await sb('suivi',{method:'POST',body:JSON.stringify({patient_id:ST.pid,date:today})});ST.days.push(today);}
-  clearTimer();
-  // Calculer XP du jour et total
-  var xpLog=await sb('xp_log?patient_id=eq.'+ST.pid+'&date_session=eq.'+today+'&select=xp');
-  var xpToday=xpLog?xpLog.reduce(function(s,r){return s+r.xp;},0):0;
-  var xpAll=await sb('xp_log?patient_id=eq.'+ST.pid+'&select=xp');
-  var xpTotal=xpAll?xpAll.reduce(function(s,r){return s+r.xp;},0):0;
-  var streak=calcStreak(ST.days);
-  document.getElementById('bravo-s').textContent=ST.exoBonus
-    ?'Programme du jour terminé. Reviens demain !'
-    :"Tu as tout fait aujourd'hui ! 🎉";
-  // Remplir l'écran Bravo
-  document.getElementById('bravo-flame').textContent='🔥 '+streak;
-  document.getElementById('bravo-xp-today').textContent='+'+xpToday+' XP';
-  document.getElementById('bravo-xp-total').textContent=xpTotal+' XP';
-  // Bouton bonus sur l'écran Bravo
-  var bonusZone=document.getElementById('bravo-bonus-zone');
-  var retourZone=document.getElementById('bravo-retour-zone');
-  if(ST.exoBonus&&!ST.bonusDone){
-    var bonusXP=(ST.exoBonus.xp||10)+5;
-    document.getElementById('bravo-bonus-btn').textContent='💪 Exercice bonus +'+bonusXP+' XP';
-    if(bonusZone)bonusZone.style.display='flex';
-    if(bonusZone)bonusZone.style.flexDirection='column';
-    if(bonusZone)bonusZone.style.alignItems='center';
-    if(retourZone)retourZone.style.display='none';
-  } else {
-    if(bonusZone)bonusZone.style.display='none';
-    if(retourZone)retourZone.style.display='block';
-  }
-  document.getElementById('bravo').classList.add('show');
+  if(ST.days.indexOf(today)<0){await sb('suivi',{method:'POST',body:JSON.stringify({patient_id:ST.pid,date:today})});ST.days.push(today);}
+  document.getElementById('bravo').classList.add('show');clearTimer();
 }
-
-function lancerBonusDepuisBravo(){
-  document.getElementById('bravo').classList.remove('show');
-  lancerBonus();
-}
-
-function checkAllDone(){
-  if(ST.exos.length&&ST.exos.every(function(e){return isExoDone(e);})){
-    verifierBonusOuBravo();
-  }
-}
-
-function showExoEval(exo){
-  var colors=['#C8F0D0','#A8E6B0','#7DD68A','#FFE08A','#FFB347','#FF8C42','#FF6B35','#E03E3E','#C0392B','#1a1a18'];
-  var html='<div class="inline-eval" id="ieval_'+exo.id+'">';
-  html+='<div class="inline-eval-label">Comment c\'était ?</div>';
-  html+='<div class="eval-dots">';
-  for(var i=1;i<=10;i++){
-    html+='<div class="eval-dot" style="background:'+colors[i-1]+';border-color:'+colors[i-1]+'" onclick="setInlineEval(\''+exo.id+'\','+i+',this.parentNode)" data-val="'+i+'">';
-    html+='<span class="eval-dot-num" style="color:'+(i===10?'#fff':'#1a1a18')+'">'+i+'</span>';
-    html+='</div>';
-  }
-  html+='</div>';
-  html+='<div class="eval-labels"><span>Facile</span><span>Difficile ++</span></div>';
-  html+='</div>';
-  // Injecter dans la carte exercice
-  var card=document.getElementById('exo-card');
-  var existing=card?card.querySelector('.inline-eval'):null;
-  if(existing)existing.remove();
-  if(card)card.insertAdjacentHTML('beforeend',html);
-  ST._evalCurrentExo=exo;
-}
-
-function setInlineEval(exoId,val,container){
-  ST.evalScores=ST.evalScores||{};
-  ST.evalScores[exoId]=val;
-  container.querySelectorAll('.eval-dot').forEach(function(d){
-    d.classList.toggle('eval-dot-selected',parseInt(d.getAttribute('data-val'))===val);
-  });
-  setTimeout(function(){submitInlineEval(exoId);},300);
-}
-
-async function submitInlineEval(exoId){
-  var exo=ST.exos.find(function(e){return e.id===exoId;});
-  var score=ST.evalScores&&ST.evalScores[exoId];
-  if(exo&&score){
-    await sb('eval_scores',{method:'POST',body:JSON.stringify({
-      patient_id:ST.pid,
-      exercice_id:exo.id,
-      exercice_name:exo.name,
-      score:score,
-      date_session:todayStr()
-    })});
-    await enregistrerXP(exo);
-  }
-  // Passer à l'exo suivant
-  ST.exoIndex=(ST.exoIndex||0)+1;
-  if(ST.exoIndex>=ST.exos.length){
-    verifierBonusOuBravo();
-  } else {
-    showCurrentExo();
-  }
-}
-function hideBravo(){document.getElementById('bravo').classList.remove('show');ST.reps={};ST.chronoDone={};ST.evalScores={};ST.exoIndex=0;resetTimer();buildExos();}
-function resetDay(){ST.reps={};ST.chronoDone={};ST.evalScores={};ST.exoIndex=0;resetTimer();buildExos();}
+function hideBravo(){document.getElementById('bravo').classList.remove('show');ST.reps={};resetTimer();buildExos();}
+function resetDay(){ST.reps={};resetTimer();buildExos();}
 
 /* ── SUIVI ── */
-async function showSuivi(fromOrtho,pid,pname,days){
-  if(fromOrtho){ST.pid=pid;ST.pname=pname;ST.days=days||[];ST.isOrthoSuivi=true;}
-  else{ST.isOrthoSuivi=false;}
+function showSuivi(fromOrtho,pid,pname,days){
+  if(fromOrtho){ST.pid=pid;ST.pname=pname;ST.days=days;}
   document.getElementById('suivi-name').textContent='Suivi — '+ST.pname;
-  document.getElementById('suivi-back').onclick=fromOrtho?function(){show('s-ortho');}:function(){
-    if(ST.exos&&ST.exos.length>0)show('s-exos');else show('s-lecture');
-  };
-  // Charger les jours lecture
-  var sessions=await sb('lecture_sessions?patient_id=eq.'+ST.pid+'&completed=eq.true&select=date_session,mots,scores&order=date_session.desc');
-  ST.lectDays=sessions?sessions.map(function(s){return s.date_session;}):[]; 
-  ST.lectSessions=sessions||[];
-  // Charger les auto-évaluations
-  var evals=await sb('eval_scores?patient_id=eq.'+ST.pid+'&order=date_session.desc,created_at.desc&select=exercice_name,score,date_session');
-  ST.evalHistory=evals||[];
+  document.getElementById('suivi-back').onclick=fromOrtho?function(){show('s-ortho');}:function(){show('s-exos');};
   buildSuivi();show('s-suivi');
 }
 
 function buildSuivi(){
-  var days=ST.days,lectDays=ST.lectDays||[],today=todayStr();
-  var allDays=days.concat(lectDays).filter(function(d,i,a){return a.indexOf(d)===i;});
-  var streak=calcStreak(days);
+  var days=ST.days,today=todayStr(),streak=calcStreak(days);
   var thisMonth=days.filter(function(d){return d.slice(0,7)===today.slice(0,7);}).length;
-  var hasExoConfig=ST.exos&&ST.exos.length>0;
-  var statsHtml='';
-  if(hasExoConfig)statsHtml+='<div class="stat-box"><div class="stat-n">'+days.length+'</div><div class="stat-l">jours exercices</div></div>';
-  if(ST.hasLecture)statsHtml+='<div class="stat-box"><div class="stat-n">'+lectDays.length+'</div><div class="stat-l">jours lecture</div></div>';
-  statsHtml+='<div class="stat-box"><div class="stat-n">'+streak+'</div><div class="stat-l">jours de suite</div></div>';
-  document.getElementById('stats-row').innerHTML=statsHtml;
-
-  // Légende conditionnelle
-  var hasExoConfig=ST.exos&&ST.exos.length>0;
-  var legend='<div style="display:flex;gap:14px;margin-bottom:16px;font-size:12px;color:#6b6b66;align-items:center;">';
-  if(hasExoConfig)legend+='<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#1D9E75;margin-right:4px;vertical-align:middle;"></span>Exercices</span>';
-  if(ST.hasLecture)legend+='<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#378ADD;margin-right:4px;vertical-align:middle;"></span>Lecture</span>';
-  legend+='</div>';
-
-  if(!allDays.length){document.getElementById('cal-content').innerHTML='<div class="empty-state">Aucun jour enregistré.</div>';return;}
-  var sorted=allDays.slice().sort(),first=new Date(sorted[0]+'T00:00:00'),todayDate=new Date(today+'T00:00:00');
-  var html=legend,cursor=new Date(first.getFullYear(),first.getMonth(),1);
-  while(cursor<=todayDate){html+=buildMonthCal(cursor,days,lectDays,todayDate);cursor.setMonth(cursor.getMonth()+1);}
-
-  // Détail sessions lecture — visible uniquement en vue ortho
-  if(ST.isOrthoSuivi&&ST.lectSessions&&ST.lectSessions.length>0){
-
-    // Calculer stats globales par mot
-    var statsParMot={};
-    ST.lectSessions.forEach(function(session){
-      var mots=session.mots||[],scores=session.scores||[];
-      mots.forEach(function(mot,i){
-        if(!statsParMot[mot])statsParMot[mot]={ok:0,total:0};
-        statsParMot[mot].total++;
-        if(scores[i]==='ok')statsParMot[mot].ok++;
-      });
-    });
-
-    // Classer par groupe
-    var acquis=[],enCours=[],difficiles=[];
-    Object.keys(statsParMot).forEach(function(mot){
-      var s=statsParMot[mot];
-      var pct=s.total>0?Math.round(s.ok/s.total*100):0;
-      var obj={mot:mot,pct:pct,ok:s.ok,total:s.total};
-      if(pct>=80)acquis.push(obj);
-      else if(pct>=40)enCours.push(obj);
-      else difficiles.push(obj);
-    });
-    [acquis,enCours,difficiles].forEach(function(g){g.sort(function(a,b){return b.pct-a.pct;});});
-
-    function groupHtml(titre,couleur,bg,items){
-      if(!items.length)return '';
-      var h='<div style="margin-bottom:16px;">';
-      h+='<div style="font-size:12px;font-weight:600;color:'+couleur+';margin-bottom:8px;">'+titre+' ('+items.length+')</div>';
-      h+='<div style="display:flex;flex-wrap:wrap;gap:6px;">';
-      items.forEach(function(item){
-        h+='<div style="background:'+bg+';color:'+couleur+';border-radius:8px;padding:5px 10px;font-size:13px;font-weight:500;">';
-        h+=esc(item.mot)+' <span style="opacity:0.7;font-size:11px;">'+item.pct+'% ('+item.ok+'/'+item.total+')</span>';
-        h+='</div>';
-      });
-      h+='</div></div>';
-      return h;
-    }
-
-    html+='<div style="margin-top:28px;"><div class="month-t" style="margin-bottom:16px;">Statistiques par mot</div>';
-    html+=groupHtml('🟢 Acquis ≥ 80%','#085041','#E1F5EE',acquis);
-    html+=groupHtml('🟡 En cours 40–79%','#7a5c00','#FEF9E7',enCours);
-    html+=groupHtml('🔴 Difficiles < 40%','#c0392b','#fee8e8',difficiles);
-    html+='</div>';
-
-    // Détail par session
-    html+='<div style="margin-top:24px;"><div class="month-t" style="margin-bottom:12px;">Détail par session</div>';
-    ST.lectSessions.forEach(function(session){
-      var mots=session.mots||[];
-      var scores=session.scores||[];
-      html+='<div style="background:#fff;border:1px solid #e0dfd8;border-radius:12px;padding:14px 16px;margin-bottom:10px;">';
-      html+='<div style="font-size:12px;font-weight:600;color:#6b6b66;margin-bottom:10px;">'+formatDateFr(session.date_session)+'</div>';
-      html+='<div style="display:flex;flex-wrap:wrap;gap:8px;">';
-      mots.forEach(function(mot,i){
-        var score=scores[i];
-        var bg=score==='ok'?'#E1F5EE':score==='err'?'#fee8e8':'#f0efe8';
-        var col=score==='ok'?'#085041':score==='err'?'#c0392b':'#6b6b66';
-        var icon=score==='ok'?'✓':score==='err'?'✗':'·';
-        html+='<div style="background:'+bg+';color:'+col+';border-radius:8px;padding:5px 10px;font-size:13px;font-weight:500;">';
-        html+=icon+' '+esc(mot);
-        html+='</div>';
-      });
-      html+='</div></div>';
-    });
-    html+='</div>';
-  }
-
-  // Auto-évaluations — vue ortho uniquement
-  if(ST.isOrthoSuivi&&ST.evalHistory&&ST.evalHistory.length>0){
-    // Stats moyennes par exercice
-    var evalParExo={};
-    ST.evalHistory.forEach(function(e){
-      if(!evalParExo[e.exercice_name])evalParExo[e.exercice_name]={total:0,count:0};
-      evalParExo[e.exercice_name].total+=e.score;
-      evalParExo[e.exercice_name].count++;
-    });
-    html+='<div style="margin-top:28px;"><div class="month-t" style="margin-bottom:12px;">Auto-évaluations — difficulté ressentie</div>';
-    html+='<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">';
-    var evalColors=['#C8F0D0','#A8E6B0','#7DD68A','#FFE08A','#FFB347','#FF8C42','#FF6B35','#E03E3E','#C0392B','#1a1a18'];
-    Object.keys(evalParExo).forEach(function(name){
-      var e=evalParExo[name];
-      var avg=Math.round(e.total/e.count*10)/10;
-      var colorIdx=Math.min(Math.round(avg)-1,9);
-      var bg=evalColors[colorIdx];
-      var col=colorIdx>=9?'#fff':'#1a1a18';
-      html+='<div style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #e0dfd8;border-radius:10px;padding:10px 14px;">';
-      html+='<div style="font-size:13px;font-weight:500;">'+esc(name)+'</div>';
-      html+='<div style="display:flex;align-items:center;gap:8px;">';
-      html+='<div style="background:'+bg+';color:'+col+';border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;">'+avg+'</div>';
-      html+='<div style="font-size:11px;color:#9b9b96;">/ '+e.count+' session'+(e.count>1?'s':'')+'</div>';
-      html+='</div></div>';
-    });
-    html+='</div>';
-
-    // Détail par date
-    var evalParDate={};
-    ST.evalHistory.forEach(function(e){
-      if(!evalParDate[e.date_session])evalParDate[e.date_session]=[];
-      evalParDate[e.date_session].push(e);
-    });
-    html+='<div style="margin-top:8px;">';
-    Object.keys(evalParDate).sort().reverse().forEach(function(date){
-      var items=evalParDate[date];
-      html+='<div style="background:#fff;border:1px solid #e0dfd8;border-radius:12px;padding:12px 16px;margin-bottom:8px;">';
-      html+='<div style="font-size:12px;font-weight:600;color:#6b6b66;margin-bottom:8px;">'+formatDateFr(date)+'</div>';
-      html+='<div style="display:flex;flex-wrap:wrap;gap:6px;">';
-      items.forEach(function(e){
-        var colorIdx=Math.min(e.score-1,9);
-        var bg=evalColors[colorIdx];
-        var col=colorIdx>=9?'#fff':'#1a1a18';
-        html+='<div style="display:flex;align-items:center;gap:6px;background:#f5f4f0;border-radius:8px;padding:5px 10px;">';
-        html+='<span style="font-size:12px;color:#6b6b66;">'+esc(e.exercice_name)+'</span>';
-        html+='<span style="background:'+bg+';color:'+col+';border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">'+e.score+'</span>';
-        html+='</div>';
-      });
-      html+='</div></div>';
-    });
-    html+='</div></div>';
-  }
-
+  document.getElementById('stats-row').innerHTML=
+    '<div class="stat-box"><div class="stat-n">'+days.length+'</div><div class="stat-l">jours au total</div></div>'+
+    '<div class="stat-box"><div class="stat-n">'+thisMonth+'</div><div class="stat-l">ce mois-ci</div></div>'+
+    '<div class="stat-box"><div class="stat-n">'+streak+'</div><div class="stat-l">jours de suite</div></div>';
+  if(!days.length){document.getElementById('cal-content').innerHTML='<div class="empty-state">Aucun jour enregistré.</div>';return;}
+  var sorted=days.slice().sort(),first=new Date(sorted[0]+'T00:00:00'),todayDate=new Date(today+'T00:00:00');
+  var html='',cursor=new Date(first.getFullYear(),first.getMonth(),1);
+  while(cursor<=todayDate){html+=buildMonthCal(cursor,days,todayDate);cursor.setMonth(cursor.getMonth()+1);}
   document.getElementById('cal-content').innerHTML=html;
 }
 
-function buildMonthCal(date,exoDays,lectDays,todayDate){
+function buildMonthCal(date,doneDays,todayDate){
   var months=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
   var y=date.getFullYear(),m=date.getMonth();
   var html='<div class="month-blk"><div class="month-t">'+months[m]+' '+y+'</div><div class="cal-grid">';
@@ -1158,29 +515,12 @@ function buildMonthCal(date,exoDays,lectDays,todayDate){
   for(var i=0;i<off;i++)html+='<div class="cal-d empty"></div>';
   var dim=new Date(y,m+1,0).getDate(),ts=todayDate.getFullYear()+'-'+pad(todayDate.getMonth()+1)+'-'+pad(todayDate.getDate());
   for(var dd=1;dd<=dim;dd++){
-    var ds=y+'-'+pad(m+1)+'-'+pad(dd),cell=new Date(y,m,dd);
-    var isFuture=cell>todayDate,isToday=ds===ts;
-    var hasExo=exoDays.indexOf(ds)>=0,hasLect=lectDays.indexOf(ds)>=0;
-    var cls='cal-d'+(isFuture?' future':'')+(isToday?' today':'');
-    if(isFuture){
-      html+='<div class="'+cls+'">'+dd+'</div>';
-    } else {
-      // Construire les points
-      var dots='';
-      if(hasExo)dots+='<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#1D9E75;margin:0 1px;"></span>';
-      if(hasLect)dots+='<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#378ADD;margin:0 1px;"></span>';
-      if(!hasExo&&!hasLect)cls+=' missed';
-      html+='<div class="'+cls+'" style="flex-direction:column;gap:2px;">'+dd+(dots?'<div style="display:flex;justify-content:center;">'+dots+'</div>':'')+'</div>';
-    }
+    var ds=y+'-'+pad(m+1)+'-'+pad(dd),cell=new Date(y,m,dd),cls='cal-d';
+    if(cell>todayDate)cls+=' future';else if(doneDays.indexOf(ds)>=0)cls+=' ok';else cls+=' missed';
+    if(ds===ts)cls+=' today';
+    html+='<div class="'+cls+'">'+dd+'</div>';
   }
   return html+'</div></div>';
-}
-
-function formatDateFr(dateStr){
-  var months=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-  var parts=dateStr.split('-');
-  if(parts.length!==3)return dateStr;
-  return parseInt(parts[2])+' '+months[parseInt(parts[1])-1]+' '+parts[0];
 }
 
 function calcStreak(days){
@@ -1195,163 +535,31 @@ function calcStreak(days){
 
 /* ── TIMER ── */
 function toggleTimer(){
-  var tbtn=document.getElementById('tbtn');
-  var tval=document.getElementById('tval');
-  if(!tbtn||!tval)return;
-  if(ST.timerOn){clearInterval(ST.timerInt);ST.timerOn=false;tbtn.textContent='Reprendre';}
+  if(ST.timerOn){clearInterval(ST.timerInt);ST.timerOn=false;document.getElementById('tbtn').textContent='Reprendre';}
   else{
     if(ST.timer<=0){ST.timer=300;updateTimerDisplay();}
-    ST.timerOn=true;tbtn.textContent='Pause';
-    ST.timerInt=setInterval(function(){ST.timer--;updateTimerDisplay();if(ST.timer<=0){clearInterval(ST.timerInt);ST.timerOn=false;tbtn.textContent='Terminé !';if(tval)tval.textContent='0:00';}},1000);
+    ST.timerOn=true;document.getElementById('tbtn').textContent='Pause';
+    ST.timerInt=setInterval(function(){ST.timer--;updateTimerDisplay();if(ST.timer<=0){clearInterval(ST.timerInt);ST.timerOn=false;document.getElementById('tbtn').textContent='Terminé !';document.getElementById('tval').textContent='0:00';}},1000);
   }
 }
 function clearTimer(){clearInterval(ST.timerInt);ST.timerOn=false;}
-function resetTimer(){clearTimer();ST.timer=300;updateTimerDisplay();var tbtn=document.getElementById('tbtn');if(tbtn)tbtn.textContent='Démarrer';}
-function updateTimerDisplay(){var m=Math.floor(ST.timer/60),s=ST.timer%60;var tval=document.getElementById('tval');if(tval)tval.textContent=m+':'+pad(s);}
+function resetTimer(){clearTimer();ST.timer=300;updateTimerDisplay();document.getElementById('tbtn').textContent='Démarrer';}
+function updateTimerDisplay(){var m=Math.floor(ST.timer/60),s=ST.timer%60;document.getElementById('tval').textContent=m+':'+pad(s);}
 
 /* ── PATIENT ── */
 function openAddModal(){document.getElementById('new-name').value='';document.getElementById('add-modal').classList.add('show');setTimeout(function(){document.getElementById('new-name').focus();},50);}
 function closeAddModal(){document.getElementById('add-modal').classList.remove('show');}
 async function createPatient(){
   var name=document.getElementById('new-name').value.trim();if(!name)return;
-  var data={name:name};
-  if(SESSION_UID)data.ortho_id=SESSION_UID;
-  await sb('patients',{method:'POST',body:JSON.stringify(data)});
+  await sb('patients',{method:'POST',body:JSON.stringify({name:name})});
   closeAddModal();
   if(ST.isOrtho)loadOrtho();else loadProfiles();
 }
 
 /* ── LOGIN ── */
-/* ── AUTH SUPABASE ── */
-var SESSION_TOKEN=null;
-var SESSION_UID=null;
-
-async function sbAuth(path,body){
-  var res=await fetch(SB_URL+'/auth/v1/'+path,{
-    method:'POST',
-    headers:{'apikey':SB_KEY,'Content-Type':'application/json'},
-    body:JSON.stringify(body)
-  });
-  var data=await res.json();
-  return {ok:res.ok,data:data};
-}
-
-async function doReset(){
-  var pwd=document.getElementById('reset-pwd').value;
-  var pwd2=document.getElementById('reset-pwd2').value;
-  var errEl=document.getElementById('reset-err');
-  errEl.style.display='none';
-  if(pwd!==pwd2){errEl.style.color='#c0392b';errEl.textContent='Les mots de passe ne correspondent pas.';errEl.style.display='block';return;}
-  if(pwd.length<6){errEl.style.color='#c0392b';errEl.textContent='Minimum 6 caractères.';errEl.style.display='block';return;}
-  var res=await fetch(SB_URL+'/auth/v1/user',{
-    method:'PUT',
-    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SESSION_TOKEN,'Content-Type':'application/json'},
-    body:JSON.stringify({password:pwd})
-  });
-  if(res.ok){
-    errEl.style.color='#085041';
-    errEl.textContent='Mot de passe mis à jour !';
-    errEl.style.display='block';
-    setTimeout(function(){showLogin();},1500);
-  } else {
-    errEl.style.color='#c0392b';
-    errEl.textContent='Erreur — réessaie.';
-    errEl.style.display='block';
-  }
-}
-
-function showForgot(){
-  show('s-forgot');
-  document.getElementById('forgot-email').value='';
-  document.getElementById('forgot-err').style.display='none';
-}
-
-async function sendReset(){
-  var email=document.getElementById('forgot-email').value.trim();
-  var errEl=document.getElementById('forgot-err');
-  errEl.style.display='none';
-  if(!email){errEl.textContent='Entre ton email.';errEl.style.display='block';return;}
-  var res=await fetch(SB_URL+'/auth/v1/recover',{
-    method:'POST',
-    headers:{'apikey':SB_KEY,'Content-Type':'application/json'},
-    body:JSON.stringify({email:email})
-  });
-  if(res.ok){
-    errEl.style.color='#085041';
-    errEl.textContent='Email envoyé ! Vérifie ta boîte mail.';
-    errEl.style.display='block';
-  } else {
-    errEl.style.color='#c0392b';
-    errEl.textContent='Erreur — vérifie ton email.';
-    errEl.style.display='block';
-  }
-}
-
-function showLogin(){
-  show('s-login');
-  document.getElementById('login-email').value='';
-  document.getElementById('login-pwd').value='';
-  document.getElementById('login-err').style.display='none';
-}
-
-function showInvite(){
-  show('s-invite');
-  document.getElementById('invite-err').style.display='none';
-}
-
-async function checkLogin(){
-  var email=document.getElementById('login-email').value.trim();
-  var pwd=document.getElementById('login-pwd').value;
-  if(!email||!pwd)return;
-  var r=await sbAuth('token?grant_type=password',{email:email,password:pwd});
-  if(r.ok&&r.data.access_token){
-    SESSION_TOKEN=r.data.access_token;
-    SESSION_UID=r.data.user.id;
-    ST.isOrtho=true;
-    loadOrtho();
-  } else {
-    document.getElementById('login-err').style.display='block';
-  }
-}
-
-async function createAccount(){
-  var email=document.getElementById('invite-email').value.trim();
-  var pwd=document.getElementById('invite-pwd').value;
-  var pwd2=document.getElementById('invite-pwd2').value;
-  var errEl=document.getElementById('invite-err');
-  errEl.style.display='none';
-  if(!email||!pwd){errEl.textContent='Remplis tous les champs.';errEl.style.display='block';return;}
-  if(pwd!==pwd2){errEl.textContent='Les mots de passe ne correspondent pas.';errEl.style.display='block';return;}
-  if(pwd.length<6){errEl.textContent='Mot de passe trop court (min. 6 caractères).';errEl.style.display='block';return;}
-  var r=await sbAuth('signup',{email:email,password:pwd});
-  if(r.ok&&r.data.access_token){
-    SESSION_TOKEN=r.data.access_token;
-    SESSION_UID=r.data.user.id;
-    ST.isOrtho=true;
-    loadOrtho();
-  } else {
-    errEl.textContent=r.data.msg||r.data.error_description||'Erreur lors de la création du compte.';
-    errEl.style.display='block';
-  }
-}
-
-async function logoutOrtho(){
-  if(SESSION_TOKEN){
-    await fetch(SB_URL+'/auth/v1/logout',{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SESSION_TOKEN}});
-  }
-  SESSION_TOKEN=null;SESSION_UID=null;ST.isOrtho=false;
-  show('s-profiles');
-}
-
-// Surcharge de sb() pour utiliser le token ortho quand connectée
-async function sb(path,opts){
-  var token=SESSION_TOKEN||SB_KEY;
-  var res=await fetch(SB_URL+'/rest/v1/'+path,Object.assign({
-    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json','Prefer':'return=representation'}
-  },opts||{}));
-  if(!res.ok){console.error(await res.text());return null;}
-  var t=await res.text();return t?JSON.parse(t):[];
-}
+function showLogin(){show('s-login');document.getElementById('pwd-input').value='';document.getElementById('login-err').style.display='none';}
+function checkLogin(){if(document.getElementById('pwd-input').value===ORTHO_PWD){ST.isOrtho=true;loadOrtho();}else document.getElementById('login-err').style.display='block';}
+function logoutOrtho(){ST.isOrtho=false;loadProfiles();}
 
 /* ── ORTHO ── */
 async function loadOrtho(){
@@ -1359,48 +567,29 @@ async function loadOrtho(){
   document.getElementById('ortho-loading').style.display='block';
   document.getElementById('ortho-patients').innerHTML='';
   document.getElementById('ortho-add-btn').style.display='none';
-  var patients=await sb('patients?select=id,name,auto_eval,exos_par_jour&ortho_id=eq.'+SESSION_UID+'&order=created_at');
+  var patients=await sb('patients?select=id,name&order=created_at');
   if(!patients){document.getElementById('ortho-loading').textContent='Erreur.';return;}
   var html='';
   for(var i=0;i<patients.length;i++){
     var p=patients[i];
-    var lien=location.origin+location.pathname+"#"+p.id;
     var days=await sb('suivi?patient_id=eq.'+p.id+'&select=date');
     var dlist=days?days.map(function(d){return d.date;}):[];
     var dlistJs='['+dlist.map(function(d){return '\''+d+'\''}).join(',')+']';
+    var lien=location.origin+location.pathname+'#'+p.id;
     html+='<div class="patient-row">';
     html+='<div style="flex:1;min-width:0"><div class="patient-row-name">'+esc(p.name)+'</div>';
     html+='<div class="patient-row-info">'+dlist.length+' jours · '+calcStreak(dlist)+' de suite</div>';
     html+='<div class="patient-row-link" onclick="copyLink(\''+lien+'\')">🔗 Copier le lien patient</div></div>';
     html+='<div class="patient-row-actions">';
     html+='<button class="btn-sm primary" onclick="openEditor(\''+p.id+'\',\''+esc(p.name)+'\')">Programme</button>';
-    html+='<button class="btn-sm" onclick="ouvrirApercu(\''+p.id+'\',\''+esc(p.name)+'\')">👁 Aperçu</button>';
+    html+='<button class="btn-sm" onclick="openLectureConfig(\''+p.id+'\',\''+esc(p.name)+'\')">📖 Lecture</button>';
     html+='<button class="btn-sm" onclick="showSuivi(true,\''+p.id+'\',\''+esc(p.name)+'\','+dlistJs+')">Suivi</button>';
-    html+='<button class="btn-sm" onclick="copierProfil(\''+p.id+'\',\''+esc(p.name)+'\')">📋 Copier</button>';
-    html+='<button class="btn-sm '+(p.auto_eval?'primary':'')+'" onclick="toggleAutoEval(\''+p.id+'\','+p.auto_eval+',this)" title="Auto-évaluation">⭐</button>';
     html+='<button class="btn-sm danger" onclick="deletePatient(\''+p.id+'\',\''+esc(p.name)+'\')">✕</button>';
     html+='</div></div>';
   }
   document.getElementById('ortho-loading').style.display='none';
   document.getElementById('ortho-patients').innerHTML=html||'<div class="empty-state">Aucun patient.</div>';
   document.getElementById('ortho-add-btn').style.display='flex';
-  document.getElementById('ortho-biblio-btn').style.display='flex';
-}
-
-async function configExosParJour(pid,current){
-  var val=prompt('Nombre d\'exercices par jour pour ce patient :',current);
-  if(!val)return;
-  var n=parseInt(val);
-  if(isNaN(n)||n<1||n>20)return alert('Entre un nombre entre 1 et 20.');
-  await sb('patients?id=eq.'+pid,{method:'PATCH',body:JSON.stringify({exos_par_jour:n})});
-  loadOrtho();
-}
-
-async function toggleAutoEval(pid,current,btn){
-  var newVal=!current;
-  await sb('patients?id=eq.'+pid,{method:'PATCH',body:JSON.stringify({auto_eval:newVal})});
-  btn.classList.toggle('primary',newVal);
-  btn.title='Auto-évaluation : '+(newVal?'activée':'désactivée');
 }
 
 async function deletePatient(pid,pname){
@@ -1409,111 +598,14 @@ async function deletePatient(pid,pname){
 }
 
 /* ── ÉDITEUR EXERCICES ── */
-async function ouvrirApercu(pid,pname){
-  // Sauvegarder la vraie fonction sb une seule fois
-  if(!ST._sbReal)ST._sbReal=sb;
-  ST.modeTest=true;
-  window.sb=async function(path,opts){
-    if(opts&&(opts.method==='POST'||opts.method==='PATCH'||opts.method==='DELETE')){
-      console.log('[MODE TEST] Écriture bloquée :',path);
-      return [{id:'test_'+Date.now()}];
-    }
-    return ST._sbReal(path,opts);
-  };
-  await selectPatient(pid,pname);
-  document.getElementById('mode-test-banner').style.display='block';
-}
-
-function quitterModeTest(){
-  ST.modeTest=false;
-  // Restaurer la vraie fonction sb
-  if(ST._sbReal)window.sb=ST._sbReal;
-  document.getElementById('mode-test-banner').style.display='none';
-  ST.reps={};ST.chronoDone={};ST.evalScores={};
-  resetTimer();
-  show('s-ortho');
-  loadOrtho();
-}
-
-async function copierProfil(pid,pname){
-  ST._copySourceId=pid;
-  ST._copySourceName=pname;
-  document.getElementById('copy-source-name').textContent=pname;
-  document.getElementById('copy-new-name').value='';
-  document.getElementById('copy-modal').classList.add('show');
-  setTimeout(function(){document.getElementById('copy-new-name').focus();},50);
-}
-
-async function confirmerCopie(){
-  var newName=document.getElementById('copy-new-name').value.trim();
-  if(!newName)return;
-  document.getElementById('copy-modal').classList.remove('show');
-
-  // Créer le nouveau patient
-  var data={name:newName};
-  if(SESSION_UID)data.ortho_id=SESSION_UID;
-  var res=await sb('patients',{method:'POST',body:JSON.stringify(data)});
-  if(!res||!res[0])return;
-  var newPid=res[0].id;
-
-  // Charger les exercices du patient source
-  var exos=await sb('exercices?patient_id=eq.'+ST._copySourceId+'&order=position');
-  if(exos&&exos.length>0){
-    for(var i=0;i<exos.length;i++){
-      var e=exos[i];
-      var newExo={
-        patient_id:newPid,
-        name:e.name,
-        dose:e.dose,
-        how:e.how,
-        why:e.why,
-        color:e.color,
-        type:e.type,
-        reps:e.reps,
-        sounds:e.sounds,
-        chrono_type:e.chrono_type,
-        chrono_secs:e.chrono_secs,
-        xp:e.xp,
-        position:e.position,
-        image_url:e.image_url||''
-      };
-      await sb('exercices',{method:'POST',body:JSON.stringify(newExo)});
-    }
-  }
-
-  // Ouvrir directement l'éditeur du nouveau patient avec sous-titre
-  ST._copySourceName=ST._copySourceName;
-  alert('Profil copié ! Tu peux maintenant modifier les exercices de '+newName+'.');
-  await openEditor(newPid,newName,ST._copySourceName);
-  loadOrtho();
-}
-
-async function openEditor(pid,pname,sourceNote){
+async function openEditor(pid,pname){
   ST.editPid=pid;ST.editPname=pname;
   document.getElementById('edit-title').textContent=pname;
-  // Sous-titre si copie
-  var sub=document.getElementById('edit-subtitle');
-  if(sub){sub.textContent=sourceNote?'Exercices similaires à '+sourceNote:'';sub.style.display=sourceNote?'block':'none';}
   show('s-edit');
-  switchEditTab('myo');
   document.getElementById('edit-exos-list').innerHTML='<div class="loading">Chargement...</div>';
   var exos=await sb('exercices?patient_id=eq.'+pid+'&order=position');
   ST.editExos=(exos||[]).map(function(e){return Object.assign({},e,{_tmpImg:null});});
   renderEditors();
-  // Charger config lecture
-  var liste=await sb('lecture_listes?patient_id=eq.'+pid);
-  if(liste&&liste.length>0){
-    document.getElementById('edit-lect-nb').value=liste[0].mots_par_jour||5;
-    document.getElementById('edit-lect-mots').value=(liste[0].mots||[]).join('\n');
-    ST.lectureListeId=liste[0].id;
-  } else {
-    document.getElementById('edit-lect-nb').value=5;
-    document.getElementById('edit-lect-mots').value='';
-    ST.lectureListeId=null;
-  }
-  // Charger exos_par_jour
-  var pdata=await sb('patients?id=eq.'+pid+'&select=exos_par_jour');
-  document.getElementById('edit-exos-par-jour').value=pdata&&pdata[0]?pdata[0].exos_par_jour||3:3;
 }
 
 function renderEditors(){
@@ -1530,7 +622,6 @@ function renderEditors(){
 function renderEditor(exo,i,cb){
   var sounds=exo.sounds||[];
   var isSound=exo.type==='sounds';
-  var isChrono=exo.type==='chrono';
   var colorDots=COLORS.map(function(c){return '<div class="color-dot'+(exo.color===c?' selected':'')+'" style="background:'+c+'" onclick="setColor('+i+',\''+c+'\')"></div>';}).join('');
   var soundsHtml='';
   sounds.forEach(function(s,si){
@@ -1548,27 +639,17 @@ function renderEditor(exo,i,cb){
   html+='<div class="field-row-inline">';
   html+='<div class="field-row" style="margin:0"><label>Dose</label><input type="text" id="edose_'+i+'" value="'+esc(exo.dose||'')+'" placeholder="Ex : 10 fois" /></div>';
   html+='<div class="field-row" style="margin:0"><label>Type</label><select id="etype_'+i+'" onchange="toggleType('+i+')">';
-  html+='<option value="reps"'+(isSound||isChrono?'':' selected')+'>Répétitions</option>';
+  html+='<option value="reps"'+(isSound?'':' selected')+'>Répétitions</option>';
   html+='<option value="sounds"'+(isSound?' selected':'')+'>Sons groupés</option>';
-  html+='<option value="chrono"'+(isChrono?' selected':'')+'>Chronomètre</option>';
   html+='</select></div></div>';
-  html+='<div class="field-row" id="reps-field-'+i+'" style="'+(isSound||isChrono?'display:none':'')+'">';
+  html+='<div class="field-row" id="reps-field-'+i+'" style="'+(isSound?'display:none':'')+'">';
   html+='<label>Nombre de cercles</label><input type="number" id="ereps_'+i+'" min="1" max="20" value="'+(exo.reps||10)+'" /></div>';
-  html+='<div class="field-row" id="chrono-field-'+i+'" style="'+(isChrono?'':'display:none')+'">';
-  html+='<label>Type de chrono</label>';
-  html+='<select id="echronotype_'+i+'">';
-  html+='<option value="countdown"'+(exo.chrono_type==='countdown'?' selected':'')+'>Décompte (durée fixe)</option>';
-  html+='<option value="stopwatch"'+(exo.chrono_type==='stopwatch'?' selected':'')+'>Chrono libre (le plus longtemps)</option>';
-  html+='</select></div>';
-  html+='<div class="field-row" id="chrono-secs-field-'+i+'" style="'+(isChrono&&exo.chrono_type!=='stopwatch'?'':'display:none')+'">';
-  html+='<label>Durée (secondes)</label><input type="number" id="echronosecs_'+i+'" min="5" max="300" value="'+(exo.chrono_secs||30)+'" /></div>';
   html+='<div class="sounds-editor" id="sounds-editor-'+i+'" style="'+(isSound?'display:block':'')+'">';
   html+=soundsHtml;
   html+='<button class="add-sound-btn" onclick="addSound('+i+')">+ Ajouter un son</button></div>';
   html+='<div class="field-row"><label>Comment faire (consigne)</label><textarea id="ehow_'+i+'">'+esc(exo.how||'')+'</textarea></div>';
   html+='<div class="field-row"><label>Pourquoi (bénéfice)</label><textarea id="ewhy_'+i+'">'+esc(exo.why||'')+'</textarea></div>';
   html+='<div class="field-row"><label>Couleur</label><div class="color-row" id="color-row-'+i+'">'+colorDots+'</div></div>';
-  html+='<div class="field-row"><label>XP rapportés ⭐</label><input type="number" id="exp_'+i+'" min="1" max="100" value="'+(exo.xp||10)+'" /></div>';
   html+='<div class="field-row"><label>Image</label>';
   html+='<input type="file" accept="image/*" id="img-input-'+i+'" style="display:none" />';
   html+='<button class="img-upload-btn" onclick="document.getElementById(\'img-input-'+i+'\').click()">📷 Choisir une image</button>';
@@ -1588,11 +669,8 @@ function setColor(i,color){
 function toggleType(i){
   var val=document.getElementById('etype_'+i).value;
   ST.editExos[i].type=val;
-  document.getElementById('reps-field-'+i).style.display=(val==='reps')?'':'none';
-  document.getElementById('sounds-editor-'+i).style.display=(val==='sounds')?'block':'none';
-  document.getElementById('chrono-field-'+i).style.display=(val==='chrono')?'':'none';
-  var chronoType=document.getElementById('echronotype_'+i);
-  document.getElementById('chrono-secs-field-'+i).style.display=(val==='chrono'&&chronoType&&chronoType.value!=='stopwatch')?'':'none';
+  document.getElementById('reps-field-'+i).style.display=val==='sounds'?'none':'';
+  document.getElementById('sounds-editor-'+i).style.display=val==='sounds'?'block':'none';
 }
 
 function addSound(i){
@@ -1657,8 +735,6 @@ function collectExoData(i){
       si++;
     }
   }
-  var chronoTypeEl=document.getElementById('echronotype_'+i);
-  var chronoSecsEl=document.getElementById('echronosecs_'+i);
   return {
     name:document.getElementById('ename_'+i).value.trim(),
     dose:document.getElementById('edose_'+i).value.trim(),
@@ -1668,19 +744,18 @@ function collectExoData(i){
     type:type,
     reps:parseInt(document.getElementById('ereps_'+i).value)||10,
     sounds:sounds,
-    chrono_type:chronoTypeEl?chronoTypeEl.value:'countdown',
-    chrono_secs:chronoSecsEl?parseInt(chronoSecsEl.value)||30:30,
-    xp:parseInt(document.getElementById('exp_'+i).value)||10,
-    categorie:catParType(type),
     position:i,
     image_url:exo.image_url||''
   };
 }
 
-async function saveAllExos(silent){
+async function saveAllExos(){
+  var btn=document.querySelector('.save-bar button');
+  btn.textContent='Enregistrement...';btn.disabled=true;
   for(var i=0;i<ST.editExos.length;i++){
     var exo=ST.editExos[i];
     var data=collectExoData(i);
+    // Upload image si nouvelle
     if(exo._tmpImg){
       var path=ST.editPid+'/exo_'+i+'_'+Date.now();
       var url=await sbUpload(exo._tmpImg,path);
@@ -1694,10 +769,9 @@ async function saveAllExos(silent){
       await sb('exercices?id=eq.'+exo.id,{method:'PATCH',body:JSON.stringify(data)});
     }
   }
-  if(!silent){
-    alert('Programme enregistré !');
-    show('s-ortho');loadOrtho();
-  }
+  btn.textContent='Enregistrer le programme';btn.disabled=false;
+  alert('Programme enregistré !');
+  show('s-ortho');loadOrtho();
 }
 
 
@@ -1721,366 +795,6 @@ async function checkHash(){
   return false;
 }
 
-
-/* ── CHRONO ── */
-var CHRONO_INT={};
-
-async function loadChronoScores(exoId){
-  var scores=await sb('chrono_scores?patient_id=eq.'+ST.pid+'&exercice_id=eq.'+exoId+'&order=created_at.desc&limit=10&select=duree');
-  return scores?scores.map(function(s){return s.duree;}):[];
-}
-
-function formatSecs(s){return s>=60?(Math.floor(s/60)+'min '+(s%60)+'s'):s+'s';}
-
-async function showChronoScores(exoId,currentSecs){
-  var scores=await loadChronoScores(exoId);
-  if(!scores.length)return;
-  var best=Math.max.apply(null,scores);
-  var avg=Math.round(scores.reduce(function(a,b){return a+b;},0)/scores.length);
-  var el=document.getElementById('chrono-scores-'+exoId);
-  if(!el)return;
-  var html='<div class="chrono-scores-title">Tes scores</div>';
-  html+='<div class="chrono-scores-row">';
-  html+='<div class="chrono-score-box"><div class="chrono-score-val">'+formatSecs(best)+'</div><div class="chrono-score-lbl">record</div></div>';
-  html+='<div class="chrono-score-box"><div class="chrono-score-val">'+formatSecs(avg)+'</div><div class="chrono-score-lbl">moyenne</div></div>';
-  if(currentSecs!==null){
-    var isBest=currentSecs>=best;
-    html+='<div class="chrono-score-box"><div class="chrono-score-val" style="color:'+(isBest?'#D85A30':'#1D9E75')+'">'+formatSecs(currentSecs)+'</div><div class="chrono-score-lbl">'+(isBest?'🏆 record !':'ce soir')+'</div></div>';
-  }
-  html+='</div>';
-  el.innerHTML=html;
-  el.style.display='block';
-}
-
-async function startCountdown(exoId,totalSecs,color){
-  var btn=document.getElementById('cbtn_'+exoId);
-  var display=document.getElementById('cd_'+exoId);
-  if(!btn||!display)return;
-  btn.disabled=true;btn.textContent='En cours...';
-  btn.style.background='#888';
-  var remaining=totalSecs;
-  CHRONO_INT[exoId]=setInterval(async function(){
-    remaining--;
-    display.innerHTML=remaining+'<span class="chrono-unit">sec</span>';
-    if(remaining<=0){
-      clearInterval(CHRONO_INT[exoId]);
-      // Valider
-      await sb('chrono_scores',{method:'POST',body:JSON.stringify({patient_id:ST.pid,exercice_id:exoId,duree:totalSecs})});
-      ST.chronoDone[exoId]=true;
-      // Mettre à jour la carte
-      var section=document.getElementById('exo_'+exoId).querySelector('.reps-section');
-      if(section){
-        section.innerHTML='<div class="chrono-done-msg">✓ Bravo, '+totalSecs+' secondes tenues !</div>';
-        var scoresDiv=document.createElement('div');
-        scoresDiv.id='chrono-scores-'+exoId;
-        scoresDiv.className='chrono-scores';
-        section.appendChild(scoresDiv);
-        await showChronoScores(exoId,totalSecs);
-      }
-      // Marquer l'exercice comme done
-      var el=document.getElementById('exo_'+exoId);
-      if(el)el.classList.add('done');
-      updateProg();
-      var exo=ST.exos.find(function(e){return e.id===exoId;});
-      if(exo){
-        if(ST.autoEval){setTimeout(function(){showExoEval(exo);},400);}
-        else{ST.evalScores=ST.evalScores||{};ST.evalScores[exo.id]=0;if(ST.exos.every(function(e){return isExoDone(e);}))verifierBonusOuBravo();}
-      }
-    }
-  },1000);
-}
-
-async function startStopwatch(exoId,color){
-  var btn=document.getElementById('cbtn_'+exoId);
-  var display=document.getElementById('cd_'+exoId);
-  if(!btn||!display)return;
-  var elapsed=0;
-  btn.textContent='Arrêter';
-  btn.className='chrono-btn-stop';
-  btn.onclick=function(){stopStopwatch(exoId,elapsed);};
-  CHRONO_INT[exoId]=setInterval(function(){
-    elapsed++;
-    display.innerHTML=elapsed+'<span class="chrono-unit">sec</span>';
-  },1000);
-}
-
-async function stopStopwatch(exoId,elapsed){
-  clearInterval(CHRONO_INT[exoId]);
-  if(elapsed===0)return;
-  await sb('chrono_scores',{method:'POST',body:JSON.stringify({patient_id:ST.pid,exercice_id:exoId,duree:elapsed})});
-  ST.chronoDone[exoId]=true;
-  var section=document.getElementById('exo_'+exoId).querySelector('.reps-section');
-  if(section){
-    section.innerHTML='<div class="chrono-done-msg">✓ '+formatSecs(elapsed)+' tenus !</div>';
-    var scoresDiv=document.createElement('div');
-    scoresDiv.id='chrono-scores-'+exoId;
-    scoresDiv.className='chrono-scores';
-    section.appendChild(scoresDiv);
-    await showChronoScores(exoId,elapsed);
-  }
-  var el=document.getElementById('exo_'+exoId);
-  if(el)el.classList.add('done');
-  updateProg();
-  var exo=ST.exos.find(function(e){return e.id===exoId;});
-  if(exo){
-    if(ST.autoEval){setTimeout(function(){showExoEval(exo);},400);}
-    else{ST.evalScores=ST.evalScores||{};ST.evalScores[exo.id]=0;if(ST.exos.every(function(e){return isExoDone(e);}))verifierBonusOuBravo();}
-  }
-}
-
-/* ── BIBLIOTHÈQUE ── */
-var CATEGORIES=[
-  {id:'myofonctionnel',label:'Myofonctionnel',types:['reps','sounds','chrono']},
-  {id:'lecture',label:'Lecture',types:['lecture']},
-  {id:'ecriture',label:'Écriture',types:[]},
-  {id:'langage_oral',label:'Langage oral',types:[]},
-  {id:'autre',label:'Autre',types:[]}
-];
-
-var biblioCatActive='myofonctionnel';
-
-function catParType(type){
-  for(var i=0;i<CATEGORIES.length;i++){
-    if(CATEGORIES[i].types.indexOf(type)>=0)return CATEGORIES[i].id;
-  }
-  return 'autre';
-}
-
-async function showBibliotheque(){
-  show('s-biblio');
-  buildBiblioTabs();
-  await loadBiblioContent();
-}
-
-function buildBiblioTabs(){
-  var html='';
-  CATEGORIES.forEach(function(cat){
-    html+='<div class="biblio-tab'+(cat.id===biblioCatActive?' active':'')+'" onclick="switchBiblioTab(\''+cat.id+'\')">'+cat.label+'</div>';
-  });
-  document.getElementById('biblio-tabs').innerHTML=html;
-}
-
-async function switchEditTab(tab){
-  document.getElementById('tab-myo').classList.toggle('active',tab==='myo');
-  document.getElementById('tab-lecture').classList.toggle('active',tab==='lecture');
-  document.getElementById('tab-epell').classList.toggle('active',tab==='epell');
-  document.getElementById('edit-section-myo').style.display=tab==='myo'?'block':'none';
-  document.getElementById('edit-section-lecture').style.display=tab==='lecture'?'block':'none';
-  document.getElementById('edit-section-epell').style.display=tab==='epell'?'block':'none';
-  if(tab==='epell') openEpellConfig();
-}
-
-async function saveAllEdits(){
-  var btn=document.querySelector('.save-bar button');
-  btn.textContent='Enregistrement...';btn.disabled=true;
-
-  // Sauvegarder les exercices myo
-  await saveAllExos(true);
-
-  // Sauvegarder exos_par_jour
-  var exosParJour=parseInt(document.getElementById('edit-exos-par-jour').value)||3;
-  await sb('patients?id=eq.'+ST.editPid,{method:'PATCH',body:JSON.stringify({exos_par_jour:exosParJour})});
-
-  // Sauvegarder la config lecture
-  var nb=parseInt(document.getElementById('edit-lect-nb').value)||5;
-  var mots=document.getElementById('edit-lect-mots').value.split('\n').map(function(m){return m.trim();}).filter(function(m){return m;});
-  var data={patient_id:ST.editPid,mots:mots,mots_par_jour:nb};
-  if(SESSION_UID)data.ortho_id=SESSION_UID;
-  if(ST.lectureListeId){
-    await sb('lecture_listes?id=eq.'+ST.lectureListeId,{method:'PATCH',body:JSON.stringify({mots:mots,mots_par_jour:nb})});
-  } else if(mots.length>0){
-    await sb('lecture_listes',{method:'POST',body:JSON.stringify(data)});
-  }
-
-  // Sauvegarder la config épellation (si onglet ouvert)
-  if(document.getElementById('tab-epell').classList.contains('active')){
-    await saveEpellConfig();
-  }
-
-  btn.textContent='Enregistrer le programme';btn.disabled=false;
-  alert('Programme enregistré !');
-  show('s-ortho');loadOrtho();
-}
-
-async function switchBiblioTab(catId){
-  biblioCatActive=catId;
-  buildBiblioTabs();
-  await loadBiblioContent();
-}
-
-async function loadBiblioContent(){
-  document.getElementById('biblio-content').innerHTML='<div class="loading">Chargement...</div>';
-  // Charger tous les exercices de l'ortho connectée
-  var allPatients=await sb('patients?select=id,name&ortho_id=eq.'+SESSION_UID);
-  if(!allPatients||!allPatients.length){
-    document.getElementById('biblio-content').innerHTML='<div class="biblio-empty">Aucun exercice créé pour le moment.</div>';
-    return;
-  }
-  var pids=allPatients.map(function(p){return p.id;});
-  var pidMap={};
-  allPatients.forEach(function(p){pidMap[p.id]=p.name;});
-
-  // Charger tous les exercices de tous les patients
-  var allExos=[];
-  for(var i=0;i<pids.length;i++){
-    var exos=await sb('exercices?patient_id=eq.'+pids[i]+'&select=id,name,how,why,dose,type,color,categorie,patient_id,xp,image_url');
-    if(exos)allExos=allExos.concat(exos);
-  }
-
-  // Filtrer par catégorie active
-  var filtered=allExos.filter(function(e){
-    var cat=e.categorie||catParType(e.type);
-    return cat===biblioCatActive;
-  });
-
-  // Dédupliquer par nom (garder le premier de chaque nom)
-  var seen={};
-  var unique=[];
-  filtered.forEach(function(e){
-    var key=e.name.toLowerCase().trim();
-    if(!seen[key]){seen[key]=true;unique.push(e);}
-  });
-  unique.sort(function(a,b){return a.name.localeCompare(b.name);});
-
-  if(!unique.length){
-    document.getElementById('biblio-content').innerHTML='<div class="biblio-empty">Aucun exercice dans cette catégorie.</div>';
-    return;
-  }
-
-  var catOptions=CATEGORIES.map(function(c){return '<option value="'+c.id+'">'+ c.label+'</option>';}).join('');
-
-  var html='';
-  unique.forEach(function(exo){
-    var cat=exo.categorie||catParType(exo.type);
-    html+='<div class="biblio-exo">';
-    html+='<div class="biblio-exo-header">';
-    html+='<div>';
-    html+='<div class="biblio-exo-name"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+esc(exo.color||'#888')+';margin-right:6px;vertical-align:middle;"></span>'+esc(exo.name)+'</div>';
-    html+='<div class="biblio-exo-meta">'+esc(exo.dose||'')+(exo.xp?' · '+exo.xp+' XP':'')+'</div>';
-    html+='</div>';
-    html+='<select class="biblio-cat-select" onchange="changerCategorie(\''+exo.id+'\',this.value)">';
-    CATEGORIES.forEach(function(c){
-      html+='<option value="'+c.id+'"'+(c.id===cat?' selected':'')+'>'+c.label+'</option>';
-    });
-    html+='</select>';
-    html+='</div>';
-    html+='<div class="biblio-exo-how">'+esc(exo.how||'')+'</div>';
-    if(exo.image_url){html+='<img src="'+esc(exo.image_url)+'" style="width:100%;max-height:180px;object-fit:contain;background:#f5f4f0;border-radius:8px;margin-top:10px;" />';}
-    html+='</div>';
-  });
-  document.getElementById('biblio-content').innerHTML=html;
-}
-
-async function changerCategorie(exoId,newCat){
-  await sb('exercices?id=eq.'+exoId,{method:'PATCH',body:JSON.stringify({categorie:newCat})});
-  await loadBiblioContent();
-}
-
-function lancerBonus(){
-  if(!ST.exoBonus)return;
-  // Ajouter temporairement l'exo bonus à la liste et marquer comme bonus
-  ST.exoBonus._isBonus=true;
-  var bonusIndex=ST.exos.findIndex(function(exo){return exo.id===ST.exoBonus.id;});
-  if(bonusIndex<0){
-    ST.exos.push(ST.exoBonus);
-    bonusIndex=ST.exos.length-1;
-  }
-  document.getElementById('btn-bonus').style.display='none';
-  ST.exoIndex=bonusIndex;
-  showCurrentExo();
-}
-
-/* ── GAMIFICATION ── */
-var RANGS=[
-  {nom:'Débutant',emoji:'🪨',min:0,max:49},
-  {nom:'Bronze',emoji:'🥉',min:50,max:149},
-  {nom:'Argent',emoji:'🥈',min:150,max:299},
-  {nom:'Or',emoji:'🥇',min:300,max:499},
-  {nom:'Diamant',emoji:'💎',min:500,max:Infinity}
-];
-
-function getRang(xp){
-  for(var i=RANGS.length-1;i>=0;i--){if(xp>=RANGS[i].min)return i;}
-  return 0;
-}
-
-async function enregistrerXP(exo){
-  var xp=(exo.xp||10)+(exo._isBonus?5:0);
-  await sb('xp_log',{method:'POST',body:JSON.stringify({
-    patient_id:ST.pid,
-    exercice_id:exo.id,
-    exercice_name:exo.name+(exo._isBonus?' (bonus)':''),
-    xp:xp,
-    date_session:todayStr()
-  })});
-  if(exo._isBonus){
-    ST.bonusDone=true;
-    if(ST._dailySessionKey&&ST.dailySessions[ST._dailySessionKey]){
-      ST.dailySessions[ST._dailySessionKey].bonusDone=true;
-    }
-  }
-}
-
-async function showProfil(){
-  show('s-profil');
-  document.getElementById('profil-name').textContent=ST.pname;
-  document.getElementById('profil-content').innerHTML='<div class="loading">Chargement...</div>';
-
-  // Charger XP total
-  var xpLog=await sb('xp_log?patient_id=eq.'+ST.pid+'&select=xp,date_session');
-  var totalXP=xpLog?xpLog.reduce(function(s,r){return s+r.xp;},0):0;
-
-  // Calculer flammes (jours consécutifs via la table suivi)
-  var streak=calcStreak(ST.days);
-
-  // Rang actuel
-  var rangIdx=getRang(totalXP);
-  var rang=RANGS[rangIdx];
-  var nextRang=RANGS[rangIdx+1];
-  var xpDansRang=totalXP-rang.min;
-  var xpPourNext=nextRang?nextRang.min-rang.min:1;
-  var pct=nextRang?Math.min(Math.round(xpDansRang/xpPourNext*100),100):100;
-
-  var html='';
-  // Rang
-  html+='<div class="profil-rang">';
-  html+='<span class="profil-rang-emoji">'+rang.emoji+'</span>';
-  html+='<div class="profil-rang-nom">'+rang.nom+'</div>';
-  html+='<div class="profil-rang-xp">'+totalXP+' XP au total</div>';
-  html+='</div>';
-  // Barre progression
-  html+='<div class="profil-xp-bar"><div class="profil-xp-fill" style="width:'+pct+'%"></div></div>';
-  if(nextRang){
-    html+='<div style="font-size:11px;color:#9b9b96;text-align:center;margin-bottom:20px;">'+xpDansRang+' / '+xpPourNext+' XP pour atteindre '+nextRang.nom+' '+nextRang.emoji+'</div>';
-  } else {
-    html+='<div style="font-size:11px;color:#1D9E75;text-align:center;margin-bottom:20px;">Rang maximum atteint ! 🎉</div>';
-  }
-
-  // Stats
-  html+='<div class="profil-stats">';
-  html+='<div class="profil-stat"><div class="profil-stat-val">'+totalXP+'</div><div class="profil-stat-lbl">XP total</div></div>';
-  html+='<div class="profil-stat"><div class="profil-stat-val">🔥'+streak+'</div><div class="profil-stat-lbl">jours de suite</div></div>';
-  html+='<div class="profil-stat"><div class="profil-stat-val">'+ST.days.length+'</div><div class="profil-stat-lbl">jours total</div></div>';
-  html+='</div>';
-
-  // Tous les rangs
-  html+='<div class="profil-rangs">';
-  RANGS.forEach(function(r,idx){
-    var atteint=totalXP>=r.min;
-    var current=idx===rangIdx;
-    html+='<div class="profil-rang-row'+(current?' current':'')+'" style="opacity:'+(atteint?'1':'0.4')+'">';
-    html+='<div class="profil-rang-row-emoji">'+r.emoji+'</div>';
-    html+='<div class="profil-rang-row-info">';
-    html+='<div class="profil-rang-row-name">'+r.nom+(current?' ← tu es ici':'')+'</div>';
-    html+='<div class="profil-rang-row-req">'+(r.min===0?'Départ':r.min+' XP')+(idx<RANGS.length-1?' → '+r.max+' XP':'')+'</div>';
-    html+='</div>';
-    if(atteint)html+='<div class="profil-rang-row-check">✓</div>';
-    html+='</div>';
-  });
-  html+='</div>';
-
-  document.getElementById('profil-content').innerHTML=html;
-}
 
 /* ── LECTURE ── */
 var LECT={pid:null,pname:'',mots:[],motsDuJour:[],idx:0,scores:[],imgVisible:false};
@@ -2106,40 +820,6 @@ async function showLecture(){
   var cfg=liste[0];
   var nb=cfg.mots_par_jour||5;
   var tousLesMots=cfg.mots.filter(function(m){return m.trim();});
-
-  // Calculer les stats par mot pour le tirage pondéré
-  var allSessions=await sb('lecture_sessions?patient_id=eq.'+ST.pid+'&completed=eq.true&select=mots,scores');
-  var statsParMot={};
-  tousLesMots.forEach(function(m){statsParMot[m]={ok:0,total:0};});
-  if(allSessions){
-    allSessions.forEach(function(session){
-      var mots=session.mots||[],scores=session.scores||[];
-      mots.forEach(function(mot,i){
-        if(statsParMot[mot]!==undefined){
-          statsParMot[mot].total++;
-          if(scores[i]==='ok')statsParMot[mot].ok++;
-        }
-      });
-    });
-  }
-
-  // Tirage pondéré : acquis(>=80%) → poids 1, en cours(40-79%) → poids 3, difficile(<40%) → poids 5, jamais vu → poids 4
-  var pool=[];
-  tousLesMots.forEach(function(mot){
-    var s=statsParMot[mot];
-    var poids;
-    if(!s||s.total===0)poids=4;
-    else{var pct=s.ok/s.total;if(pct>=0.8)poids=1;else if(pct>=0.4)poids=3;else poids=5;}
-    for(var w=0;w<poids;w++)pool.push(mot);
-  });
-  pool=shuffle(pool);
-  // Dédupliquer en gardant l'ordre
-  var motsDuJour=[];
-  for(var i=0;i<pool.length&&motsDuJour.length<nb;i++){
-    if(motsDuJour.indexOf(pool[i])<0)motsDuJour.push(pool[i]);
-  }
-  // Compléter si pas assez
-  tousLesMots.forEach(function(m){if(motsDuJour.length<nb&&motsDuJour.indexOf(m)<0)motsDuJour.push(m);});
   // Vérifier si session du jour existe déjà
   var today=todayStr();
   var sessions=await sb('lecture_sessions?patient_id=eq.'+ST.pid+'&date_session=eq.'+today);
@@ -2157,8 +837,8 @@ async function showLecture(){
     LECT.scores=sessions[0].scores||[];
     LECT.sessionId=sessions[0].id;
   } else {
-    // Nouvelle session avec tirage pondéré
-    LECT.motsDuJour=motsDuJour;
+    // Nouvelle session
+    LECT.motsDuJour=shuffle(tousLesMots).slice(0,nb);
     LECT.scores=[];
     var res=await sb('lecture_sessions',{method:'POST',body:JSON.stringify({patient_id:ST.pid,date_session:today,mots:LECT.motsDuJour,scores:[]})});
     LECT.sessionId=res&&res[0]?res[0].id:null;
@@ -2214,14 +894,12 @@ async function evaluer(score){
 }
 
 function showScoreFinal(bons,total,dejaFait){
+  buildLectProgress();
   var html='<div class="lect-card"><div class="lect-score-final">';
-  html+='<div style="font-size:48px;margin-bottom:16px;">🏆</div>';
-  html+='<div class="lect-score-num">Bravo '+esc(LECT.pname)+' !</div>';
-  html+='<div class="lect-score-label">Finis pour aujourd\'hui,<br>reviens demain !</div>';
-  if(ST.exos&&ST.exos.length>0){
-    html+='<button class="lect-btn-retour" onclick="goExos()">Retour aux exercices</button>';
-  }
-  html+='<button class="lect-btn-retour" style="background:#378ADD;margin-top:8px;" onclick="showSuivi()">📅 Voir mon suivi</button>';
+  html+='<div style="font-size:40px;margin-bottom:12px;">'+(bons===total?'🌟':'👍')+'</div>';
+  html+='<div class="lect-score-num">'+bons+' / '+total+'</div>';
+  html+='<div class="lect-score-label">'+(dejaFait?'Déjà fait aujourd\'hui !':'mots lus correctement')+'</div>';
+  html+='<button class="lect-btn-retour" onclick="goExos()">Retour aux exercices</button>';
   html+='</div></div>';
   document.getElementById('lect-card').innerHTML=html;
 }
@@ -2254,7 +932,6 @@ async function saveLectureConfig(){
   var nb=parseInt(document.getElementById('lect-nb').value)||5;
   var mots=document.getElementById('lect-mots').value.split('\n').map(function(m){return m.trim();}).filter(function(m){return m;});
   var data={patient_id:ST.editPid,mots:mots,mots_par_jour:nb};
-  if(SESSION_UID)data.ortho_id=SESSION_UID;
   if(ST.lectureListeId){
     await sb('lecture_listes?id=eq.'+ST.lectureListeId,{method:'PATCH',body:JSON.stringify({mots:mots,mots_par_jour:nb})});
   } else {
@@ -2309,447 +986,8 @@ async function checkHash(){
 
 /* ── INIT ── */
 (async function(){
-  // Détecter un token de recovery dans l'URL
-  var hash=location.hash;
-  if(hash.includes('type=recovery')&&hash.includes('access_token')){
-    var token=hash.match(/access_token=([^&]+)/);
-    if(token){
-      SESSION_TOKEN=token[1];
-      show('s-reset');
-      return;
-    }
-  }
   var handled=await checkHash();
-  if(!handled)show('s-profiles');
+  if(!handled)loadProfiles();
 })();
-
-
-/* ═══════════════════════════════════════════
-   BANQUE DE MOTS — 502 mots imageables
-═══════════════════════════════════════════ */
-var BANQUE_MOTS = [
-  // ANIMAUX
-  {mot:"chat",cat:"animaux"},{mot:"chien",cat:"animaux"},{mot:"vache",cat:"animaux"},
-  {mot:"poule",cat:"animaux"},{mot:"lapin",cat:"animaux"},{mot:"canard",cat:"animaux"},
-  {mot:"cochon",cat:"animaux"},{mot:"mouton",cat:"animaux"},{mot:"cheval",cat:"animaux"},
-  {mot:"lion",cat:"animaux"},{mot:"tigre",cat:"animaux"},{mot:"singe",cat:"animaux"},
-  {mot:"loup",cat:"animaux"},{mot:"renard",cat:"animaux"},{mot:"ours",cat:"animaux"},
-  {mot:"cerf",cat:"animaux"},{mot:"daim",cat:"animaux"},{mot:"sanglier",cat:"animaux"},
-  {mot:"hibou",cat:"animaux"},{mot:"aigle",cat:"animaux"},{mot:"perroquet",cat:"animaux"},
-  {mot:"tortue",cat:"animaux"},{mot:"serpent",cat:"animaux"},{mot:"grenouille",cat:"animaux"},
-  {mot:"poisson",cat:"animaux"},{mot:"baleine",cat:"animaux"},{mot:"dauphin",cat:"animaux"},
-  {mot:"requin",cat:"animaux"},{mot:"crabe",cat:"animaux"},{mot:"escargot",cat:"animaux"},
-  {mot:"abeille",cat:"animaux"},{mot:"papillon",cat:"animaux"},{mot:"fourmi",cat:"animaux"},
-  {mot:"araignée",cat:"animaux"},{mot:"mouche",cat:"animaux"},{mot:"moustique",cat:"animaux"},
-  {mot:"girafe",cat:"animaux"},{mot:"éléphant",cat:"animaux"},{mot:"zèbre",cat:"animaux"},
-  {mot:"rhinocéros",cat:"animaux"},{mot:"hippopotame",cat:"animaux"},{mot:"crocodile",cat:"animaux"},
-  {mot:"pingouin",cat:"animaux"},{mot:"flamant",cat:"animaux"},{mot:"perche",cat:"animaux"},
-
-  // CORPS
-  {mot:"main",cat:"corps"},{mot:"pied",cat:"corps"},{mot:"bras",cat:"corps"},
-  {mot:"jambe",cat:"corps"},{mot:"tête",cat:"corps"},{mot:"nez",cat:"corps"},
-  {mot:"bouche",cat:"corps"},{mot:"dent",cat:"corps"},{mot:"langue",cat:"corps"},
-  {mot:"oreille",cat:"corps"},{mot:"oeil",cat:"corps"},{mot:"dos",cat:"corps"},
-  {mot:"ventre",cat:"corps"},{mot:"genou",cat:"corps"},{mot:"coude",cat:"corps"},
-  {mot:"ongle",cat:"corps"},{mot:"doigt",cat:"corps"},{mot:"pouce",cat:"corps"},
-  {mot:"joue",cat:"corps"},{mot:"front",cat:"corps"},{mot:"menton",cat:"corps"},
-  {mot:"cou",cat:"corps"},{mot:"épaule",cat:"corps"},{mot:"poitrine",cat:"corps"},
-
-  // NOURRITURE
-  {mot:"pain",cat:"nourriture"},{mot:"lait",cat:"nourriture"},{mot:"oeuf",cat:"nourriture"},
-  {mot:"fromage",cat:"nourriture"},{mot:"beurre",cat:"nourriture"},{mot:"yaourt",cat:"nourriture"},
-  {mot:"pomme",cat:"nourriture"},{mot:"banane",cat:"nourriture"},{mot:"orange",cat:"nourriture"},
-  {mot:"fraise",cat:"nourriture"},{mot:"raisin",cat:"nourriture"},{mot:"cerise",cat:"nourriture"},
-  {mot:"citron",cat:"nourriture"},{mot:"poire",cat:"nourriture"},{mot:"melon",cat:"nourriture"},
-  {mot:"carotte",cat:"nourriture"},{mot:"tomate",cat:"nourriture"},{mot:"salade",cat:"nourriture"},
-  {mot:"patate",cat:"nourriture"},{mot:"haricot",cat:"nourriture"},{mot:"maïs",cat:"nourriture"},
-  {mot:"riz",cat:"nourriture"},{mot:"pâtes",cat:"nourriture"},{mot:"soupe",cat:"nourriture"},
-  {mot:"pizza",cat:"nourriture"},{mot:"gâteau",cat:"nourriture"},{mot:"biscuit",cat:"nourriture"},
-  {mot:"bonbon",cat:"nourriture"},{mot:"chocolat",cat:"nourriture"},{mot:"glace",cat:"nourriture"},
-  {mot:"sucre",cat:"nourriture"},{mot:"sel",cat:"nourriture"},{mot:"viande",cat:"nourriture"},
-  {mot:"poulet",cat:"nourriture"},{mot:"poisson",cat:"nourriture"},{mot:"jambon",cat:"nourriture"},
-  {mot:"eau",cat:"nourriture"},{mot:"jus",cat:"nourriture"},{mot:"café",cat:"nourriture"},
-  {mot:"thé",cat:"nourriture"},{mot:"limonade",cat:"nourriture"},{mot:"sirop",cat:"nourriture"},
-
-  // VÊTEMENTS
-  {mot:"pantalon",cat:"vêtements"},{mot:"chemise",cat:"vêtements"},{mot:"robe",cat:"vêtements"},
-  {mot:"jupe",cat:"vêtements"},{mot:"pull",cat:"vêtements"},{mot:"manteau",cat:"vêtements"},
-  {mot:"veste",cat:"vêtements"},{mot:"chaussure",cat:"vêtements"},{mot:"botte",cat:"vêtements"},
-  {mot:"sandале",cat:"vêtements"},{mot:"chaussette",cat:"vêtements"},{mot:"collant",cat:"vêtements"},
-  {mot:"slip",cat:"vêtements"},{mot:"pyjama",cat:"vêtements"},{mot:"écharpe",cat:"vêtements"},
-  {mot:"gant",cat:"vêtements"},{mot:"chapeau",cat:"vêtements"},{mot:"casquette",cat:"vêtements"},
-  {mot:"lunette",cat:"vêtements"},{mot:"ceinture",cat:"vêtements"},{mot:"sac",cat:"vêtements"},
-
-  // MAISON
-  {mot:"lit",cat:"maison"},{mot:"table",cat:"maison"},{mot:"chaise",cat:"maison"},
-  {mot:"canapé",cat:"maison"},{mot:"armoire",cat:"maison"},{mot:"tiroir",cat:"maison"},
-  {mot:"porte",cat:"maison"},{mot:"fenêtre",cat:"maison"},{mot:"mur",cat:"maison"},
-  {mot:"sol",cat:"maison"},{mot:"lampe",cat:"maison"},{mot:"rideau",cat:"maison"},
-  {mot:"tapis",cat:"maison"},{mot:"miroir",cat:"maison"},{mot:"horloge",cat:"maison"},
-  {mot:"télé",cat:"maison"},{mot:"radio",cat:"maison"},{mot:"téléphone",cat:"maison"},
-  {mot:"ordinateur",cat:"maison"},{mot:"clé",cat:"maison"},{mot:"brosse",cat:"maison"},
-  {mot:"savon",cat:"maison"},{mot:"serviette",cat:"maison"},{mot:"peigne",cat:"maison"},
-  {mot:"assiette",cat:"maison"},{mot:"verre",cat:"maison"},{mot:"fourchette",cat:"maison"},
-  {mot:"couteau",cat:"maison"},{mot:"cuillère",cat:"maison"},{mot:"casserole",cat:"maison"},
-  {mot:"poêle",cat:"maison"},{mot:"four",cat:"maison"},{mot:"frigo",cat:"maison"},
-
-  // ÉCOLE / BUREAU
-  {mot:"stylo",cat:"école"},{mot:"crayon",cat:"école"},{mot:"feuille",cat:"école"},
-  {mot:"livre",cat:"école"},{mot:"cahier",cat:"école"},{mot:"classeur",cat:"école"},
-  {mot:"trousse",cat:"école"},{mot:"règle",cat:"école"},{mot:"gomme",cat:"école"},
-  {mot:"ciseaux",cat:"école"},{mot:"colle",cat:"école"},{mot:"peinture",cat:"école"},
-  {mot:"craie",cat:"école"},{mot:"tableau",cat:"école"},{mot:"bureau",cat:"école"},
-  {mot:"sac",cat:"école"},{mot:"cartable",cat:"école"},{mot:"agenda",cat:"école"},
-  {mot:"stylo-feutre",cat:"école"},{mot:"compas",cat:"école"},{mot:"rapporteur",cat:"école"},
-  {mot:"calculette",cat:"école"},{mot:"dictionnaire",cat:"école"},{mot:"atlas",cat:"école"},
-
-  // TRANSPORTS
-  {mot:"voiture",cat:"transports"},{mot:"bus",cat:"transports"},{mot:"train",cat:"transports"},
-  {mot:"vélo",cat:"transports"},{mot:"moto",cat:"transports"},{mot:"avion",cat:"transports"},
-  {mot:"bateau",cat:"transports"},{mot:"camion",cat:"transports"},{mot:"ambulance",cat:"transports"},
-  {mot:"pompier",cat:"transports"},{mot:"taxi",cat:"transports"},{mot:"métro",cat:"transports"},
-  {mot:"trottinette",cat:"transports"},{mot:"tracteur",cat:"transports"},{mot:"hélicoptère",cat:"transports"},
-  {mot:"fusée",cat:"transports"},{mot:"submarine",cat:"transports"},{mot:"kayak",cat:"transports"},
-  {mot:"téléphérique",cat:"transports"},{mot:"montgolfière",cat:"transports"},
-
-  // NATURE
-  {mot:"soleil",cat:"nature"},{mot:"lune",cat:"nature"},{mot:"étoile",cat:"nature"},
-  {mot:"nuage",cat:"nature"},{mot:"pluie",cat:"nature"},{mot:"neige",cat:"nature"},
-  {mot:"vent",cat:"nature"},{mot:"arc-en-ciel",cat:"nature"},{mot:"éclair",cat:"nature"},
-  {mot:"arbre",cat:"nature"},{mot:"fleur",cat:"nature"},{mot:"feuille",cat:"nature"},
-  {mot:"herbe",cat:"nature"},{mot:"champignon",cat:"nature"},{mot:"forêt",cat:"nature"},
-  {mot:"montagne",cat:"nature"},{mot:"mer",cat:"nature"},{mot:"rivière",cat:"nature"},
-  {mot:"plage",cat:"nature"},{mot:"sable",cat:"nature"},{mot:"rocher",cat:"nature"},
-  {mot:"volcan",cat:"nature"},{mot:"désert",cat:"nature"},{mot:"prairie",cat:"nature"},
-
-  // JEUX / SPORT
-  {mot:"ballon",cat:"sport"},{mot:"vélo",cat:"sport"},{mot:"piscine",cat:"sport"},
-  {mot:"foot",cat:"sport"},{mot:"tennis",cat:"sport"},{mot:"natation",cat:"sport"},
-  {mot:"course",cat:"sport"},{mot:"saut",cat:"sport"},{mot:"danse",cat:"sport"},
-  {mot:"gym",cat:"sport"},{mot:"ski",cat:"sport"},{mot:"basket",cat:"sport"},
-  {mot:"rugby",cat:"sport"},{mot:"boxe",cat:"sport"},{mot:"yoga",cat:"sport"},
-  {mot:"escalade",cat:"sport"},{mot:"randonnée",cat:"sport"},{mot:"équitation",cat:"sport"},
-  {mot:"poupée",cat:"jeux"},{mot:"voiture",cat:"jeux"},{mot:"puzzle",cat:"jeux"},
-  {mot:"dés",cat:"jeux"},{mot:"carte",cat:"jeux"},{mot:"balançoire",cat:"jeux"},
-  {mot:"toboggan",cat:"jeux"},{mot:"balle",cat:"jeux"},{mot:"cerf-volant",cat:"jeux"},
-  {mot:"peinture",cat:"jeux"},{mot:"dessin",cat:"jeux"},{mot:"musique",cat:"jeux"},
-  {mot:"lego",cat:"jeux"},{mot:"marionnette",cat:"jeux"},{mot:"peluche",cat:"jeux"},
-  {mot:"jeu",cat:"jeux"},{mot:"jouet",cat:"jeux"},
-
-  // LIEUX
-  {mot:"maison",cat:"lieux"},{mot:"école",cat:"lieux"},{mot:"hôpital",cat:"lieux"},
-  {mot:"magasin",cat:"lieux"},{mot:"parc",cat:"lieux"},{mot:"jardin",cat:"lieux"},
-  {mot:"piscine",cat:"lieux"},{mot:"cinéma",cat:"lieux"},{mot:"restaurant",cat:"lieux"},
-  {mot:"boulangerie",cat:"lieux"},{mot:"pharmacie",cat:"lieux"},{mot:"bibliothèque",cat:"lieux"},
-  {mot:"église",cat:"lieux"},{mot:"château",cat:"lieux"},{mot:"musée",cat:"lieux"},
-  {mot:"gare",cat:"lieux"},{mot:"aéroport",cat:"lieux"},{mot:"marché",cat:"lieux"},
-
-  // PERSONNES / FAMILLE
-  {mot:"maman",cat:"famille"},{mot:"papa",cat:"famille"},{mot:"bébé",cat:"famille"},
-  {mot:"enfant",cat:"famille"},{mot:"fille",cat:"famille"},{mot:"garçon",cat:"famille"},
-  {mot:"frère",cat:"famille"},{mot:"soeur",cat:"famille"},{mot:"papy",cat:"famille"},
-  {mot:"mamie",cat:"famille"},{mot:"oncle",cat:"famille"},{mot:"ami",cat:"famille"},
-  {mot:"médecin",cat:"famille"},{mot:"infirmier",cat:"famille"},{mot:"policier",cat:"famille"},
-  {mot:"pompier",cat:"famille"},{mot:"boulanger",cat:"famille"},{mot:"maître",cat:"famille"},
-
-  // ACTIONS
-  {mot:"manger",cat:"actions"},{mot:"boire",cat:"actions"},{mot:"dormir",cat:"actions"},
-  {mot:"courir",cat:"actions"},{mot:"sauter",cat:"actions"},{mot:"nager",cat:"actions"},
-  {mot:"lire",cat:"actions"},{mot:"écrire",cat:"actions"},{mot:"dessiner",cat:"actions"},
-  {mot:"chanter",cat:"actions"},{mot:"danser",cat:"actions"},{mot:"jouer",cat:"actions"},
-  {mot:"tomber",cat:"actions"},{mot:"pousser",cat:"actions"},{mot:"tirer",cat:"actions"},
-  {mot:"ouvrir",cat:"actions"},{mot:"fermer",cat:"actions"},{mot:"laver",cat:"actions"},
-  {mot:"donner",cat:"actions"},{mot:"prendre",cat:"actions"},{mot:"mettre",cat:"actions"},
-  {mot:"regarder",cat:"actions"},{mot:"écouter",cat:"actions"},{mot:"parler",cat:"actions"},
-  {mot:"rire",cat:"actions"},{mot:"pleurer",cat:"actions"},{mot:"crier",cat:"actions"},
-
-  // COULEURS
-  {mot:"rouge",cat:"couleurs"},{mot:"bleu",cat:"couleurs"},{mot:"vert",cat:"couleurs"},
-  {mot:"jaune",cat:"couleurs"},{mot:"orange",cat:"couleurs"},{mot:"violet",cat:"couleurs"},
-  {mot:"rose",cat:"couleurs"},{mot:"blanc",cat:"couleurs"},{mot:"noir",cat:"couleurs"},
-  {mot:"gris",cat:"couleurs"},{mot:"marron",cat:"couleurs"},{mot:"beige",cat:"couleurs"},
-  {mot:"turquoise",cat:"couleurs"},{mot:"doré",cat:"couleurs"},{mot:"argenté",cat:"couleurs"},
-
-  // FORMES / TAILLES
-  {mot:"rond",cat:"formes"},{mot:"carré",cat:"formes"},{mot:"triangle",cat:"formes"},
-  {mot:"étoile",cat:"formes"},{mot:"coeur",cat:"formes"},{mot:"grand",cat:"formes"},
-  {mot:"petit",cat:"formes"},{mot:"long",cat:"formes"},{mot:"court",cat:"formes"},
-  {mot:"rectangle",cat:"formes"},{mot:"cercle",cat:"formes"},{mot:"ovale",cat:"formes"},
-  {mot:"losange",cat:"formes"},{mot:"large",cat:"formes"},{mot:"étroit",cat:"formes"},
-  {mot:"épais",cat:"formes"},{mot:"mince",cat:"formes"},
-
-  // ÉMOTIONS
-  {mot:"content",cat:"émotions"},{mot:"triste",cat:"émotions"},{mot:"peur",cat:"émotions"},
-  {mot:"colère",cat:"émotions"},{mot:"amour",cat:"émotions"},{mot:"surprise",cat:"émotions"},
-  {mot:"fatigué",cat:"émotions"},{mot:"faim",cat:"émotions"},{mot:"soif",cat:"émotions"},
-  {mot:"mal",cat:"émotions"},{mot:"bien",cat:"émotions"},{mot:"chaud",cat:"émotions"},
-  {mot:"froid",cat:"émotions"},{mot:"heureux",cat:"émotions"},{mot:"calme",cat:"émotions"},
-  {mot:"inquiet",cat:"émotions"},{mot:"jaloux",cat:"émotions"},{mot:"fier",cat:"émotions"},
-  {mot:"honte",cat:"émotions"},{mot:"ennui",cat:"émotions"},
-
-  // OBJETS DU QUOTIDIEN
-  {mot:"ballon",cat:"objets"},{mot:"bougie",cat:"objets"},{mot:"montre",cat:"objets"},
-  {mot:"parapluie",cat:"objets"},{mot:"valise",cat:"objets"},{mot:"cadeau",cat:"objets"},
-  {mot:"photo",cat:"objets"},{mot:"lettre",cat:"objets"},{mot:"journal",cat:"objets"},
-  {mot:"argent",cat:"objets"},{mot:"pièce",cat:"objets"},{mot:"billet",cat:"objets"},
-  {mot:"médaille",cat:"objets"},{mot:"trophée",cat:"objets"},{mot:"drapeau",cat:"objets"},
-  {mot:"balai",cat:"objets"},{mot:"aspirateur",cat:"objets"},{mot:"marteau",cat:"objets"},
-  {mot:"clou",cat:"objets"},{mot:"vis",cat:"objets"},{mot:"échelle",cat:"objets"},
-  {mot:"seau",cat:"objets"},{mot:"arrosoir",cat:"objets"},{mot:"râteau",cat:"objets"},
-  {mot:"pelle",cat:"objets"},{mot:"loupe",cat:"objets"},{mot:"lampe",cat:"objets"},
-  {mot:"bouteille",cat:"objets"},{mot:"boîte",cat:"objets"},{mot:"sachet",cat:"objets"},
-
-  // INSTRUMENTS DE MUSIQUE
-  {mot:"guitare",cat:"musique"},{mot:"piano",cat:"musique"},{mot:"violon",cat:"musique"},
-  {mot:"flûte",cat:"musique"},{mot:"tambour",cat:"musique"},{mot:"trompette",cat:"musique"},
-  {mot:"accordéon",cat:"musique"},{mot:"harpe",cat:"musique"},{mot:"saxophone",cat:"musique"},
-  {mot:"batterie",cat:"musique"},{mot:"clavier",cat:"musique"},{mot:"basse",cat:"musique"},
-  {mot:"ukulélé",cat:"musique"},{mot:"maracas",cat:"musique"},{mot:"xylophone",cat:"musique"},
-  {mot:"cor",cat:"musique"},{mot:"orgue",cat:"musique"},
-
-  // ALIMENTATION (compléments)
-  {mot:"ananas",cat:"nourriture"},{mot:"mangue",cat:"nourriture"},{mot:"kiwi",cat:"nourriture"},
-  {mot:"pastèque",cat:"nourriture"},{mot:"avocat",cat:"nourriture"},{mot:"brocoli",cat:"nourriture"},
-  {mot:"poireau",cat:"nourriture"},{mot:"concombre",cat:"nourriture"},{mot:"courgette",cat:"nourriture"},
-  {mot:"radis",cat:"nourriture"},{mot:"ail",cat:"nourriture"},{mot:"oignon",cat:"nourriture"},
-  {mot:"épinard",cat:"nourriture"},{mot:"lentille",cat:"nourriture"},{mot:"pois",cat:"nourriture"},
-  {mot:"chips",cat:"nourriture"},{mot:"crêpe",cat:"nourriture"},{mot:"tarte",cat:"nourriture"},
-  {mot:"confiture",cat:"nourriture"},{mot:"miel",cat:"nourriture"},
-
-  // MÉTIERS
-  {mot:"docteur",cat:"métiers"},{mot:"infirmière",cat:"métiers"},{mot:"cuisinier",cat:"métiers"},
-  {mot:"professeur",cat:"métiers"},{mot:"facteur",cat:"métiers"},{mot:"coiffeur",cat:"métiers"},
-  {mot:"dentiste",cat:"métiers"},{mot:"vétérinaire",cat:"métiers"},{mot:"pompier",cat:"métiers"},
-  {mot:"policier",cat:"métiers"},{mot:"jardinier",cat:"métiers"},{mot:"électricien",cat:"métiers"},
-  {mot:"peintre",cat:"métiers"},{mot:"acteur",cat:"métiers"},{mot:"chanteur",cat:"métiers"},
-  {mot:"boulanger",cat:"métiers"},{mot:"boucher",cat:"métiers"},{mot:"architecte",cat:"métiers"},
-  {mot:"plombier",cat:"métiers"},{mot:"pilote",cat:"métiers"},{mot:"astronaute",cat:"métiers"},
-  {mot:"sportif",cat:"métiers"},{mot:"musicien",cat:"métiers"},{mot:"écrivain",cat:"métiers"},
-  {mot:"scientifique",cat:"métiers"},
-
-  // TEMPS / QUANTITÉS
-  {mot:"matin",cat:"temps"},{mot:"soir",cat:"temps"},{mot:"nuit",cat:"temps"},
-  {mot:"midi",cat:"temps"},{mot:"hier",cat:"temps"},{mot:"demain",cat:"temps"},
-  {mot:"lundi",cat:"temps"},{mot:"vendredi",cat:"temps"},{mot:"janvier",cat:"temps"},
-  {mot:"été",cat:"temps"},{mot:"hiver",cat:"temps"},{mot:"printemps",cat:"temps"},
-  {mot:"automne",cat:"temps"},{mot:"semaine",cat:"temps"},{mot:"mois",cat:"temps"},
-  {mot:"un",cat:"temps"},{mot:"deux",cat:"temps"},{mot:"beaucoup",cat:"temps"},
-  {mot:"peu",cat:"temps"},{mot:"vite",cat:"temps"},{mot:"tôt",cat:"temps"},
-  {mot:"tard",cat:"temps"},{mot:"toujours",cat:"temps"},{mot:"jamais",cat:"temps"},
-  {mot:"maintenant",cat:"temps"},{mot:"après",cat:"temps"},{mot:"avant",cat:"temps"},
-];
-
-/* ═══════════════════════════════════════════
-   ÉPELLATION — état & fonctions
-═══════════════════════════════════════════ */
-var EPELL = {
-  motsDuJour: [], idx: 0, motTape: '', motCourant: '',
-  score: 0, xpSession: 0,
-};
-
-function getBanqueCategories(){
-  var cats = {};
-  BANQUE_MOTS.forEach(function(m){ cats[m.cat] = true; });
-  return Object.keys(cats).sort();
-}
-
-async function openEpellConfig(){
-  var cfg = await sb('epell_config?patient_id=eq.'+ST.editPid);
-  ST.epellConfig = (cfg && cfg.length > 0) ? cfg[0] : null;
-  var selectedMots = ST.epellConfig ? (ST.epellConfig.mots || []) : [];
-  var nb = ST.epellConfig ? (ST.epellConfig.mots_par_session || 5) : 5;
-  document.getElementById('edit-epell-nb').value = nb;
-  EPELL.catFilter = null;
-
-  var cats = getBanqueCategories();
-  var catHtml = '<button onclick="filterEpellBank(null)" id="epell-cat-all" style="font-size:11px;padding:4px 10px;border-radius:12px;border:1.5px solid #1D9E75;background:#1D9E75;color:#fff;cursor:pointer;">Toutes</button>';
-  cats.forEach(function(c){
-    catHtml += '<button onclick="filterEpellBank(\''+c+'\')" id="epell-cat-'+c+'" style="font-size:11px;padding:4px 10px;border-radius:12px;border:1.5px solid #d0cfc8;background:#fff;color:#6b6b66;cursor:pointer;">'+c+'</button>';
-  });
-  document.getElementById('epell-cat-filter').innerHTML = catHtml;
-  renderEpellBank(selectedMots, null);
-}
-
-function filterEpellBank(cat){
-  EPELL.catFilter = cat;
-  document.getElementById('epell-cat-all').style.background = cat===null ? '#1D9E75' : '#fff';
-  document.getElementById('epell-cat-all').style.color = cat===null ? '#fff' : '#6b6b66';
-  getBanqueCategories().forEach(function(c){
-    var btn = document.getElementById('epell-cat-'+c);
-    if(btn){ btn.style.background=cat===c?'#1D9E75':'#fff'; btn.style.color=cat===c?'#fff':'#6b6b66'; btn.style.borderColor=cat===c?'#1D9E75':'#d0cfc8'; }
-  });
-  renderEpellBank(getEpellSelected(), cat);
-}
-
-function getEpellSelected(){
-  var sel = [];
-  document.querySelectorAll('.epell-word-chip.sel').forEach(function(c){ sel.push(c.dataset.mot); });
-  return sel;
-}
-
-function renderEpellBank(selectedMots, catFilter){
-  var filtered = catFilter ? BANQUE_MOTS.filter(function(m){return m.cat===catFilter;}) : BANQUE_MOTS;
-  var selSet = {};
-  selectedMots.forEach(function(m){ selSet[m] = true; });
-  document.getElementById('epell-word-bank').innerHTML = filtered.map(function(m){
-    var s = !!selSet[m.mot];
-    return '<span class="epell-word-chip'+(s?' sel':'')+'" data-mot="'+m.mot+'" onclick="toggleEpellWord(this)" style="font-size:12px;padding:4px 10px;border-radius:20px;cursor:pointer;border:1.5px solid '+(s?'#1D9E75':'#d0cfc8')+';background:'+(s?'#e6f9f2':'#fff')+';color:'+(s?'#085041':'#3a3a36')+';display:inline-block;">'+m.mot+'</span>';
-  }).join('');
-  updateEpellCount(selectedMots.length);
-}
-
-function toggleEpellWord(el){
-  var s = el.classList.toggle('sel');
-  el.style.borderColor = s?'#1D9E75':'#d0cfc8';
-  el.style.background = s?'#e6f9f2':'#fff';
-  el.style.color = s?'#085041':'#3a3a36';
-  updateEpellCount(document.querySelectorAll('.epell-word-chip.sel').length);
-}
-function updateEpellCount(n){ var el=document.getElementById('epell-selected-count'); if(el)el.textContent=n+' mot'+(n>1?'s':'')+' sélectionné'+(n>1?'s':''); }
-
-async function saveEpellConfig(){
-  var nb = parseInt(document.getElementById('edit-epell-nb').value)||5;
-  var mots = getEpellSelected();
-  var data = {patient_id:ST.editPid, mots:mots, mots_par_session:nb};
-  if(SESSION_UID) data.ortho_id=SESSION_UID;
-  if(ST.epellConfig){
-    await sb('epell_config?id=eq.'+ST.epellConfig.id, {method:'PATCH', body:JSON.stringify({mots:mots,mots_par_session:nb})});
-  } else {
-    var res = await sb('epell_config', {method:'POST', body:JSON.stringify(data)});
-    if(res&&res.length)ST.epellConfig=res[0];
-  }
-}
-
-/* ── VUE PATIENT : lancer l'épellation ── */
-async function lancerEpellation(){
-  var cfg = await sb('epell_config?patient_id=eq.'+ST.pid);
-  if(!cfg||!cfg.length||!cfg[0].mots||!cfg[0].mots.length){
-    alert("Aucun mot configuré pour l'épellation. Demande à ton orthophoniste !");
-    return;
-  }
-  var config = cfg[0];
-  var nb = config.mots_par_session||5;
-  var shuffled = config.mots.slice().sort(function(){return Math.random()-0.5;});
-  EPELL.motsDuJour = shuffled.slice(0, Math.min(nb, shuffled.length));
-  EPELL.idx=0; EPELL.score=0; EPELL.xpSession=0;
-
-  document.getElementById('epell-patient-name').textContent = ST.pname;
-  show('s-epell');
-  epellAfficherMot();
-  document.removeEventListener('keydown', epellKeyHandler);
-  document.addEventListener('keydown', epellKeyHandler);
-}
-
-function epellAfficherMot(){
-  var mot = EPELL.motsDuJour[EPELL.idx];
-  EPELL.motCourant = mot;
-  EPELL.motTape = '';
-  var pct = (EPELL.idx/EPELL.motsDuJour.length)*100;
-  document.getElementById('epell-prog-fill').style.width = pct+'%';
-  document.getElementById('epell-prog-lbl').textContent = EPELL.idx+'/'+EPELL.motsDuJour.length;
-  renderEpellLetters();
-  document.getElementById('epell-pictos-zone').style.display='none';
-  document.getElementById('epell-result-zone').style.display='none';
-  document.getElementById('epell-word-display').style.display='block';
-  document.getElementById('epell-feedback').textContent='';
-  document.getElementById('epell-clavier-hint').style.display='block';
-}
-
-function renderEpellLetters(){
-  var mot=EPELL.motCourant, tape=EPELL.motTape, html='';
-  for(var i=0;i<mot.length;i++){
-    var l=tape[i]||'';
-    var ok=l&&normL(l)===normL(mot[i]);
-    var bg=l?(ok?'#e6f9f2':'#fff0f0'):'#f5f4f0';
-    var bc=l?(ok?'#1D9E75':'#e05050'):'#d0cfc8';
-    var fc=l?(ok?'#085041':'#c03030'):'#9b9b96';
-    html+='<div style="width:40px;height:50px;display:flex;align-items:center;justify-content:center;border-radius:8px;border:2px solid '+bc+';background:'+bg+';font-size:22px;font-weight:700;color:'+fc+';">'+(l?l.toUpperCase():'_')+'</div>';
-  }
-  document.getElementById('epell-letters').innerHTML=html;
-}
-
-function normL(l){ return l.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
-
-function epellKeyHandler(e){
-  if(!document.getElementById('s-epell').classList.contains('active'))return;
-  if(document.getElementById('epell-pictos-zone').style.display!=='none')return;
-  if(document.getElementById('epell-result-zone').style.display!=='none')return;
-  var mot=EPELL.motCourant;
-  if(!mot)return;
-  if(e.key==='Backspace'){ EPELL.motTape=EPELL.motTape.slice(0,-1); renderEpellLetters(); document.getElementById('epell-feedback').textContent=''; return; }
-  if(e.key.length!==1)return;
-  if(EPELL.motTape.length>=mot.length)return;
-  EPELL.motTape+=e.key;
-  renderEpellLetters();
-  if(EPELL.motTape.length===mot.length){
-    var mn=mot.split('').map(normL).join('');
-    var tn=EPELL.motTape.split('').map(normL).join('');
-    if(mn===tn){
-      document.getElementById('epell-feedback').textContent='✅ Parfait !';
-      document.getElementById('epell-clavier-hint').style.display='none';
-      setTimeout(afficherPictos, 600);
-    } else {
-      document.getElementById('epell-feedback').textContent='❌ Réessaie !';
-      setTimeout(function(){ EPELL.motTape=''; renderEpellLetters(); document.getElementById('epell-feedback').textContent=''; }, 900);
-    }
-  }
-}
-
-async function afficherPictos(){
-  document.getElementById('epell-pictos-zone').style.display='block';
-  document.getElementById('epell-word-display').style.display='none';
-  document.getElementById('epell-pictos').innerHTML='<div style="color:#9b9b96;font-size:13px;text-align:center;padding:20px;">Chargement des images…</div>';
-
-  var mot=EPELL.motCourant;
-  var autres=BANQUE_MOTS.filter(function(m){return m.mot!==mot;}).sort(function(){return Math.random()-0.5;}).slice(0,2).map(function(m){return m.mot;});
-  var candidats=[mot].concat(autres).sort(function(){return Math.random()-0.5;});
-
-  var pictoData=await Promise.all(candidats.map(function(m){
-    return fetchArasaacPicto(m).then(function(url){return {mot:m,url:url};});
-  }));
-
-  document.getElementById('epell-pictos').innerHTML=pictoData.map(function(p){
-    var src=p.url||'';
-    var imgEl=src?'<img src="'+src+'" alt="'+p.mot+'" style="width:90px;height:90px;object-fit:contain;border-radius:8px;display:block;margin:0 auto 6px;">':'<div style="width:90px;height:90px;background:#f5f4f0;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#9b9b96;margin:0 auto 6px;">'+p.mot+'</div>';
-    return '<div onclick="epellChoixPicto(\''+p.mot+'\')" style="cursor:pointer;text-align:center;padding:12px;border-radius:14px;border:2px solid #e0dfd8;background:#fff;transition:all 0.15s;min-width:110px;" onmouseover="this.style.borderColor=\'#1D9E75\'" onmouseout="this.style.borderColor=\'#e0dfd8\'">'+imgEl+'<div style="font-size:11px;color:#9b9b96;margin-top:2px;">?</div></div>';
-  }).join('');
-}
-
-async function epellChoixPicto(mot){
-  var correct=mot===EPELL.motCourant;
-  document.getElementById('epell-pictos').style.pointerEvents='none';
-  document.getElementById('epell-pictos-zone').style.display='none';
-  document.getElementById('epell-result-zone').style.display='block';
-  if(correct){
-    EPELL.score++;
-    var xp=10; EPELL.xpSession+=xp;
-    document.getElementById('epell-result-emoji').textContent='🎉';
-    document.getElementById('epell-result-msg').textContent='Bravo ! +'+xp+' XP';
-    document.getElementById('epell-result-msg').style.color='#1D9E75';
-    await sb('xp_log',{method:'POST',body:JSON.stringify({patient_id:ST.pid,xp:xp,date_session:todayStr(),source:'epell'})});
-  } else {
-    document.getElementById('epell-result-emoji').textContent='💪';
-    document.getElementById('epell-result-msg').textContent='C’était "'+EPELL.motCourant+'" — Continue !';
-    document.getElementById('epell-result-msg').style.color='#E0A020';
-  }
-}
-
-function epellNext(){
-  EPELL.idx++;
-  document.getElementById('epell-pictos').style.pointerEvents='';
-  if(EPELL.idx>=EPELL.motsDuJour.length){
-    var total=EPELL.motsDuJour.length;
-    document.getElementById('epell-result-zone').style.display='none';
-    document.getElementById('epell-word-display').innerHTML='<div style="text-align:center;padding:20px 0;"><div style="font-size:48px;margin-bottom:12px;">'+(EPELL.score===total?'🏆':'⭐')+'</div><div style="font-size:22px;font-weight:700;margin-bottom:4px;">'+EPELL.score+' / '+total+'</div><div style="font-size:14px;color:#6b6b66;margin-bottom:20px;">+'+EPELL.xpSession+' XP gagnés</div><button onclick="goExos()" style="background:#1D9E75;color:#fff;border:none;border-radius:12px;padding:12px 32px;font-size:15px;font-weight:700;cursor:pointer;">Retour aux exercices</button></div>';
-    document.getElementById('epell-word-display').style.display='block';
-    document.getElementById('epell-prog-fill').style.width='100%';
-    document.getElementById('epell-prog-lbl').textContent=total+'/'+total;
-    document.removeEventListener('keydown', epellKeyHandler);
-    return;
-  }
-  epellAfficherMot();
-}
-
-
 </script>
 </html>
