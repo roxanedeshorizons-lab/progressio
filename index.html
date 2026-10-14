@@ -1388,16 +1388,16 @@ function buildSuivi(){
   if(ST.isOrthoSuivi){
     html+='<div id="suivi-eval-panel" style="display:none;">';
     html+='<div class="month-t" style="margin:4px 0 12px;">Historique des auto-évaluations par exercice</div>';
+    var scoreColors=['#C8F0D0','#A8E6B0','#7DD68A','#FFE08A','#FFB347','#FF8C42','#FF6B35','#E03E3E','#C0392B','#1a1a18'];
+    function scoreColor(score){
+      var index=Math.max(0,Math.min(Math.round(Number(score))-1,9));
+      return {background:scoreColors[index],color:index===9?'#fff':'#1a1a18'};
+    }
     if(ST.evalHistoryLoadFailed){
       html+='<div class="empty-state">Impossible de charger les auto-évaluations. Réessaie.</div>';
     }else if(!ST.evalHistory||!ST.evalHistory.length){
       html+='<div class="empty-state">Aucune auto-évaluation enregistrée.</div>';
     }else{
-      var scoreColors=['#C8F0D0','#A8E6B0','#7DD68A','#FFE08A','#FFB347','#FF8C42','#FF6B35','#E03E3E','#C0392B','#1a1a18'];
-      function scoreColor(score){
-        var index=Math.max(0,Math.min(Math.round(Number(score))-1,9));
-        return {background:scoreColors[index],color:index===9?'#fff':'#1a1a18'};
-      }
       var evalParExo={};
       ST.evalHistory.forEach(function(e){
         var key=e.exercice_id||e.exercice_name;
@@ -1438,15 +1438,35 @@ function buildSuivi(){
       ST.exerciseHistory.forEach(function(entry){
         if(!entry.date_session)return;
         if(!sessionsParDate[entry.date_session])sessionsParDate[entry.date_session]={};
-        var key=entry.exercice_id||entry.exercice_name;
-        if(key)sessionsParDate[entry.date_session][key]=entry.exercice_name||'Exercice';
+        var key=entry.exercice_id?'id:'+entry.exercice_id:'name:'+entry.exercice_name;
+        if(key!=='name:undefined'&&!sessionsParDate[entry.date_session][key]){
+          sessionsParDate[entry.date_session][key]={name:entry.exercice_name||'Exercice',scores:[]};
+        }
+      });
+      (ST.evalHistory||[]).forEach(function(entry){
+        if(!entry.date_session||!Number.isFinite(Number(entry.score)))return;
+        if(!sessionsParDate[entry.date_session])sessionsParDate[entry.date_session]={};
+        var key=entry.exercice_id?'id:'+entry.exercice_id:'name:'+entry.exercice_name;
+        if(key==='name:undefined')return;
+        if(!sessionsParDate[entry.date_session][key]){
+          sessionsParDate[entry.date_session][key]={name:entry.exercice_name||'Exercice',scores:[]};
+        }
+        sessionsParDate[entry.date_session][key].scores.push(Number(entry.score));
       });
       Object.keys(sessionsParDate).sort().reverse().forEach(function(date){
         html+='<section style="background:#fff;border:1px solid #e0dfd8;border-radius:12px;padding:12px 14px;margin-bottom:8px;">';
         html+='<h3 style="font-size:13px;font-weight:600;color:#6b6b66;margin-bottom:8px;">'+esc(formatDateFr(date))+'</h3>';
-        html+='<div style="display:flex;flex-wrap:wrap;gap:6px;">';
-        Object.keys(sessionsParDate[date]).sort(function(a,b){return sessionsParDate[date][a].localeCompare(sessionsParDate[date][b]);}).forEach(function(key){
-          html+='<span style="background:#E1F5EE;color:#085041;border-radius:8px;padding:5px 9px;font-size:12px;font-weight:500;">'+esc(sessionsParDate[date][key])+'</span>';
+        html+='<div style="display:flex;flex-direction:column;gap:6px;">';
+        Object.keys(sessionsParDate[date]).sort(function(a,b){return sessionsParDate[date][a].name.localeCompare(sessionsParDate[date][b].name);}).forEach(function(key){
+          var entry=sessionsParDate[date][key];
+          html+='<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:#E1F5EE;border-radius:8px;padding:5px 9px;">';
+          html+='<span style="color:#085041;font-size:12px;font-weight:500;">'+esc(entry.name)+'</span>';
+          html+='<span style="display:flex;align-items:center;gap:4px;">';
+          entry.scores.forEach(function(score){
+            var style=scoreColor(score);
+            html+='<span title="Auto-évaluation : '+score+'" style="background:'+style.background+';color:'+style.color+';border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">'+score+'</span>';
+          });
+          html+='</span></div>';
         });
         html+='</div></section>';
       });
