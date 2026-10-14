@@ -623,7 +623,7 @@ async function sbUpload(file,path){
   return SB_URL+'/storage/v1/object/public/exercice-images/'+path;
 }
 
-var ST={pid:null,pname:'',exos:[],days:[],reps:{},chronoDone:{},evalScores:{},timer:300,timerOn:false,timerInt:null,editPid:null,editPname:'',editExos:[],hasLecture:false,hasEpell:false,lectDays:[],lectSessions:[],isOrthoSuivi:false,evalHistory:[],autoEval:true,modeTest:false,_sbReal:null,epellConfig:null,dailySessions:{}};
+var ST={pid:null,pname:'',exos:[],days:[],reps:{},chronoDone:{},evalScores:{},timer:300,timerOn:false,timerInt:null,editPid:null,editPname:'',editExos:[],hasLecture:false,hasEpell:false,lectDays:[],lectSessions:[],isOrthoSuivi:false,evalHistory:[],autoEval:true,sommeilActif:false,sommeilEchelle:5,sommeilSaving:false,modeTest:false,_sbReal:null,epellConfig:null,dailySessions:{}};
 
 function show(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});document.getElementById(id).classList.add('active');}
 
@@ -662,9 +662,11 @@ async function selectPatient(pid,pname){
   var allExos=exos||[];
   var days=await sb('suivi?patient_id=eq.'+pid+'&select=date');
   ST.days=days?days.map(function(d){return d.date;}):[];
-  var patientData=await sb('patients?id=eq.'+pid+'&select=auto_eval,exos_par_jour');
+  var patientData=await sb('patients?id=eq.'+pid+'&select=auto_eval,exos_par_jour,sommeil_actif,sommeil_echelle');
   ST.autoEval=patientData&&patientData[0]?patientData[0].auto_eval!==false:true;
   ST.exosParJour=patientData&&patientData[0]&&patientData[0].exos_par_jour||3;
+  ST.sommeilActif=patientData&&patientData[0]?patientData[0].sommeil_actif===true:false;
+  ST.sommeilEchelle=patientData&&patientData[0]?[3,5,10].indexOf(Number(patientData[0].sommeil_echelle))>=0?Number(patientData[0].sommeil_echelle):5:5;
   var listes=await sb('lecture_listes?patient_id=eq.'+pid+'&select=id,mots');
   ST.hasLecture=listes&&listes.length>0&&listes[0].mots&&listes[0].mots.length>0;
   var epellCfg=await sb('epell_config?patient_id=eq.'+pid+'&select=id,mots');
@@ -735,10 +737,59 @@ async function selectPatient(pid,pname){
   ST.bonusDone=session.bonusDone;
   ST._dailySessionKey=sessionKey;
 
-  if(ST.hasLecture&&(!ST.exos||ST.exos.length===0)){
-    showLecture();return;
-  }
+  if(ST.sommeilActif){showSleepEval();return;}
+  demarrerSessionPatient();
+}
+
+function demarrerSessionPatient(){
+  if(ST.hasLecture&&(!ST.exos||ST.exos.length===0)){showLecture();return;}
   buildExos();
+}
+
+function showSleepEval(){
+  ST.sommeilSaving=false;
+  var scale=ST.sommeilEchelle||5;
+  var html='<div class="eval-exo" style="text-align:center;margin:12px 0">';
+  html+='<div class="eval-exo-name">Comment as-tu dormi cette nuit ?</div>';
+  html+='<div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:18px 0 10px">';
+  if(scale===3){
+    var pictos=[['😫','Mauvaise nuit'],['😐','Nuit moyenne'],['😴','Bonne nuit']];
+    for(var i=0;i<pictos.length;i++){
+      html+='<button type="button" aria-label="'+pictos[i][1]+'" title="'+pictos[i][1]+'" onclick="submitSleepEval('+(i+1)+')" style="width:76px;height:76px;border:1px solid #e0dfd8;border-radius:10px;background:#f5f4f0;font-size:36px;cursor:pointer">'+pictos[i][0]+'</button>';
+    }
+  }else{
+    var colors=['#E03E3E','#C0392B','#FF6B35','#FF8C42','#FFB347','#FFE08A','#7DD68A','#A8E6B0','#1D9E75','#085041'];
+    html+='<div style="display:flex;justify-content:center;gap:5px;flex-wrap:wrap">';
+    for(var n=1;n<=scale;n++){
+      var color=colors[Math.round((n-1)*9/(scale-1))];
+      html+='<button type="button" aria-label="'+n+' sur '+scale+'" onclick="submitSleepEval('+n+')" style="width:32px;height:32px;border:0;border-radius:50%;background:'+color+';font-size:11px;font-weight:700;cursor:pointer">'+n+'</button>';
+    }
+    html+='</div>';
+  }
+  html+='</div><div class="eval-labels"><span>Mauvaise nuit</span><span>Bonne nuit</span></div>';
+  html+='<div id="sleep-eval-status" role="status" style="font-size:12px;color:#9b9b96;margin-top:10px"></div></div>';
+  document.getElementById('exo-card').innerHTML=html;
+}
+
+async function submitSleepEval(score){
+  if(ST.sommeilSaving)return;
+  ST.sommeilSaving=true;
+  var status=document.getElementById('sleep-eval-status');
+  if(status)status.textContent='Enregistrement...';
+  var result=await sb('xp_log',{method:'POST',body:JSON.stringify({
+    patient_id:ST.pid,
+    type:'sommeil',
+    score:score,
+    xp:0,
+    date_session:todayStr()
+  })});
+  if(result===null){
+    ST.sommeilSaving=false;
+    if(status)status.textContent='Enregistrement impossible. Réessaie.';
+    return;
+  }
+  ST.sommeilActif=false;
+  demarrerSessionPatient();
 }
 
 function goProfiles(){
@@ -1359,7 +1410,7 @@ async function loadOrtho(){
   document.getElementById('ortho-loading').style.display='block';
   document.getElementById('ortho-patients').innerHTML='';
   document.getElementById('ortho-add-btn').style.display='none';
-  var patients=await sb('patients?select=id,name,auto_eval,exos_par_jour&ortho_id=eq.'+SESSION_UID+'&order=created_at');
+  var patients=await sb('patients?select=id,name,auto_eval,exos_par_jour,sommeil_actif,sommeil_echelle&ortho_id=eq.'+SESSION_UID+'&order=created_at');
   if(!patients){document.getElementById('ortho-loading').textContent='Erreur.';return;}
   var html='';
   for(var i=0;i<patients.length;i++){
@@ -1373,6 +1424,10 @@ async function loadOrtho(){
     html+='<div class="patient-row-info">'+dlist.length+' jours · '+calcStreak(dlist)+' de suite</div>';
     html+='<div class="patient-row-link" onclick="copyLink(\''+lien+'\')">🔗 Copier le lien patient</div></div>';
     html+='<div class="patient-row-actions">';
+    html+='<label class="btn-sm" style="display:flex;align-items:center;gap:5px"><input type="checkbox" '+(p.sommeil_actif?'checked':'')+' onchange="setSommeilActif(\''+p.id+'\',this.checked,this)" style="accent-color:#1D9E75">Auto-éval sommeil</label>';
+    html+='<select class="btn-sm" aria-label="Échelle de sommeil" title="Échelle de sommeil" onchange="setSommeilEchelle(\''+p.id+'\',this.value)">';
+    [3,5,10].forEach(function(scale){html+='<option value="'+scale+'" '+(Number(p.sommeil_echelle||5)===scale?'selected':'')+'>'+scale+' niveaux</option>';});
+    html+='</select>';
     html+='<button class="btn-sm primary" onclick="openEditor(\''+p.id+'\',\''+esc(p.name)+'\')">Programme</button>';
     html+='<button class="btn-sm" onclick="ouvrirApercu(\''+p.id+'\',\''+esc(p.name)+'\')">👁 Aperçu</button>';
     html+='<button class="btn-sm" onclick="showSuivi(true,\''+p.id+'\',\''+esc(p.name)+'\','+dlistJs+')">Suivi</button>';
@@ -1394,6 +1449,17 @@ async function configExosParJour(pid,current){
   if(isNaN(n)||n<1||n>20)return alert('Entre un nombre entre 1 et 20.');
   await sb('patients?id=eq.'+pid,{method:'PATCH',body:JSON.stringify({exos_par_jour:n})});
   loadOrtho();
+}
+
+async function setSommeilActif(pid,active,checkbox){
+  var result=await sb('patients?id=eq.'+pid,{method:'PATCH',body:JSON.stringify({sommeil_actif:active})});
+  if(result===null&&checkbox)checkbox.checked=!active;
+}
+
+async function setSommeilEchelle(pid,value){
+  var scale=parseInt(value,10);
+  if([3,5,10].indexOf(scale)<0)return;
+  await sb('patients?id=eq.'+pid,{method:'PATCH',body:JSON.stringify({sommeil_echelle:scale})});
 }
 
 async function toggleAutoEval(pid,current,btn){
