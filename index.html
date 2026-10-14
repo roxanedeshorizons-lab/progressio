@@ -1217,7 +1217,7 @@ async function submitInlineEval(exoId){
       score:score,
       date_session:todayStr()
     })});
-    await enregistrerXP(exo,score);
+    await enregistrerXP(exo);
   }
   // Passer à l'exo suivant
   ST.exoIndex=(ST.exoIndex||0)+1;
@@ -1243,7 +1243,13 @@ async function showSuivi(fromOrtho,pid,pname,days){
   ST.lectDays=sessions?sessions.map(function(s){return s.date_session;}):[]; 
   ST.lectSessions=sessions||[];
   if(ST.isOrthoSuivi){
-    var evals=await sb('xp_log?patient_id=eq.'+ST.pid+'&score=not.is.null&exercice_name=not.is.null&select=exercice_id,exercice_name,score,date_session&order=date_session.desc,created_at.desc');
+    var evals;
+    try{
+      evals=await sb('eval_scores?patient_id=eq.'+ST.pid+'&order=date_session.desc,created_at.desc&select=exercice_id,exercice_name,score,date_session');
+    }catch(error){
+      console.error('Erreur lors du chargement des auto-évaluations du patient.',error);
+      evals=null;
+    }
     ST.evalHistory=evals||[];
     ST.evalHistoryLoadFailed=evals===null;
   }else{
@@ -1605,7 +1611,11 @@ async function sb(path,opts){
   var res=await fetch(SB_URL+'/rest/v1/'+path,Object.assign({
     headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json','Prefer':'return=representation'}
   },opts||{}));
-  if(!res.ok){console.error(await res.text());return null;}
+  if(!res.ok){
+    var errorBody=await res.text();
+    console.error('Erreur Supabase',res.status,res.statusText,path,errorBody);
+    return null;
+  }
   var t=await res.text();return t?JSON.parse(t):[];
 }
 
@@ -2278,7 +2288,7 @@ function getRang(xp){
   return 0;
 }
 
-async function enregistrerXP(exo,score){
+async function enregistrerXP(exo){
   var xp=(exo.xp||10)+(exo._isBonus?5:0);
   var log={
     patient_id:ST.pid,
@@ -2287,7 +2297,6 @@ async function enregistrerXP(exo,score){
     xp:xp,
     date_session:todayStr()
   };
-  if(score!==undefined)log.score=score;
   await sb('xp_log',{method:'POST',body:JSON.stringify(log)});
   if(exo._isBonus){
     ST.bonusDone=true;
