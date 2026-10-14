@@ -1243,18 +1243,28 @@ async function showSuivi(fromOrtho,pid,pname,days){
   ST.lectDays=sessions?sessions.map(function(s){return s.date_session;}):[]; 
   ST.lectSessions=sessions||[];
   if(ST.isOrthoSuivi){
-    var evals;
+    var evals,exosFaits;
     try{
-      evals=await sb('eval_scores?patient_id=eq.'+ST.pid+'&order=date_session.desc,created_at.desc&select=exercice_id,exercice_name,score,date_session');
+      evals=await sb('eval_scores?patient_id=eq.'+ST.pid+'&order=date_session.desc&select=exercice_id,exercice_name,score,date_session');
     }catch(error){
       console.error('Erreur lors du chargement des auto-évaluations du patient.',error);
       evals=null;
     }
+    try{
+      exosFaits=await sb('xp_log?patient_id=eq.'+ST.pid+'&exercice_id=not.is.null&select=exercice_id,exercice_name,date_session&order=date_session.desc');
+    }catch(error){
+      console.error('Erreur lors du chargement de l’historique des exercices du patient.',error);
+      exosFaits=null;
+    }
     ST.evalHistory=evals||[];
     ST.evalHistoryLoadFailed=evals===null;
+    ST.exerciseHistory=exosFaits||[];
+    ST.exerciseHistoryLoadFailed=exosFaits===null;
   }else{
     ST.evalHistory=[];
     ST.evalHistoryLoadFailed=false;
+    ST.exerciseHistory=[];
+    ST.exerciseHistoryLoadFailed=false;
   }
   buildSuivi();show('s-suivi');
 }
@@ -1383,24 +1393,60 @@ function buildSuivi(){
     }else if(!ST.evalHistory||!ST.evalHistory.length){
       html+='<div class="empty-state">Aucune auto-évaluation enregistrée.</div>';
     }else{
+      var scoreColors=['#C8F0D0','#A8E6B0','#7DD68A','#FFE08A','#FFB347','#FF8C42','#FF6B35','#E03E3E','#C0392B','#1a1a18'];
+      function scoreColor(score){
+        var index=Math.max(0,Math.min(Math.round(Number(score))-1,9));
+        return {background:scoreColors[index],color:index===9?'#fff':'#1a1a18'};
+      }
       var evalParExo={};
       ST.evalHistory.forEach(function(e){
         var key=e.exercice_id||e.exercice_name;
-        if(!evalParExo[key])evalParExo[key]={name:e.exercice_name||'Exercice',sessions:[]};
-        evalParExo[key].sessions.push(e);
+        if(!evalParExo[key])evalParExo[key]={name:e.exercice_name||'Exercice',scores:[]};
+        var score=Number(e.score);
+        if(Number.isFinite(score)){evalParExo[key].scores.push({date:e.date_session,score:score});}
       });
       Object.keys(evalParExo).sort(function(a,b){
         return evalParExo[a].name.localeCompare(evalParExo[b].name);
       }).forEach(function(key){
         var exo=evalParExo[key];
+        if(!exo.scores.length)return;
+        var average=exo.scores.reduce(function(sum,item){return sum+item.score;},0)/exo.scores.length;
+        var averageRounded=Math.round(average*10)/10;
+        var averageStyle=scoreColor(average);
         html+='<section style="background:#fff;border:1px solid #e0dfd8;border-radius:12px;padding:14px 16px;margin-bottom:12px;">';
-        html+='<h3 style="font-size:14px;font-weight:600;margin-bottom:10px;">'+esc(exo.name)+'</h3>';
+        html+='<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;">';
+        html+='<h3 style="font-size:14px;font-weight:600;">'+esc(exo.name)+'</h3>';
+        html+='<div style="display:flex;align-items:center;gap:7px;font-size:12px;color:#6b6b66;">Moyenne';
+        html+='<span title="Moyenne : '+averageRounded+'" style="background:'+averageStyle.background+';color:'+averageStyle.color+';border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">'+averageRounded+'</span></div></div>';
         html+='<div style="display:flex;flex-direction:column;gap:6px;">';
-        exo.sessions.forEach(function(session){
-          var score=Number(session.score);
-          var scoreLabel=Number.isFinite(score)?score+'/10':'—';
-          html+='<div style="display:flex;justify-content:space-between;gap:12px;background:#f5f4f0;border-radius:8px;padding:8px 10px;font-size:13px;">';
-          html+='<span>'+esc(formatDateFr(session.date_session))+'</span><strong>'+scoreLabel+'</strong></div>';
+        exo.scores.forEach(function(session){
+          var style=scoreColor(session.score);
+          html+='<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;background:#f5f4f0;border-radius:8px;padding:7px 10px;font-size:13px;">';
+          html+='<span>'+esc(formatDateFr(session.date))+'</span>';
+          html+='<span title="Score : '+session.score+'" style="background:'+style.background+';color:'+style.color+';border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">'+session.score+'</span></div>';
+        });
+        html+='</div></section>';
+      });
+    }
+    html+='<div class="month-t" style="margin:24px 0 12px;">Historique des séances</div>';
+    if(ST.exerciseHistoryLoadFailed){
+      html+='<div class="empty-state">Impossible de charger l’historique des séances. Réessaie.</div>';
+    }else if(!ST.exerciseHistory||!ST.exerciseHistory.length){
+      html+='<div class="empty-state">Aucune séance d’exercice enregistrée.</div>';
+    }else{
+      var sessionsParDate={};
+      ST.exerciseHistory.forEach(function(entry){
+        if(!entry.date_session)return;
+        if(!sessionsParDate[entry.date_session])sessionsParDate[entry.date_session]={};
+        var key=entry.exercice_id||entry.exercice_name;
+        if(key)sessionsParDate[entry.date_session][key]=entry.exercice_name||'Exercice';
+      });
+      Object.keys(sessionsParDate).sort().reverse().forEach(function(date){
+        html+='<section style="background:#fff;border:1px solid #e0dfd8;border-radius:12px;padding:12px 14px;margin-bottom:8px;">';
+        html+='<h3 style="font-size:13px;font-weight:600;color:#6b6b66;margin-bottom:8px;">'+esc(formatDateFr(date))+'</h3>';
+        html+='<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+        Object.keys(sessionsParDate[date]).sort(function(a,b){return sessionsParDate[date][a].localeCompare(sessionsParDate[date][b]);}).forEach(function(key){
+          html+='<span style="background:#E1F5EE;color:#085041;border-radius:8px;padding:5px 9px;font-size:12px;font-weight:500;">'+esc(sessionsParDate[date][key])+'</span>';
         });
         html+='</div></section>';
       });
