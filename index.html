@@ -564,7 +564,7 @@ panneau
     </div>
     <div style="text-align:center;">
       <div id="bravo-xp-total" style="font-size:28px;font-weight:700;color:#fff;"></div>
-      <div style="font-size:11px;color:#B8EDD8;margin-top:2px;">XP total</div>
+      <div style="font-size:11px;color:#B8EDD8;margin-top:2px;">Points total</div>
     </div>
   </div>
   <div id="bravo-bonus-zone" style="display:none;margin-top:8px;width:100%;max-width:320px;">
@@ -836,7 +836,7 @@ function buildExoCard(exo){
   html+='<div class="exo-main">';
   if(exo.image_url){html+='<img class="exo-img" src="'+esc(exo.image_url)+'" alt="" />';}
   html+='<div class="exo-title-row"><span class="exo-nm">'+esc(exo.name)+'</span><span class="exo-dose">'+esc(exo.dose)+'</span></div>';
-  html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><span class="xp-badge">⭐ '+(exo.xp||10)+(exo._isBonus?' +5':'')+' XP</span></div>';
+  html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><span class="xp-badge">⭐ '+(exo.xp||10)+(exo._isBonus?' +5':'')+' '+libellePoints((exo.xp||10)+(exo._isBonus?5:0))+'</span></div>';
   html+='<div class="exo-how">'+esc(exo.how)+'</div><div class="exo-why">'+esc(exo.why)+'</div></div>';
   html+='<div class="reps-section">';
   if(exo.type==='reps'){
@@ -872,7 +872,7 @@ function showCurrentExo(){
     // Tous faits — montrer bonus si disponible
     if(bonusBtn&&ST.exoBonus&&!ST.bonusDone){
       bonusBtn.style.display='block';
-      bonusBtn.innerHTML='💪 Exercice bonus du jour <span class="xp-badge">⭐ '+(ST.exoBonus.xp||10)+'+5 XP</span>';
+      bonusBtn.innerHTML='💪 Exercice bonus du jour <span class="xp-badge">⭐ '+(ST.exoBonus.xp||10)+' +5 '+libellePoints((ST.exoBonus.xp||10)+5)+'</span>';
       document.getElementById('exo-card').innerHTML='';
     } else {
       if(bonusBtn)bonusBtn.style.display='none';
@@ -939,7 +939,7 @@ async function showBravo(){
   var isNewDay=ST.days.indexOf(today)<0;
   if(isNewDay){await sb('suivi',{method:'POST',body:JSON.stringify({patient_id:ST.pid,date:today})});ST.days.push(today);}
   clearTimer();
-  // Calculer XP du jour et total
+  // Calculer les points du jour et le total
   var xpLog=await sb('xp_log?patient_id=eq.'+ST.pid+'&date_session=eq.'+today+'&select=xp');
   var xpToday=xpLog?xpLog.reduce(function(s,r){return s+r.xp;},0):0;
   var xpAll=await sb('xp_log?patient_id=eq.'+ST.pid+'&select=xp');
@@ -950,14 +950,14 @@ async function showBravo(){
     :"Tu as tout fait aujourd'hui ! 🎉";
   // Remplir l'écran Bravo
   document.getElementById('bravo-flame').textContent='🔥 '+streak;
-  document.getElementById('bravo-xp-today').textContent='+'+xpToday+' XP';
-  document.getElementById('bravo-xp-total').textContent=xpTotal+' XP';
+  document.getElementById('bravo-xp-today').textContent='+'+xpToday+' '+libellePoints(xpToday);
+  document.getElementById('bravo-xp-total').textContent=xpTotal+' '+libellePoints(xpTotal);
   // Bouton bonus sur l'écran Bravo
   var bonusZone=document.getElementById('bravo-bonus-zone');
   var retourZone=document.getElementById('bravo-retour-zone');
   if(ST.exoBonus&&!ST.bonusDone){
     var bonusXP=(ST.exoBonus.xp||10)+5;
-    document.getElementById('bravo-bonus-btn').textContent='💪 Exercice bonus +'+bonusXP+' XP';
+    document.getElementById('bravo-bonus-btn').textContent='💪 Exercice bonus +'+bonusXP+' '+libellePoints(bonusXP);
     if(bonusZone)bonusZone.style.display='flex';
     if(bonusZone)bonusZone.style.flexDirection='column';
     if(bonusZone)bonusZone.style.alignItems='center';
@@ -1634,7 +1634,7 @@ function renderEditor(exo,i,cb){
   html+='<div class="field-row"><label>Comment faire (consigne)</label><textarea id="ehow_'+i+'">'+esc(exo.how||'')+'</textarea></div>';
   html+='<div class="field-row"><label>Pourquoi (bénéfice)</label><textarea id="ewhy_'+i+'">'+esc(exo.why||'')+'</textarea></div>';
   html+='<div class="field-row"><label>Couleur</label><div class="color-row" id="color-row-'+i+'">'+colorDots+'</div></div>';
-  html+='<div class="field-row"><label>XP rapportés ⭐</label><input type="number" id="exp_'+i+'" min="1" max="100" value="'+(exo.xp||10)+'" /></div>';
+  html+='<div class="field-row"><label>Points rapportés ⭐</label><input type="number" id="exp_'+i+'" min="1" max="100" value="'+(exo.xp||10)+'" /></div>';
   html+='<div class="field-row"><label>Image</label>';
   html+='<input type="file" accept="image/*" id="img-input-'+i+'" style="display:none" />';
   html+='<button class="img-upload-btn" onclick="document.getElementById(\'img-input-'+i+'\').click()">📷 Choisir une image</button>';
@@ -2022,7 +2022,7 @@ async function loadBiblioContent(){
     html+='<div class="biblio-exo-header">';
     html+='<div>';
     html+='<div class="biblio-exo-name"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+esc(exo.color||'#888')+';margin-right:6px;vertical-align:middle;"></span>'+esc(exo.name)+'</div>';
-    html+='<div class="biblio-exo-meta">'+esc(exo.dose||'')+(exo.xp?' · '+exo.xp+' XP':'')+'</div>';
+    html+='<div class="biblio-exo-meta">'+esc(exo.dose||'')+(exo.xp?' · '+exo.xp+' '+libellePoints(exo.xp):'')+'</div>';
     html+='</div>';
     html+='<select class="biblio-cat-select" onchange="changerCategorie(\''+exo.id+'\',this.value)">';
     CATEGORIES.forEach(function(c){
@@ -2062,8 +2062,11 @@ var RANGS=[
   {nom:'Bronze',emoji:'🥉',min:50,max:149},
   {nom:'Argent',emoji:'🥈',min:150,max:299},
   {nom:'Or',emoji:'🥇',min:300,max:499},
-  {nom:'Diamant',emoji:'💎',min:500,max:Infinity}
+  {nom:'Diamant',emoji:'💎',min:500,max:1999},
+  {nom:'Saphir',emoji:'🔷',min:2000,max:Infinity}
 ];
+
+function libellePoints(nombre){return Number(nombre)===1?'Point':'Points';}
 
 function getRang(xp){
   for(var i=RANGS.length-1;i>=0;i--){if(xp>=RANGS[i].min)return i;}
@@ -2092,7 +2095,7 @@ async function showProfil(){
   document.getElementById('profil-name').textContent=ST.pname;
   document.getElementById('profil-content').innerHTML='<div class="loading">Chargement...</div>';
 
-  // Charger XP total
+  // Charger le total des points
   var xpLog=await sb('xp_log?patient_id=eq.'+ST.pid+'&select=xp,date_session');
   var totalXP=xpLog?xpLog.reduce(function(s,r){return s+r.xp;},0):0;
 
@@ -2112,19 +2115,19 @@ async function showProfil(){
   html+='<div class="profil-rang">';
   html+='<span class="profil-rang-emoji">'+rang.emoji+'</span>';
   html+='<div class="profil-rang-nom">'+rang.nom+'</div>';
-  html+='<div class="profil-rang-xp">'+totalXP+' XP au total</div>';
+  html+='<div class="profil-rang-xp">'+totalXP+' '+libellePoints(totalXP)+' au total</div>';
   html+='</div>';
   // Barre progression
   html+='<div class="profil-xp-bar"><div class="profil-xp-fill" style="width:'+pct+'%"></div></div>';
   if(nextRang){
-    html+='<div style="font-size:11px;color:#9b9b96;text-align:center;margin-bottom:20px;">'+xpDansRang+' / '+xpPourNext+' XP pour atteindre '+nextRang.nom+' '+nextRang.emoji+'</div>';
+    html+='<div style="font-size:11px;color:#9b9b96;text-align:center;margin-bottom:20px;">'+xpDansRang+' / '+xpPourNext+' '+libellePoints(xpPourNext)+' pour atteindre '+nextRang.nom+' '+nextRang.emoji+'</div>';
   } else {
     html+='<div style="font-size:11px;color:#1D9E75;text-align:center;margin-bottom:20px;">Rang maximum atteint ! 🎉</div>';
   }
 
   // Stats
   html+='<div class="profil-stats">';
-  html+='<div class="profil-stat"><div class="profil-stat-val">'+totalXP+'</div><div class="profil-stat-lbl">XP total</div></div>';
+  html+='<div class="profil-stat"><div class="profil-stat-val">'+totalXP+'</div><div class="profil-stat-lbl">'+libellePoints(totalXP)+' au total</div></div>';
   html+='<div class="profil-stat"><div class="profil-stat-val">🔥'+streak+'</div><div class="profil-stat-lbl">jours de suite</div></div>';
   html+='<div class="profil-stat"><div class="profil-stat-val">'+ST.days.length+'</div><div class="profil-stat-lbl">jours total</div></div>';
   html+='</div>';
@@ -2138,7 +2141,7 @@ async function showProfil(){
     html+='<div class="profil-rang-row-emoji">'+r.emoji+'</div>';
     html+='<div class="profil-rang-row-info">';
     html+='<div class="profil-rang-row-name">'+r.nom+(current?' ← tu es ici':'')+'</div>';
-    html+='<div class="profil-rang-row-req">'+(r.min===0?'Départ':r.min+' XP')+(idx<RANGS.length-1?' → '+r.max+' XP':'')+'</div>';
+    html+='<div class="profil-rang-row-req">'+(r.min===0?'Départ':r.min+' '+libellePoints(r.min))+(idx<RANGS.length-1?' → '+r.max+' '+libellePoints(r.max):'')+'</div>';
     html+='</div>';
     if(atteint)html+='<div class="profil-rang-row-check">✓</div>';
     html+='</div>';
@@ -2790,7 +2793,7 @@ async function epellChoixPicto(mot){
     EPELL.score++;
     var xp=10; EPELL.xpSession+=xp;
     document.getElementById('epell-result-emoji').textContent='🎉';
-    document.getElementById('epell-result-msg').textContent='Bravo ! +'+xp+' XP';
+    document.getElementById('epell-result-msg').textContent='Bravo ! +'+xp+' '+libellePoints(xp);
     document.getElementById('epell-result-msg').style.color='#1D9E75';
     await sb('xp_log',{method:'POST',body:JSON.stringify({patient_id:ST.pid,xp:xp,date_session:todayStr(),source:'epell'})});
   } else {
@@ -2806,7 +2809,7 @@ function epellNext(){
   if(EPELL.idx>=EPELL.motsDuJour.length){
     var total=EPELL.motsDuJour.length;
     document.getElementById('epell-result-zone').style.display='none';
-    document.getElementById('epell-word-display').innerHTML='<div style="text-align:center;padding:20px 0;"><div style="font-size:48px;margin-bottom:12px;">'+(EPELL.score===total?'🏆':'⭐')+'</div><div style="font-size:22px;font-weight:700;margin-bottom:4px;">'+EPELL.score+' / '+total+'</div><div style="font-size:14px;color:#6b6b66;margin-bottom:20px;">+'+EPELL.xpSession+' XP gagnés</div><button onclick="goExos()" style="background:#1D9E75;color:#fff;border:none;border-radius:12px;padding:12px 32px;font-size:15px;font-weight:700;cursor:pointer;">Retour aux exercices</button></div>';
+    document.getElementById('epell-word-display').innerHTML='<div style="text-align:center;padding:20px 0;"><div style="font-size:48px;margin-bottom:12px;">'+(EPELL.score===total?'🏆':'⭐')+'</div><div style="font-size:22px;font-weight:700;margin-bottom:4px;">'+EPELL.score+' / '+total+'</div><div style="font-size:14px;color:#6b6b66;margin-bottom:20px;">+'+EPELL.xpSession+' '+libellePoints(EPELL.xpSession)+' gagnés</div><button onclick="goExos()" style="background:#1D9E75;color:#fff;border:none;border-radius:12px;padding:12px 32px;font-size:15px;font-weight:700;cursor:pointer;">Retour aux exercices</button></div>';
     document.getElementById('epell-word-display').style.display='block';
     document.getElementById('epell-prog-fill').style.width='100%';
     document.getElementById('epell-prog-lbl').textContent=total+'/'+total;
