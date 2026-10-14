@@ -304,6 +304,24 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a
     </div>
     <button id="btn-bonus" onclick="lancerBonus()" style="display:none;width:100%;margin-top:12px;font-size:14px;font-weight:600;color:#fff;background:#E0A020;border:none;border-radius:10px;padding:12px;cursor:pointer;text-align:center;"></button>
     <button id="btn-epell" onclick="lancerEpellation()" style="display:none;width:100%;margin-top:10px;font-size:14px;font-weight:600;color:#fff;background:#7F6FCC;border:none;border-radius:10px;padding:12px;cursor:pointer;text-align:center;">⌨️ Exercice d'épellation</button>
+    <button id="btn-respiration" onclick="commencerRespiration()" style="width:100%;margin-top:10px;font-size:14px;font-weight:600;color:#fff;background:#378ADD;border:none;border-radius:10px;padding:12px;cursor:pointer;text-align:center;">🌬️ Respiration longue durée</button>
+  </div>
+</div>
+
+<!-- RESPIRATION -->
+<div id="s-respiration" class="screen">
+  <div style="padding:1rem 0 2rem;text-align:center;">
+    <div class="page-header">
+      <h2>Respiration longue durée</h2>
+      <button class="back-btn" onclick="quitterRespiration()">← Retour</button>
+    </div>
+    <p style="font-size:14px;color:#6b6b66;margin:28px 0 12px;">Prends ton temps et respire calmement.</p>
+    <div id="respiration-timer" style="font-size:48px;font-weight:700;font-variant-numeric:tabular-nums;color:#1D9E75;">00:00</div>
+    <div id="respiration-points" style="font-size:18px;font-weight:600;margin:8px 0 20px;">⭐ 0 Points</div>
+    <button id="respiration-stop" onclick="arreterRespiration()" style="width:100%;font-size:15px;font-weight:600;color:#fff;background:#D85A30;border:none;border-radius:10px;padding:14px;cursor:pointer;">Arrêter</button>
+    <div id="respiration-result" role="status" style="font-size:14px;color:#6b6b66;margin-top:18px;"></div>
+    <button id="respiration-retry" onclick="enregistrerPointsRespiration()" style="display:none;width:100%;margin-top:10px;font-size:14px;font-weight:600;color:#fff;background:#1D9E75;border:none;border-radius:10px;padding:12px;cursor:pointer;">Réessayer l'enregistrement</button>
+    <button id="respiration-return" onclick="quitterRespiration()" style="display:none;width:100%;margin-top:10px;font-size:14px;font-weight:600;color:#fff;background:#378ADD;border:none;border-radius:10px;padding:12px;cursor:pointer;">Retour aux exercices</button>
   </div>
 </div>
 
@@ -623,7 +641,8 @@ async function sbUpload(file,path){
   return SB_URL+'/storage/v1/object/public/exercice-images/'+path;
 }
 
-var ST={pid:null,pname:'',exos:[],days:[],reps:{},chronoDone:{},evalScores:{},timer:300,timerOn:false,timerInt:null,editPid:null,editPname:'',editExos:[],hasLecture:false,hasEpell:false,lectDays:[],lectSessions:[],isOrthoSuivi:false,evalHistory:[],autoEval:true,sommeilActif:false,sommeilEchelle:5,sommeilSaving:false,modeTest:false,_sbReal:null,epellConfig:null,dailySessions:{}};
+var ST={pid:null,pname:'',exos:[],days:[],reps:{},chronoDone:{},evalScores:{},timer:300,timerOn:false,timerInt:null,editPid:null,editPname:'',editExos:[],hasLecture:false,hasEpell:false,lectDays:[],lectSessions:[],isOrthoSuivi:false,evalHistory:[],autoEval:true,sommeilActif:false,sommeilEchelle:5,sommeilSaving:false,modeTest:false,_sbReal:null,epellConfig:null,dailySessions:{},sessionsToday:0,respirationsToday:0,sessionStarting:false};
+var RESP={id:null,startedAt:0,timer:null,active:false,starting:false,points:0};
 
 function show(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});document.getElementById(id).classList.add('active');}
 
@@ -653,7 +672,10 @@ async function loadProfiles(){
 }
 
 async function selectPatient(pid,pname){
-  ST.pid=pid;ST.pname=pname;ST.reps={};resetTimer();
+  ST.pid=pid;ST.pname=pname;ST.reps={};ST.exos=[];ST.exoBonus=null;ST.sessionsToday=0;ST.respirationsToday=0;resetTimer();
+  actualiserBoutonRespiration();
+  document.getElementById('btn-bonus').style.display='none';
+  document.getElementById('btn-epell').style.display='none';
   document.getElementById('ex-name').textContent=pname;
   document.getElementById('bravo-t').textContent='Bravo '+pname+' !';
   show('s-exos');
@@ -672,7 +694,10 @@ async function selectPatient(pid,pname){
   var epellCfg=await sb('epell_config?patient_id=eq.'+pid+'&select=id,mots');
   ST.hasEpell=epellCfg&&epellCfg.length>0&&epellCfg[0].mots&&epellCfg[0].mots.length>0;
   ST.lectDays=[];
-
+  if(!ST.modeTest&&!await chargerCompteursQuotidiens()){
+    document.getElementById('exo-card').innerHTML='<div class="empty-state">Impossible de vérifier tes sessions du jour. Réessaie de recharger la page.</div>';
+    return;
+  }
   // Charger historique auto-éval pour pondérer
   var evalLog=await sb('eval_scores?patient_id=eq.'+pid+'&select=exercice_id,score');
   var evalMoy={};
@@ -737,7 +762,89 @@ async function selectPatient(pid,pname){
   ST.bonusDone=session.bonusDone;
   ST._dailySessionKey=sessionKey;
 
+  if(ST.modeTest){demarrerSessionPatient();return;}
+  if(!ST.exos.length){
+    if(ST.sommeilActif){showSleepEval();return;}
+    demarrerSessionPatient();
+    return;
+  }
+  if(ST.sessionsToday>=3){afficherLimiteSessions();return;}
   if(ST.sommeilActif){showSleepEval();return;}
+  lancerSessionObligatoire();
+}
+
+async function chargerCompteursQuotidiens(){
+  var rows;
+  try{
+    rows=await sb('xp_log?patient_id=eq.'+ST.pid+'&date_session=eq.'+todayStr()+'&select=type');
+  }catch(error){
+    console.error('Erreur lors du chargement des compteurs quotidiens.',error);
+    return false;
+  }
+  if(!Array.isArray(rows))return false;
+  ST.sessionsToday=rows.filter(function(row){return row.type==='session_obligatoire';}).length;
+  ST.respirationsToday=rows.filter(function(row){return row.type==='respiration';}).length;
+  actualiserBoutonRespiration();
+  return true;
+}
+
+function actualiserBoutonRespiration(){
+  var button=document.getElementById('btn-respiration');
+  if(!button)return;
+  if(ST.respirationsToday>=3){
+    button.disabled=true;
+    button.textContent='Tu as déjà fait ta respiration aujourd’hui 🌬️';
+    button.style.opacity='0.6';
+    button.style.cursor='not-allowed';
+  }else{
+    button.disabled=false;
+    button.textContent='🌬️ Respiration longue durée';
+    button.style.opacity='1';
+    button.style.cursor='pointer';
+  }
+}
+
+function afficherLimiteSessions(){
+  document.getElementById('exo-card').innerHTML='<div class="empty-state">Tu as déjà bien travaillé aujourd’hui ! Reviens demain 💪</div>';
+  document.getElementById('pfill').style.width='100%';
+  document.getElementById('plbl').textContent='3/3';
+  document.getElementById('btn-reset').style.display='none';
+  document.getElementById('btn-bonus').style.display='none';
+}
+
+async function lancerSessionObligatoire(){
+  if(ST.sessionStarting)return;
+  if(!ST.exos||!ST.exos.length){
+    ST.sommeilActif=false;
+    demarrerSessionPatient();
+    return;
+  }
+  ST.sessionStarting=true;
+  if(!await chargerCompteursQuotidiens()){
+    ST.sessionStarting=false;
+    document.getElementById('exo-card').innerHTML='<div class="empty-state">Impossible de vérifier tes sessions du jour. Réessaie dans un instant.</div>';
+    return;
+  }
+  if(ST.sessionsToday>=3){ST.sessionStarting=false;afficherLimiteSessions();return;}
+  document.getElementById('exo-card').innerHTML='<div class="loading">Préparation de ta session...</div>';
+  var result;
+  try{
+    result=await sb('xp_log',{method:'POST',body:JSON.stringify({
+      patient_id:ST.pid,
+      type:'session_obligatoire',
+      xp:0,
+      date_session:todayStr()
+    })});
+  }catch(error){
+    console.error('Erreur lors de la réservation de la session obligatoire.',error);
+  }
+  ST.sessionStarting=false;
+  if(!result){
+    document.getElementById('exo-card').innerHTML='<div class="empty-state">Impossible de démarrer ta session. Réessaie dans un instant.</div>';
+    return;
+  }
+  ST.sessionsToday++;
+  ST.sommeilActif=false;
   demarrerSessionPatient();
 }
 
@@ -775,7 +882,7 @@ async function submitSleepEval(score){
   if(ST.sommeilSaving)return;
   ST.sommeilSaving=true;
   ST.sommeilActif=false;
-  demarrerSessionPatient();
+  lancerSessionObligatoire();
   try{
     await sb('xp_log',{method:'POST',body:JSON.stringify({
       patient_id:ST.pid,
@@ -787,6 +894,91 @@ async function submitSleepEval(score){
   }catch(error){
     console.error('Erreur lors de l’enregistrement de l’auto-évaluation du sommeil.',error);
   }
+}
+
+function afficherEtatRespiration(){
+  var elapsed=Math.floor((Date.now()-RESP.startedAt)/1000);
+  RESP.points=Math.floor(elapsed/30)*5;
+  document.getElementById('respiration-timer').textContent=pad(Math.floor(elapsed/60))+':'+pad(elapsed%60);
+  document.getElementById('respiration-points').textContent='⭐ '+RESP.points+' '+libellePoints(RESP.points);
+}
+
+async function commencerRespiration(){
+  if(RESP.active||RESP.starting)return;
+  RESP.starting=true;
+  var status=document.getElementById('respiration-result');
+  status.textContent='';
+  if(!await chargerCompteursQuotidiens()){
+    status.textContent='Impossible de vérifier le nombre de respirations du jour. Réessaie.';
+    RESP.starting=false;
+    return;
+  }
+  if(ST.respirationsToday>=3){actualiserBoutonRespiration();RESP.starting=false;return;}
+  var result;
+  try{
+    result=await sb('xp_log',{method:'POST',body:JSON.stringify({
+      patient_id:ST.pid,
+      type:'respiration',
+      xp:0,
+      date_session:todayStr()
+    })});
+  }catch(error){
+    console.error('Erreur lors du démarrage de la respiration.',error);
+  }
+  if(!result||!result[0]||!result[0].id){
+    status.textContent='Impossible de démarrer la respiration. Réessaie.';
+    RESP.starting=false;
+    return;
+  }
+  RESP.starting=false;
+  RESP.id=result[0].id;
+  ST.respirationsToday++;
+  actualiserBoutonRespiration();
+  RESP.active=true;
+  RESP.startedAt=Date.now();
+  RESP.points=0;
+  document.getElementById('respiration-stop').style.display='block';
+  document.getElementById('respiration-stop').disabled=false;
+  document.getElementById('respiration-retry').style.display='none';
+  document.getElementById('respiration-return').style.display='none';
+  document.getElementById('respiration-timer').textContent='00:00';
+  document.getElementById('respiration-points').textContent='⭐ 0 Points';
+  show('s-respiration');
+  RESP.timer=setInterval(afficherEtatRespiration,1000);
+}
+
+async function arreterRespiration(){
+  if(!RESP.active)return;
+  RESP.active=false;
+  clearInterval(RESP.timer);
+  RESP.timer=null;
+  afficherEtatRespiration();
+  document.getElementById('respiration-stop').disabled=true;
+  document.getElementById('respiration-result').textContent='Enregistrement des points...';
+  await enregistrerPointsRespiration();
+}
+
+async function enregistrerPointsRespiration(){
+  var result;
+  try{
+    result=await sb('xp_log?id=eq.'+RESP.id,{method:'PATCH',body:JSON.stringify({xp:RESP.points})});
+  }catch(error){
+    console.error('Erreur lors de l’enregistrement des points de respiration.',error);
+  }
+  if(!result){
+    document.getElementById('respiration-result').textContent='Tes points n’ont pas pu être enregistrés. Réessaie.';
+    document.getElementById('respiration-retry').style.display='block';
+    return;
+  }
+  document.getElementById('respiration-result').textContent='Tu as gagné '+RESP.points+' '+libellePoints(RESP.points)+' !';
+  document.getElementById('respiration-stop').style.display='none';
+  document.getElementById('respiration-retry').style.display='none';
+  document.getElementById('respiration-return').style.display='block';
+}
+
+function quitterRespiration(){
+  if(RESP.active)return;
+  show('s-exos');
 }
 
 function goProfiles(){
@@ -1028,7 +1220,7 @@ async function submitInlineEval(exoId){
     showCurrentExo();
   }
 }
-function hideBravo(){document.getElementById('bravo').classList.remove('show');ST.reps={};ST.chronoDone={};ST.evalScores={};ST.exoIndex=0;resetTimer();buildExos();}
+function hideBravo(){document.getElementById('bravo').classList.remove('show');ST.reps={};ST.chronoDone={};ST.evalScores={};ST.exoIndex=0;resetTimer();lancerSessionObligatoire();}
 function resetDay(){ST.reps={};ST.chronoDone={};ST.evalScores={};ST.exoIndex=0;resetTimer();buildExos();}
 
 /* ── SUIVI ── */
