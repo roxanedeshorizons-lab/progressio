@@ -774,22 +774,19 @@ function showSleepEval(){
 async function submitSleepEval(score){
   if(ST.sommeilSaving)return;
   ST.sommeilSaving=true;
-  var status=document.getElementById('sleep-eval-status');
-  if(status)status.textContent='Enregistrement...';
-  var result=await sb('xp_log',{method:'POST',body:JSON.stringify({
-    patient_id:ST.pid,
-    type:'sommeil',
-    score:score,
-    xp:0,
-    date_session:todayStr()
-  })});
-  if(result===null){
-    ST.sommeilSaving=false;
-    if(status)status.textContent='Enregistrement impossible. Réessaie.';
-    return;
-  }
   ST.sommeilActif=false;
   demarrerSessionPatient();
+  try{
+    await sb('xp_log',{method:'POST',body:JSON.stringify({
+      patient_id:ST.pid,
+      type:'sommeil',
+      score:score,
+      xp:0,
+      date_session:todayStr()
+    })});
+  }catch(error){
+    console.error('Erreur lors de l’enregistrement de l’auto-évaluation du sommeil.',error);
+  }
 }
 
 function goProfiles(){
