@@ -1217,7 +1217,7 @@ async function submitInlineEval(exoId){
       score:score,
       date_session:todayStr()
     })});
-    await enregistrerXP(exo);
+    await enregistrerXP(exo,score);
   }
   // Passer à l'exo suivant
   ST.exoIndex=(ST.exoIndex||0)+1;
@@ -1242,10 +1242,26 @@ async function showSuivi(fromOrtho,pid,pname,days){
   var sessions=await sb('lecture_sessions?patient_id=eq.'+ST.pid+'&completed=eq.true&select=date_session,mots,scores&order=date_session.desc');
   ST.lectDays=sessions?sessions.map(function(s){return s.date_session;}):[]; 
   ST.lectSessions=sessions||[];
-  // Charger les auto-évaluations
-  var evals=await sb('eval_scores?patient_id=eq.'+ST.pid+'&order=date_session.desc,created_at.desc&select=exercice_name,score,date_session');
-  ST.evalHistory=evals||[];
+  if(ST.isOrthoSuivi){
+    var evals=await sb('xp_log?patient_id=eq.'+ST.pid+'&score=not.is.null&exercice_name=not.is.null&select=exercice_id,exercice_name,score,date_session&order=date_session.desc,created_at.desc');
+    ST.evalHistory=evals||[];
+    ST.evalHistoryLoadFailed=evals===null;
+  }else{
+    ST.evalHistory=[];
+    ST.evalHistoryLoadFailed=false;
+  }
   buildSuivi();show('s-suivi');
+}
+
+function switchSuiviTab(tab){
+  var calendar=document.getElementById('suivi-calendar-panel');
+  var analysis=document.getElementById('suivi-eval-panel');
+  var calendarTab=document.getElementById('suivi-calendar-tab');
+  var analysisTab=document.getElementById('suivi-eval-tab');
+  if(calendar)calendar.style.display=tab==='calendar'?'block':'none';
+  if(analysis)analysis.style.display=tab==='analysis'?'block':'none';
+  if(calendarTab)calendarTab.classList.toggle('active',tab==='calendar');
+  if(analysisTab)analysisTab.classList.toggle('active',tab==='analysis');
 }
 
 function buildSuivi(){
@@ -1267,10 +1283,22 @@ function buildSuivi(){
   if(ST.hasLecture)legend+='<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#378ADD;margin-right:4px;vertical-align:middle;"></span>Lecture</span>';
   legend+='</div>';
 
-  if(!allDays.length){document.getElementById('cal-content').innerHTML='<div class="empty-state">Aucun jour enregistré.</div>';return;}
-  var sorted=allDays.slice().sort(),first=new Date(sorted[0]+'T00:00:00'),todayDate=new Date(today+'T00:00:00');
-  var html=legend,cursor=new Date(first.getFullYear(),first.getMonth(),1);
-  while(cursor<=todayDate){html+=buildMonthCal(cursor,days,lectDays,todayDate);cursor.setMonth(cursor.getMonth()+1);}
+  var html='';
+  if(ST.isOrthoSuivi){
+    html+='<div class="biblio-tabs">';
+    html+='<button id="suivi-calendar-tab" class="biblio-tab active" onclick="switchSuiviTab(\'calendar\')">Suivi</button>';
+    html+='<button id="suivi-eval-tab" class="biblio-tab" onclick="switchSuiviTab(\'analysis\')">Analyse auto-évaluation</button>';
+    html+='</div>';
+  }
+  html+='<div id="suivi-calendar-panel">';
+  html+=legend;
+  if(allDays.length){
+    var sorted=allDays.slice().sort(),first=new Date(sorted[0]+'T00:00:00'),todayDate=new Date(today+'T00:00:00');
+    var cursor=new Date(first.getFullYear(),first.getMonth(),1);
+    while(cursor<=todayDate){html+=buildMonthCal(cursor,days,lectDays,todayDate);cursor.setMonth(cursor.getMonth()+1);}
+  }else{
+    html+='<div class="empty-state">Aucun jour enregistré.</div>';
+  }
 
   // Détail sessions lecture — visible uniquement en vue ortho
   if(ST.isOrthoSuivi&&ST.lectSessions&&ST.lectSessions.length>0){
@@ -1340,57 +1368,38 @@ function buildSuivi(){
     html+='</div>';
   }
 
-  // Auto-évaluations — vue ortho uniquement
-  if(ST.isOrthoSuivi&&ST.evalHistory&&ST.evalHistory.length>0){
-    // Stats moyennes par exercice
-    var evalParExo={};
-    ST.evalHistory.forEach(function(e){
-      if(!evalParExo[e.exercice_name])evalParExo[e.exercice_name]={total:0,count:0};
-      evalParExo[e.exercice_name].total+=e.score;
-      evalParExo[e.exercice_name].count++;
-    });
-    html+='<div style="margin-top:28px;"><div class="month-t" style="margin-bottom:12px;">Auto-évaluations — difficulté ressentie</div>';
-    html+='<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">';
-    var evalColors=['#C8F0D0','#A8E6B0','#7DD68A','#FFE08A','#FFB347','#FF8C42','#FF6B35','#E03E3E','#C0392B','#1a1a18'];
-    Object.keys(evalParExo).forEach(function(name){
-      var e=evalParExo[name];
-      var avg=Math.round(e.total/e.count*10)/10;
-      var colorIdx=Math.min(Math.round(avg)-1,9);
-      var bg=evalColors[colorIdx];
-      var col=colorIdx>=9?'#fff':'#1a1a18';
-      html+='<div style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #e0dfd8;border-radius:10px;padding:10px 14px;">';
-      html+='<div style="font-size:13px;font-weight:500;">'+esc(name)+'</div>';
-      html+='<div style="display:flex;align-items:center;gap:8px;">';
-      html+='<div style="background:'+bg+';color:'+col+';border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;">'+avg+'</div>';
-      html+='<div style="font-size:11px;color:#9b9b96;">/ '+e.count+' session'+(e.count>1?'s':'')+'</div>';
-      html+='</div></div>';
-    });
-    html+='</div>';
-
-    // Détail par date
-    var evalParDate={};
-    ST.evalHistory.forEach(function(e){
-      if(!evalParDate[e.date_session])evalParDate[e.date_session]=[];
-      evalParDate[e.date_session].push(e);
-    });
-    html+='<div style="margin-top:8px;">';
-    Object.keys(evalParDate).sort().reverse().forEach(function(date){
-      var items=evalParDate[date];
-      html+='<div style="background:#fff;border:1px solid #e0dfd8;border-radius:12px;padding:12px 16px;margin-bottom:8px;">';
-      html+='<div style="font-size:12px;font-weight:600;color:#6b6b66;margin-bottom:8px;">'+formatDateFr(date)+'</div>';
-      html+='<div style="display:flex;flex-wrap:wrap;gap:6px;">';
-      items.forEach(function(e){
-        var colorIdx=Math.min(e.score-1,9);
-        var bg=evalColors[colorIdx];
-        var col=colorIdx>=9?'#fff':'#1a1a18';
-        html+='<div style="display:flex;align-items:center;gap:6px;background:#f5f4f0;border-radius:8px;padding:5px 10px;">';
-        html+='<span style="font-size:12px;color:#6b6b66;">'+esc(e.exercice_name)+'</span>';
-        html+='<span style="background:'+bg+';color:'+col+';border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">'+e.score+'</span>';
-        html+='</div>';
+  html+='</div>';
+  if(ST.isOrthoSuivi){
+    html+='<div id="suivi-eval-panel" style="display:none;">';
+    html+='<div class="month-t" style="margin:4px 0 12px;">Historique des auto-évaluations par exercice</div>';
+    if(ST.evalHistoryLoadFailed){
+      html+='<div class="empty-state">Impossible de charger les auto-évaluations. Réessaie.</div>';
+    }else if(!ST.evalHistory||!ST.evalHistory.length){
+      html+='<div class="empty-state">Aucune auto-évaluation enregistrée.</div>';
+    }else{
+      var evalParExo={};
+      ST.evalHistory.forEach(function(e){
+        var key=e.exercice_id||e.exercice_name;
+        if(!evalParExo[key])evalParExo[key]={name:e.exercice_name||'Exercice',sessions:[]};
+        evalParExo[key].sessions.push(e);
       });
-      html+='</div></div>';
-    });
-    html+='</div></div>';
+      Object.keys(evalParExo).sort(function(a,b){
+        return evalParExo[a].name.localeCompare(evalParExo[b].name);
+      }).forEach(function(key){
+        var exo=evalParExo[key];
+        html+='<section style="background:#fff;border:1px solid #e0dfd8;border-radius:12px;padding:14px 16px;margin-bottom:12px;">';
+        html+='<h3 style="font-size:14px;font-weight:600;margin-bottom:10px;">'+esc(exo.name)+'</h3>';
+        html+='<div style="display:flex;flex-direction:column;gap:6px;">';
+        exo.sessions.forEach(function(session){
+          var score=Number(session.score);
+          var scoreLabel=Number.isFinite(score)?score+'/10':'—';
+          html+='<div style="display:flex;justify-content:space-between;gap:12px;background:#f5f4f0;border-radius:8px;padding:8px 10px;font-size:13px;">';
+          html+='<span>'+esc(formatDateFr(session.date_session))+'</span><strong>'+scoreLabel+'</strong></div>';
+        });
+        html+='</div></section>';
+      });
+    }
+    html+='</div>';
   }
 
   document.getElementById('cal-content').innerHTML=html;
@@ -2269,15 +2278,17 @@ function getRang(xp){
   return 0;
 }
 
-async function enregistrerXP(exo){
+async function enregistrerXP(exo,score){
   var xp=(exo.xp||10)+(exo._isBonus?5:0);
-  await sb('xp_log',{method:'POST',body:JSON.stringify({
+  var log={
     patient_id:ST.pid,
     exercice_id:exo.id,
     exercice_name:exo.name+(exo._isBonus?' (bonus)':''),
     xp:xp,
     date_session:todayStr()
-  })});
+  };
+  if(score!==undefined)log.score=score;
+  await sb('xp_log',{method:'POST',body:JSON.stringify(log)});
   if(exo._isBonus){
     ST.bonusDone=true;
     if(ST._dailySessionKey&&ST.dailySessions[ST._dailySessionKey]){
