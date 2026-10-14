@@ -304,7 +304,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a
     </div>
     <button id="btn-bonus" onclick="lancerBonus()" style="display:none;width:100%;margin-top:12px;font-size:14px;font-weight:600;color:#fff;background:#E0A020;border:none;border-radius:10px;padding:12px;cursor:pointer;text-align:center;"></button>
     <button id="btn-epell" onclick="lancerEpellation()" style="display:none;width:100%;margin-top:10px;font-size:14px;font-weight:600;color:#fff;background:#7F6FCC;border:none;border-radius:10px;padding:12px;cursor:pointer;text-align:center;">⌨️ Exercice d'épellation</button>
-    <button id="btn-respiration" onclick="commencerRespiration()" style="width:100%;margin-top:10px;font-size:14px;font-weight:600;color:#fff;background:#378ADD;border:none;border-radius:10px;padding:12px;cursor:pointer;text-align:center;">🌬️ Respiration longue durée</button>
+    <button id="btn-respiration" onclick="commencerRespiration()" style="width:100%;margin-top:10px;font-size:14px;font-weight:600;color:#fff;background:#378ADD;border:none;border-radius:10px;padding:12px;cursor:pointer;text-align:center;">⏱️ Chrono respiration</button>
   </div>
 </div>
 
@@ -312,7 +312,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a
 <div id="s-respiration" class="screen">
   <div style="padding:1rem 0 2rem;text-align:center;">
     <div class="page-header">
-      <h2>Respiration longue durée</h2>
+      <h2>⏱️ Chrono respiration</h2>
       <button class="back-btn" onclick="quitterRespiration()">← Retour</button>
     </div>
     <p style="font-size:14px;color:#6b6b66;margin:28px 0 12px;">Prends ton temps et respire calmement.</p>
@@ -673,7 +673,9 @@ async function loadProfiles(){
 
 async function selectPatient(pid,pname){
   ST.pid=pid;ST.pname=pname;ST.reps={};ST.exos=[];ST.exoBonus=null;ST.sessionsToday=0;ST.respirationsToday=0;resetTimer();
-  actualiserBoutonRespiration();
+  var boutonRespiration=document.getElementById('btn-respiration');
+  boutonRespiration.disabled=true;
+  boutonRespiration.textContent='⏱️ Chrono respiration';
   document.getElementById('btn-bonus').style.display='none';
   document.getElementById('btn-epell').style.display='none';
   document.getElementById('ex-name').textContent=pname;
@@ -762,13 +764,13 @@ async function selectPatient(pid,pname){
   ST.bonusDone=session.bonusDone;
   ST._dailySessionKey=sessionKey;
 
-  if(ST.modeTest){demarrerSessionPatient();return;}
+  if(ST.modeTest){actualiserBoutonRespiration();demarrerSessionPatient();return;}
   if(!ST.exos.length){
     if(ST.sommeilActif){showSleepEval();return;}
     demarrerSessionPatient();
     return;
   }
-  if(ST.sessionsToday>=3){afficherLimiteSessions();return;}
+  if(ST.sessionsToday>=3){ST.sessionStarting=false;afficherLimiteSessions();return;}
   if(ST.sommeilActif){showSleepEval();return;}
   lancerSessionObligatoire();
 }
@@ -798,7 +800,7 @@ function actualiserBoutonRespiration(){
     button.style.cursor='not-allowed';
   }else{
     button.disabled=false;
-    button.textContent='🌬️ Respiration longue durée';
+    button.textContent='⏱️ Chrono respiration';
     button.style.opacity='1';
     button.style.cursor='pointer';
   }
@@ -825,7 +827,7 @@ async function lancerSessionObligatoire(){
     document.getElementById('exo-card').innerHTML='<div class="empty-state">Impossible de vérifier tes sessions du jour. Réessaie dans un instant.</div>';
     return;
   }
-  if(ST.sessionsToday>=3){ST.sessionStarting=false;afficherLimiteSessions();return;}
+  if(ST.sessionsToday>=3){afficherLimiteSessions();return;}
   document.getElementById('exo-card').innerHTML='<div class="loading">Préparation de ta session...</div>';
   var result;
   try{
@@ -905,46 +907,41 @@ function afficherEtatRespiration(){
 
 async function commencerRespiration(){
   if(RESP.active||RESP.starting)return;
+  if(ST.respirationsToday>=3){actualiserBoutonRespiration();return;}
   RESP.starting=true;
   var status=document.getElementById('respiration-result');
-  status.textContent='';
-  if(!await chargerCompteursQuotidiens()){
-    status.textContent='Impossible de vérifier le nombre de respirations du jour. Réessaie.';
-    RESP.starting=false;
-    return;
-  }
-  if(ST.respirationsToday>=3){actualiserBoutonRespiration();RESP.starting=false;return;}
-  var result;
-  try{
-    result=await sb('xp_log',{method:'POST',body:JSON.stringify({
-      patient_id:ST.pid,
-      type:'respiration',
-      xp:0,
-      date_session:todayStr()
-    })});
-  }catch(error){
-    console.error('Erreur lors du démarrage de la respiration.',error);
-  }
-  if(!result||!result[0]||!result[0].id){
-    status.textContent='Impossible de démarrer la respiration. Réessaie.';
-    RESP.starting=false;
-    return;
-  }
-  RESP.starting=false;
-  RESP.id=result[0].id;
-  ST.respirationsToday++;
-  actualiserBoutonRespiration();
-  RESP.active=true;
-  RESP.startedAt=Date.now();
-  RESP.points=0;
+  status.textContent='Enregistrement de la session...';
   document.getElementById('respiration-stop').style.display='block';
   document.getElementById('respiration-stop').disabled=false;
   document.getElementById('respiration-retry').style.display='none';
   document.getElementById('respiration-return').style.display='none';
   document.getElementById('respiration-timer').textContent='00:00';
   document.getElementById('respiration-points').textContent='⭐ 0 Points';
+  RESP.id=null;
+  RESP.points=0;
+  RESP.startedAt=Date.now();
+  RESP.active=true;
+  RESP.starting=false;
+  ST.respirationsToday++;
+  actualiserBoutonRespiration();
   show('s-respiration');
   RESP.timer=setInterval(afficherEtatRespiration,1000);
+  RESP.logPromise=(async function(){
+    try{
+      var result=await sb('xp_log',{method:'POST',body:JSON.stringify({
+        patient_id:ST.pid,
+        type:'respiration',
+        xp:0,
+        date_session:todayStr()
+      })});
+      if(!result||!result[0]||!result[0].id)throw new Error('La session de respiration n’a pas été enregistrée.');
+      RESP.id=result[0].id;
+      status.textContent='';
+    }catch(error){
+      console.error('Erreur lors de l’enregistrement de la session de respiration.',error);
+      status.textContent='La session n’a pas encore pu être enregistrée. Tes points seront sauvegardés à la fin.';
+    }
+  })();
 }
 
 async function arreterRespiration(){
@@ -961,7 +958,17 @@ async function arreterRespiration(){
 async function enregistrerPointsRespiration(){
   var result;
   try{
-    result=await sb('xp_log?id=eq.'+RESP.id,{method:'PATCH',body:JSON.stringify({xp:RESP.points})});
+    if(RESP.logPromise)await RESP.logPromise;
+    if(RESP.id){
+      result=await sb('xp_log?id=eq.'+RESP.id,{method:'PATCH',body:JSON.stringify({xp:RESP.points})});
+    }else{
+      result=await sb('xp_log',{method:'POST',body:JSON.stringify({
+        patient_id:ST.pid,
+        type:'respiration',
+        xp:RESP.points,
+        date_session:todayStr()
+      })});
+    }
   }catch(error){
     console.error('Erreur lors de l’enregistrement des points de respiration.',error);
   }
