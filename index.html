@@ -317,7 +317,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a
     </div>
     <p style="font-size:14px;color:#6b6b66;margin:28px 0 12px;">Prends ton temps et respire calmement.</p>
     <div id="respiration-timer" style="font-size:48px;font-weight:700;font-variant-numeric:tabular-nums;color:#1D9E75;">00:00</div>
-    <div id="respiration-points" style="font-size:18px;font-weight:600;margin:8px 0 20px;">⭐ 0 Points</div>
+    <div id="respiration-points" style="font-size:18px;font-weight:600;margin:8px 0 20px;">⭐ 0 Point</div>
     <button id="respiration-stop" onclick="arreterRespiration()" style="width:100%;font-size:15px;font-weight:600;color:#fff;background:#D85A30;border:none;border-radius:10px;padding:14px;cursor:pointer;">Arrêter</button>
     <div id="respiration-result" role="status" style="font-size:14px;color:#6b6b66;margin-top:18px;"></div>
     <button id="respiration-retry" onclick="enregistrerPointsRespiration()" style="display:none;width:100%;margin-top:10px;font-size:14px;font-weight:600;color:#fff;background:#1D9E75;border:none;border-radius:10px;padding:12px;cursor:pointer;">Réessayer l'enregistrement</button>
@@ -916,7 +916,7 @@ async function commencerRespiration(){
   document.getElementById('respiration-retry').style.display='none';
   document.getElementById('respiration-return').style.display='none';
   document.getElementById('respiration-timer').textContent='00:00';
-  document.getElementById('respiration-points').textContent='⭐ 0 Points';
+  document.getElementById('respiration-points').textContent='⭐ 0 Point';
   RESP.id=null;
   RESP.points=0;
   RESP.startedAt=Date.now();
@@ -2259,10 +2259,10 @@ var RANGS=[
   {nom:'Argent',emoji:'🥈',min:150,max:299},
   {nom:'Or',emoji:'🥇',min:300,max:499},
   {nom:'Diamant',emoji:'💎',min:500,max:1999},
-  {nom:'Saphir',emoji:'🔷',min:2000,max:Infinity}
+  {nom:'Trophée',emoji:'🏆',min:2000,max:Infinity}
 ];
 
-function libellePoints(nombre){return Number(nombre)===1?'Point':'Points';}
+function libellePoints(nombre){var n=Number(nombre);return n===0||n===1?'Point':'Points';}
 
 function getRang(xp){
   for(var i=RANGS.length-1;i>=0;i--){if(xp>=RANGS[i].min)return i;}
