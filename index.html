@@ -679,7 +679,7 @@ async function selectPatient(pid,pname){
   document.getElementById('btn-bonus').style.display='none';
   document.getElementById('btn-epell').style.display='none';
   document.getElementById('ex-name').textContent=pname;
-  document.getElementById('bravo-t').textContent='Bravo '+pname+' !';
+  document.getElementById('bravo-t').textContent='Bravo !';
   show('s-exos');
   document.getElementById('exo-card').innerHTML='<div class="loading">Chargement...</div>';
   var exos=await sb('exercices?patient_id=eq.'+pid+'&order=position');
@@ -2567,7 +2567,7 @@ async function evaluer(score){
 function showScoreFinal(bons,total,dejaFait){
   var html='<div class="lect-card"><div class="lect-score-final">';
   html+='<div style="font-size:48px;margin-bottom:16px;">🏆</div>';
-  html+='<div class="lect-score-num">Bravo '+esc(LECT.pname)+' !</div>';
+  html+='<div class="lect-score-num">Bravo !</div>';
   html+='<div class="lect-score-label">Finis pour aujourd\'hui,<br>reviens demain !</div>';
   if(ST.exos&&ST.exos.length>0){
     html+='<button class="lect-btn-retour" onclick="goExos()">Retour aux exercices</button>';
