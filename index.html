@@ -646,7 +646,7 @@ async function sbUpload(file,path){
   return SB_URL+'/storage/v1/object/public/exercice-images/'+path;
 }
 
-var ST={pid:null,pname:'',exos:[],days:[],reps:{},chronoDone:{},evalScores:{},timer:300,timerOn:false,timerInt:null,editPid:null,editPname:'',editExos:[],hasLecture:false,hasEpell:false,lectDays:[],lectSessions:[],isOrthoSuivi:false,evalHistory:[],autoEval:true,sommeilActif:false,respirationActif:false,avecOrtho:null,sommeilEchelle:5,sommeilSaving:false,modeTest:false,_sbReal:null,epellConfig:null,dailySessions:{},sessionsToday:0,respirationsToday:0,sessionStarting:false};
+var ST={pid:null,pname:'',exos:[],days:[],reps:{},chronoDone:{},evalScores:{},timer:300,timerOn:false,timerInt:null,editPid:null,editPname:'',editExos:[],hasLecture:false,hasEpell:false,lectDays:[],lectSessions:[],isOrthoSuivi:false,evalHistory:[],autoEval:true,sommeilActif:false,respirationActif:false,respirationConfigAvailable:true,avecOrtho:null,sommeilEchelle:5,sommeilSaving:false,modeTest:false,_sbReal:null,epellConfig:null,dailySessions:{},sessionsToday:0,respirationsToday:0,sessionStarting:false};
 var RESP={id:null,startedAt:0,timer:null,stopTimeout:null,active:false,starting:false,points:0,maxReached:false};
 
 function show(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});document.getElementById(id).classList.add('active');}
@@ -693,6 +693,12 @@ async function selectPatient(pid,pname){
   var days=await sb('suivi?patient_id=eq.'+pid+'&select=date');
   ST.days=days?days.map(function(d){return d.date;}):[];
   var patientData=await sb('patients?id=eq.'+pid+'&select=auto_eval,exos_par_jour,sommeil_actif,sommeil_echelle,respiration_actif');
+  if(!patientData){
+    ST.respirationConfigAvailable=false;
+    patientData=await sb('patients?id=eq.'+pid+'&select=auto_eval,exos_par_jour,sommeil_actif,sommeil_echelle');
+  }else{
+    ST.respirationConfigAvailable=true;
+  }
   ST.autoEval=patientData&&patientData[0]?patientData[0].auto_eval!==false:true;
   ST.exosParJour=patientData&&patientData[0]&&patientData[0].exos_par_jour||3;
   ST.sommeilActif=patientData&&patientData[0]?patientData[0].sommeil_actif===true:false;
@@ -1725,8 +1731,14 @@ async function loadOrtho(){
   document.getElementById('ortho-patients').innerHTML='';
   document.getElementById('ortho-add-btn').style.display='none';
   var patients=await sb('patients?select=id,name,auto_eval,exos_par_jour,sommeil_actif,sommeil_echelle,respiration_actif&ortho_id=eq.'+SESSION_UID+'&order=created_at');
+  if(!patients){
+    ST.respirationConfigAvailable=false;
+    patients=await sb('patients?select=id,name,auto_eval,exos_par_jour,sommeil_actif,sommeil_echelle&ortho_id=eq.'+SESSION_UID+'&order=created_at');
+  }else{
+    ST.respirationConfigAvailable=true;
+  }
   if(!patients){document.getElementById('ortho-loading').textContent='Erreur.';return;}
-  var html='';
+  var html=ST.respirationConfigAvailable?'':'<div class="empty-state" role="status">Le réglage du chrono respiration est indisponible. Exécutez migration_respiration.sql dans Supabase pour l’activer.</div>';
   for(var i=0;i<patients.length;i++){
     var p=patients[i];
     var lien=location.origin+location.pathname+"#"+p.id;
@@ -1739,7 +1751,7 @@ async function loadOrtho(){
     html+='<div class="patient-row-link" onclick="copyLink(\''+lien+'\')">🔗 Copier le lien patient</div></div>';
     html+='<div class="patient-row-actions">';
     html+='<label class="btn-sm" style="display:flex;align-items:center;gap:5px"><input type="checkbox" '+(p.sommeil_actif?'checked':'')+' onchange="setSommeilActif(\''+p.id+'\',this.checked,this)" style="accent-color:#1D9E75">Auto-éval sommeil</label>';
-    html+='<label class="btn-sm" style="display:flex;align-items:center;gap:5px"><input type="checkbox" '+(p.respiration_actif?'checked':'')+' onchange="setRespirationActif(\''+p.id+'\',this.checked,this)" style="accent-color:#1D9E75">Chrono respiration activé</label>';
+    html+='<label class="btn-sm" title="'+(ST.respirationConfigAvailable?'':'Exécutez migration_respiration.sql dans Supabase pour activer ce réglage.')+'" style="display:flex;align-items:center;gap:5px"><input type="checkbox" '+(p.respiration_actif?'checked':'')+(ST.respirationConfigAvailable?'':' disabled')+' onchange="setRespirationActif(\''+p.id+'\',this.checked,this)" style="accent-color:#1D9E75">Chrono respiration activé</label>';
     html+='<select class="btn-sm" aria-label="Échelle de sommeil" title="Échelle de sommeil" onchange="setSommeilEchelle(\''+p.id+'\',this.value)">';
     [3,5,10].forEach(function(scale){html+='<option value="'+scale+'" '+(Number(p.sommeil_echelle||5)===scale?'selected':'')+'>'+scale+' niveaux</option>';});
     html+='</select>';
