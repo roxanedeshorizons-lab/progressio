@@ -690,6 +690,10 @@ async function selectPatient(pid,pname){
   document.getElementById('bravo-t').textContent='Bravo !';
   show('s-exos');
   document.getElementById('exo-card').innerHTML='<div class="loading">Chargement...</div>';
+  console.log('[Progressio] Vue patient ouverte; mode test :',ST.modeTest);
+  var choixPresence=demanderPresenceOrtho();
+  verifierColonneAvecOrtho();
+  await choixPresence;
   var exos=await sb('exercices?patient_id=eq.'+pid+'&order=position');
   var allExos=exos||[];
   var days=await sb('suivi?patient_id=eq.'+pid+'&select=date');
@@ -712,7 +716,6 @@ async function selectPatient(pid,pname){
   var epellCfg=await sb('epell_config?patient_id=eq.'+pid+'&select=id,mots');
   ST.hasEpell=epellCfg&&epellCfg.length>0&&epellCfg[0].mots&&epellCfg[0].mots.length>0;
   ST.lectDays=[];
-  if(!ST.modeTest)await demanderPresenceOrtho();
   if(!ST.modeTest&&!await chargerCompteursQuotidiens()){
     document.getElementById('exo-card').innerHTML='<div class="empty-state">Impossible de vérifier tes sessions du jour. Réessaie de recharger la page.</div>';
     return;
@@ -793,6 +796,7 @@ async function selectPatient(pid,pname){
 }
 
 function demanderPresenceOrtho(){
+  console.log('[Progressio] Affichage de la question ortho/solo.');
   return new Promise(function(resolve){
     ST.presenceResolve=resolve;
     document.getElementById('exo-card').innerHTML=
@@ -808,9 +812,21 @@ function demanderPresenceOrtho(){
 function choisirPresenceOrtho(avecOrtho){
   if(typeof ST.avecOrtho==='boolean'||!ST.presenceResolve)return;
   ST.avecOrtho=avecOrtho;
+  console.log('[Progressio] Choix ortho/solo enregistré en mémoire :',ST.avecOrtho);
   var resolve=ST.presenceResolve;
   ST.presenceResolve=null;
   resolve(avecOrtho);
+}
+
+async function verifierColonneAvecOrtho(){
+  try{
+    var result=await sb('xp_log?select=avec_ortho&limit=1');
+    var accessible=result!==null;
+    console.log('[Progressio] Colonne xp_log.avec_ortho accessible :',accessible);
+    if(!accessible)console.warn('[Progressio] Exécutez migration_avec_ortho.sql dans Supabase pour enregistrer le choix ortho/solo.');
+  }catch(error){
+    console.error('[Progressio] Vérification de xp_log.avec_ortho impossible.',error);
+  }
 }
 
 async function chargerCompteursQuotidiens(){
