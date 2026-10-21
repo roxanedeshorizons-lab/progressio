@@ -646,7 +646,7 @@ async function sbUpload(file,path){
   return SB_URL+'/storage/v1/object/public/exercice-images/'+path;
 }
 
-var ST={pid:null,pname:'',exos:[],days:[],reps:{},chronoDone:{},evalScores:{},timer:300,timerOn:false,timerInt:null,editPid:null,editPname:'',editExos:[],hasLecture:false,hasEpell:false,lectDays:[],lectSessions:[],isOrthoSuivi:false,evalHistory:[],autoEval:true,sommeilActif:false,respirationActif:false,respirationConfigAvailable:true,avecOrtho:null,sommeilEchelle:5,sommeilSaving:false,modeTest:false,_sbReal:null,epellConfig:null,dailySessions:{},sessionsToday:0,respirationsToday:0,sessionStarting:false};
+var ST={pid:null,pname:'',exos:[],days:[],reps:{},chronoDone:{},evalScores:{},timer:300,timerOn:false,timerInt:null,editPid:null,editPname:'',editExos:[],hasLecture:false,hasEpell:false,lectDays:[],lectSessions:[],isOrthoSuivi:false,evalHistory:[],autoEval:true,sommeilActif:false,respirationActif:false,respirationConfigAvailable:true,avecOrtho:null,presenceResolve:null,sommeilEchelle:5,sommeilSaving:false,modeTest:false,_sbReal:null,epellConfig:null,dailySessions:{},sessionsToday:0,respirationsToday:0,sessionStarting:false};
 var RESP={id:null,startedAt:0,timer:null,stopTimeout:null,active:false,starting:false,points:0,maxReached:false};
 var RESP_MAX_SECONDS=300;
 var RESP_MAX_POINTS=50;
@@ -712,6 +712,7 @@ async function selectPatient(pid,pname){
   var epellCfg=await sb('epell_config?patient_id=eq.'+pid+'&select=id,mots');
   ST.hasEpell=epellCfg&&epellCfg.length>0&&epellCfg[0].mots&&epellCfg[0].mots.length>0;
   ST.lectDays=[];
+  if(!ST.modeTest)await demanderPresenceOrtho();
   if(!ST.modeTest&&!await chargerCompteursQuotidiens()){
     document.getElementById('exo-card').innerHTML='<div class="empty-state">Impossible de vérifier tes sessions du jour. Réessaie de recharger la page.</div>';
     return;
@@ -781,31 +782,35 @@ async function selectPatient(pid,pname){
   ST._dailySessionKey=sessionKey;
 
   if(ST.modeTest){actualiserBoutonRespiration();demarrerSessionPatient();return;}
-  if(ST.exos.length&&ST.sessionsToday>=3){ST.sessionStarting=false;afficherLimiteSessions();return;}
-  demanderPresenceOrtho();
-}
-
-function demanderPresenceOrtho(){
-  document.getElementById('exo-card').innerHTML=
-    '<div class="eval-exo" style="text-align:center;margin:24px 0">'+
-    '<div class="eval-exo-name">Tu es avec ton orthophoniste aujourd’hui ?</div>'+
-    '<div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:18px">'+
-    '<button type="button" onclick="choisirPresenceOrtho(true)" style="border:0;border-radius:10px;background:#1D9E75;color:#fff;padding:12px 16px;font-size:14px;font-weight:600;cursor:pointer;">👩‍⚕️ Avec mon ortho</button>'+
-    '<button type="button" onclick="choisirPresenceOrtho(false)" style="border:0;border-radius:10px;background:#378ADD;color:#fff;padding:12px 16px;font-size:14px;font-weight:600;cursor:pointer;">🏠 Tout.e seul.e</button>'+
-    '</div></div>';
-}
-
-function choisirPresenceOrtho(avecOrtho){
-  if(typeof ST.avecOrtho==='boolean')return;
-  ST.avecOrtho=avecOrtho;
   if(!ST.exos.length){
     if(ST.sommeilActif){showSleepEval();return;}
     demarrerSessionPatient();
     return;
   }
-  if(ST.sessionsToday>=3){ST.sessionStarting=false;afficherLimiteSessions();return;}
+  if(ST.exos.length&&ST.sessionsToday>=3){ST.sessionStarting=false;afficherLimiteSessions();return;}
   if(ST.sommeilActif){showSleepEval();return;}
   lancerSessionObligatoire();
+}
+
+function demanderPresenceOrtho(){
+  return new Promise(function(resolve){
+    ST.presenceResolve=resolve;
+    document.getElementById('exo-card').innerHTML=
+      '<div class="eval-exo" style="text-align:center;margin:24px 0">'+
+      '<div class="eval-exo-name">Tu es avec ton orthophoniste aujourd’hui ?</div>'+
+      '<div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:18px">'+
+      '<button type="button" onclick="choisirPresenceOrtho(true)" style="border:0;border-radius:10px;background:#1D9E75;color:#fff;padding:12px 16px;font-size:14px;font-weight:600;cursor:pointer;">👩‍⚕️ Avec mon ortho</button>'+
+      '<button type="button" onclick="choisirPresenceOrtho(false)" style="border:0;border-radius:10px;background:#378ADD;color:#fff;padding:12px 16px;font-size:14px;font-weight:600;cursor:pointer;">🏠 Tout·e seul·e</button>'+
+      '</div></div>';
+  });
+}
+
+function choisirPresenceOrtho(avecOrtho){
+  if(typeof ST.avecOrtho==='boolean'||!ST.presenceResolve)return;
+  ST.avecOrtho=avecOrtho;
+  var resolve=ST.presenceResolve;
+  ST.presenceResolve=null;
+  resolve(avecOrtho);
 }
 
 async function chargerCompteursQuotidiens(){
