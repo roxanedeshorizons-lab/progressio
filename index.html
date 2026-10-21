@@ -646,7 +646,7 @@ async function sbUpload(file,path){
   return SB_URL+'/storage/v1/object/public/exercice-images/'+path;
 }
 
-var ST={pid:null,pname:'',exos:[],days:[],reps:{},chronoDone:{},evalScores:{},timer:300,timerOn:false,timerInt:null,editPid:null,editPname:'',editExos:[],hasLecture:false,hasEpell:false,lectDays:[],lectSessions:[],isOrthoSuivi:false,evalHistory:[],autoEval:true,sommeilActif:false,respirationActif:false,sommeilEchelle:5,sommeilSaving:false,modeTest:false,_sbReal:null,epellConfig:null,dailySessions:{},sessionsToday:0,respirationsToday:0,sessionStarting:false};
+var ST={pid:null,pname:'',exos:[],days:[],reps:{},chronoDone:{},evalScores:{},timer:300,timerOn:false,timerInt:null,editPid:null,editPname:'',editExos:[],hasLecture:false,hasEpell:false,lectDays:[],lectSessions:[],isOrthoSuivi:false,evalHistory:[],autoEval:true,sommeilActif:false,respirationActif:false,avecOrtho:null,sommeilEchelle:5,sommeilSaving:false,modeTest:false,_sbReal:null,epellConfig:null,dailySessions:{},sessionsToday:0,respirationsToday:0,sessionStarting:false};
 var RESP={id:null,startedAt:0,timer:null,active:false,starting:false,points:0,maxReached:false};
 
 function show(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});document.getElementById(id).classList.add('active');}
@@ -677,7 +677,7 @@ async function loadProfiles(){
 }
 
 async function selectPatient(pid,pname){
-  ST.pid=pid;ST.pname=pname;ST.reps={};ST.exos=[];ST.exoBonus=null;ST.sessionsToday=0;ST.respirationsToday=0;resetTimer();
+  ST.pid=pid;ST.pname=pname;ST.reps={};ST.exos=[];ST.exoBonus=null;ST.sessionsToday=0;ST.respirationsToday=0;ST.avecOrtho=null;resetTimer();
   var boutonRespiration=document.getElementById('btn-respiration');
   boutonRespiration.style.display='none';
   boutonRespiration.disabled=true;
@@ -773,6 +773,23 @@ async function selectPatient(pid,pname){
   ST._dailySessionKey=sessionKey;
 
   if(ST.modeTest){actualiserBoutonRespiration();demarrerSessionPatient();return;}
+  if(ST.exos.length&&ST.sessionsToday>=3){ST.sessionStarting=false;afficherLimiteSessions();return;}
+  demanderPresenceOrtho();
+}
+
+function demanderPresenceOrtho(){
+  document.getElementById('exo-card').innerHTML=
+    '<div class="eval-exo" style="text-align:center;margin:24px 0">'+
+    '<div class="eval-exo-name">Tu es avec ton orthophoniste aujourd’hui ?</div>'+
+    '<div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:18px">'+
+    '<button type="button" onclick="choisirPresenceOrtho(true)" style="border:0;border-radius:10px;background:#1D9E75;color:#fff;padding:12px 16px;font-size:14px;font-weight:600;cursor:pointer;">👩‍⚕️ Avec mon ortho</button>'+
+    '<button type="button" onclick="choisirPresenceOrtho(false)" style="border:0;border-radius:10px;background:#378ADD;color:#fff;padding:12px 16px;font-size:14px;font-weight:600;cursor:pointer;">🏠 Tout.e seul.e</button>'+
+    '</div></div>';
+}
+
+function choisirPresenceOrtho(avecOrtho){
+  if(typeof ST.avecOrtho==='boolean')return;
+  ST.avecOrtho=avecOrtho;
   if(!ST.exos.length){
     if(ST.sommeilActif){showSleepEval();return;}
     demarrerSessionPatient();
@@ -1262,7 +1279,7 @@ async function showSuivi(fromOrtho,pid,pname,days){
       evals=null;
     }
     try{
-      exosFaits=await sb('xp_log?patient_id=eq.'+ST.pid+'&exercice_id=not.is.null&select=exercice_id,exercice_name,date_session&order=date_session.desc');
+      exosFaits=await sb('xp_log?patient_id=eq.'+ST.pid+'&exercice_id=not.is.null&select=exercice_id,exercice_name,date_session,avec_ortho&order=date_session.desc');
     }catch(error){
       console.error('Erreur lors du chargement de l’historique des exercices du patient.',error);
       exosFaits=null;
@@ -1451,8 +1468,9 @@ function buildSuivi(){
         if(!sessionsParDate[entry.date_session])sessionsParDate[entry.date_session]={};
         var key=entry.exercice_id?'id:'+entry.exercice_id:'name:'+entry.exercice_name;
         if(key!=='name:undefined'&&!sessionsParDate[entry.date_session][key]){
-          sessionsParDate[entry.date_session][key]={name:entry.exercice_name||'Exercice',scores:[]};
+          sessionsParDate[entry.date_session][key]={name:entry.exercice_name||'Exercice',scores:[],avecOrtho:entry.avec_ortho};
         }
+        if(typeof entry.avec_ortho==='boolean')sessionsParDate[entry.date_session][key].avecOrtho=entry.avec_ortho;
       });
       (ST.evalHistory||[]).forEach(function(entry){
         if(!entry.date_session||!Number.isFinite(Number(entry.score)))return;
@@ -1460,7 +1478,7 @@ function buildSuivi(){
         var key=entry.exercice_id?'id:'+entry.exercice_id:'name:'+entry.exercice_name;
         if(key==='name:undefined')return;
         if(!sessionsParDate[entry.date_session][key]){
-          sessionsParDate[entry.date_session][key]={name:entry.exercice_name||'Exercice',scores:[]};
+          sessionsParDate[entry.date_session][key]={name:entry.exercice_name||'Exercice',scores:[],avecOrtho:null};
         }
         sessionsParDate[entry.date_session][key].scores.push(Number(entry.score));
       });
@@ -1471,7 +1489,8 @@ function buildSuivi(){
         Object.keys(sessionsParDate[date]).sort(function(a,b){return sessionsParDate[date][a].name.localeCompare(sessionsParDate[date][b].name);}).forEach(function(key){
           var entry=sessionsParDate[date][key];
           html+='<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:#E1F5EE;border-radius:8px;padding:5px 9px;">';
-          html+='<span style="color:#085041;font-size:12px;font-weight:500;">'+esc(entry.name)+'</span>';
+          var presenceIcon=entry.avecOrtho===true?'<span title="Avec l’orthophoniste" aria-label="Avec l’orthophoniste"> 👩‍⚕️</span>':entry.avecOrtho===false?'<span title="Tout.e seul.e" aria-label="Tout.e seul.e"> 🏠</span>':'';
+          html+='<span style="color:#085041;font-size:12px;font-weight:500;">'+esc(entry.name)+presenceIcon+'</span>';
           html+='<span style="display:flex;align-items:center;gap:4px;">';
           entry.scores.forEach(function(score){
             var style=scoreColor(score);
@@ -2378,7 +2397,8 @@ async function enregistrerXP(exo){
     exercice_id:exo.id,
     exercice_name:exo.name+(exo._isBonus?' (bonus)':''),
     xp:xp,
-    date_session:todayStr()
+    date_session:todayStr(),
+    avec_ortho:ST.avecOrtho
   };
   await sb('xp_log',{method:'POST',body:JSON.stringify(log)});
   if(exo._isBonus){
@@ -3094,7 +3114,7 @@ async function epellChoixPicto(mot){
     document.getElementById('epell-result-emoji').textContent='🎉';
     document.getElementById('epell-result-msg').textContent='Bravo ! +'+xp+' '+libellePoints(xp);
     document.getElementById('epell-result-msg').style.color='#1D9E75';
-    await sb('xp_log',{method:'POST',body:JSON.stringify({patient_id:ST.pid,xp:xp,date_session:todayStr(),source:'epell'})});
+    await sb('xp_log',{method:'POST',body:JSON.stringify({patient_id:ST.pid,xp:xp,date_session:todayStr(),source:'epell',avec_ortho:ST.avecOrtho})});
   } else {
     document.getElementById('epell-result-emoji').textContent='💪';
     document.getElementById('epell-result-msg').textContent='C’était "'+EPELL.motCourant+'" — Continue !';
