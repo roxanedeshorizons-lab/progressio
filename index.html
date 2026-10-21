@@ -309,7 +309,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a
     </div>
     <button id="btn-bonus" onclick="lancerBonus()" style="display:none;width:100%;margin-top:12px;font-size:14px;font-weight:600;color:#fff;background:#E0A020;border:none;border-radius:10px;padding:12px;cursor:pointer;text-align:center;"></button>
     <button id="btn-epell" onclick="lancerEpellation()" style="display:none;width:100%;margin-top:10px;font-size:14px;font-weight:600;color:#fff;background:#7F6FCC;border:none;border-radius:10px;padding:12px;cursor:pointer;text-align:center;">⌨️ Exercice d'épellation</button>
-    <button id="btn-respiration" onclick="commencerRespiration()" style="width:100%;margin-top:10px;font-size:14px;font-weight:600;color:#fff;background:#378ADD;border:none;border-radius:10px;padding:12px;cursor:pointer;text-align:center;">⏱️ Chrono respiration</button>
+    <button id="btn-respiration" onclick="commencerRespiration()" style="display:none;width:100%;margin-top:10px;font-size:14px;font-weight:600;color:#fff;background:#378ADD;border:none;border-radius:10px;padding:12px;cursor:pointer;text-align:center;">⏱️ Chrono respiration</button>
   </div>
 </div>
 
@@ -646,8 +646,8 @@ async function sbUpload(file,path){
   return SB_URL+'/storage/v1/object/public/exercice-images/'+path;
 }
 
-var ST={pid:null,pname:'',exos:[],days:[],reps:{},chronoDone:{},evalScores:{},timer:300,timerOn:false,timerInt:null,editPid:null,editPname:'',editExos:[],hasLecture:false,hasEpell:false,lectDays:[],lectSessions:[],isOrthoSuivi:false,evalHistory:[],autoEval:true,sommeilActif:false,sommeilEchelle:5,sommeilSaving:false,modeTest:false,_sbReal:null,epellConfig:null,dailySessions:{},sessionsToday:0,respirationsToday:0,sessionStarting:false};
-var RESP={id:null,startedAt:0,timer:null,active:false,starting:false,points:0};
+var ST={pid:null,pname:'',exos:[],days:[],reps:{},chronoDone:{},evalScores:{},timer:300,timerOn:false,timerInt:null,editPid:null,editPname:'',editExos:[],hasLecture:false,hasEpell:false,lectDays:[],lectSessions:[],isOrthoSuivi:false,evalHistory:[],autoEval:true,sommeilActif:false,respirationActif:false,sommeilEchelle:5,sommeilSaving:false,modeTest:false,_sbReal:null,epellConfig:null,dailySessions:{},sessionsToday:0,respirationsToday:0,sessionStarting:false};
+var RESP={id:null,startedAt:0,timer:null,active:false,starting:false,points:0,maxReached:false};
 
 function show(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});document.getElementById(id).classList.add('active');}
 
@@ -679,6 +679,7 @@ async function loadProfiles(){
 async function selectPatient(pid,pname){
   ST.pid=pid;ST.pname=pname;ST.reps={};ST.exos=[];ST.exoBonus=null;ST.sessionsToday=0;ST.respirationsToday=0;resetTimer();
   var boutonRespiration=document.getElementById('btn-respiration');
+  boutonRespiration.style.display='none';
   boutonRespiration.disabled=true;
   boutonRespiration.textContent='⏱️ Chrono respiration';
   document.getElementById('btn-bonus').style.display='none';
@@ -691,10 +692,12 @@ async function selectPatient(pid,pname){
   var allExos=exos||[];
   var days=await sb('suivi?patient_id=eq.'+pid+'&select=date');
   ST.days=days?days.map(function(d){return d.date;}):[];
-  var patientData=await sb('patients?id=eq.'+pid+'&select=auto_eval,exos_par_jour,sommeil_actif,sommeil_echelle');
+  var patientData=await sb('patients?id=eq.'+pid+'&select=auto_eval,exos_par_jour,sommeil_actif,sommeil_echelle,respiration_actif');
   ST.autoEval=patientData&&patientData[0]?patientData[0].auto_eval!==false:true;
   ST.exosParJour=patientData&&patientData[0]&&patientData[0].exos_par_jour||3;
   ST.sommeilActif=patientData&&patientData[0]?patientData[0].sommeil_actif===true:false;
+  ST.respirationActif=patientData&&patientData[0]?patientData[0].respiration_actif===true:false;
+  boutonRespiration.style.display=ST.respirationActif?'block':'none';
   ST.sommeilEchelle=patientData&&patientData[0]?[3,5,10].indexOf(Number(patientData[0].sommeil_echelle))>=0?Number(patientData[0].sommeil_echelle):5:5;
   var listes=await sb('lecture_listes?patient_id=eq.'+pid+'&select=id,mots');
   ST.hasLecture=listes&&listes.length>0&&listes[0].mots&&listes[0].mots.length>0;
@@ -904,10 +907,11 @@ async function submitSleepEval(score){
 }
 
 function afficherEtatRespiration(){
-  var elapsed=Math.floor((Date.now()-RESP.startedAt)/1000);
+  var elapsed=Math.min(300,Math.floor((Date.now()-RESP.startedAt)/1000));
   RESP.points=Math.floor(elapsed/30)*5;
   document.getElementById('respiration-timer').textContent=pad(Math.floor(elapsed/60))+':'+pad(elapsed%60);
   document.getElementById('respiration-points').textContent='⭐ '+RESP.points+' '+libellePoints(RESP.points);
+  if(elapsed>=300&&RESP.active)arreterRespiration(true);
 }
 
 async function commencerRespiration(){
@@ -924,6 +928,7 @@ async function commencerRespiration(){
   document.getElementById('respiration-points').textContent='⭐ 0 Point';
   RESP.id=null;
   RESP.points=0;
+  RESP.maxReached=false;
   RESP.startedAt=Date.now();
   RESP.active=true;
   RESP.starting=false;
@@ -949,14 +954,15 @@ async function commencerRespiration(){
   })();
 }
 
-async function arreterRespiration(){
+async function arreterRespiration(maxReached){
   if(!RESP.active)return;
+  RESP.maxReached=RESP.maxReached||maxReached===true||Date.now()-RESP.startedAt>=300000;
   RESP.active=false;
   clearInterval(RESP.timer);
   RESP.timer=null;
   afficherEtatRespiration();
   document.getElementById('respiration-stop').disabled=true;
-  document.getElementById('respiration-result').textContent='Enregistrement des points...';
+  document.getElementById('respiration-result').textContent=RESP.maxReached?'Temps maximum atteint ! Enregistrement des points...':'Enregistrement des points...';
   await enregistrerPointsRespiration();
 }
 
@@ -978,11 +984,11 @@ async function enregistrerPointsRespiration(){
     console.error('Erreur lors de l’enregistrement des points de respiration.',error);
   }
   if(!result){
-    document.getElementById('respiration-result').textContent='Tes points n’ont pas pu être enregistrés. Réessaie.';
+    document.getElementById('respiration-result').textContent=(RESP.maxReached?'Temps maximum atteint ! ':'')+'Tes points n’ont pas pu être enregistrés. Réessaie.';
     document.getElementById('respiration-retry').style.display='block';
     return;
   }
-  document.getElementById('respiration-result').textContent='Tu as gagné '+RESP.points+' '+libellePoints(RESP.points)+' !';
+  document.getElementById('respiration-result').textContent=(RESP.maxReached?'Temps maximum atteint ! ':'')+'Tu as gagné '+RESP.points+' '+libellePoints(RESP.points)+' !';
   document.getElementById('respiration-stop').style.display='none';
   document.getElementById('respiration-retry').style.display='none';
   document.getElementById('respiration-return').style.display='block';
@@ -1696,7 +1702,7 @@ async function loadOrtho(){
   document.getElementById('ortho-loading').style.display='block';
   document.getElementById('ortho-patients').innerHTML='';
   document.getElementById('ortho-add-btn').style.display='none';
-  var patients=await sb('patients?select=id,name,auto_eval,exos_par_jour,sommeil_actif,sommeil_echelle&ortho_id=eq.'+SESSION_UID+'&order=created_at');
+  var patients=await sb('patients?select=id,name,auto_eval,exos_par_jour,sommeil_actif,sommeil_echelle,respiration_actif&ortho_id=eq.'+SESSION_UID+'&order=created_at');
   if(!patients){document.getElementById('ortho-loading').textContent='Erreur.';return;}
   var html='';
   for(var i=0;i<patients.length;i++){
@@ -1711,6 +1717,7 @@ async function loadOrtho(){
     html+='<div class="patient-row-link" onclick="copyLink(\''+lien+'\')">🔗 Copier le lien patient</div></div>';
     html+='<div class="patient-row-actions">';
     html+='<label class="btn-sm" style="display:flex;align-items:center;gap:5px"><input type="checkbox" '+(p.sommeil_actif?'checked':'')+' onchange="setSommeilActif(\''+p.id+'\',this.checked,this)" style="accent-color:#1D9E75">Auto-éval sommeil</label>';
+    html+='<label class="btn-sm" style="display:flex;align-items:center;gap:5px"><input type="checkbox" '+(p.respiration_actif?'checked':'')+' onchange="setRespirationActif(\''+p.id+'\',this.checked,this)" style="accent-color:#1D9E75">Chrono respiration activé</label>';
     html+='<select class="btn-sm" aria-label="Échelle de sommeil" title="Échelle de sommeil" onchange="setSommeilEchelle(\''+p.id+'\',this.value)">';
     [3,5,10].forEach(function(scale){html+='<option value="'+scale+'" '+(Number(p.sommeil_echelle||5)===scale?'selected':'')+'>'+scale+' niveaux</option>';});
     html+='</select>';
@@ -1739,6 +1746,11 @@ async function configExosParJour(pid,current){
 
 async function setSommeilActif(pid,active,checkbox){
   var result=await sb('patients?id=eq.'+pid,{method:'PATCH',body:JSON.stringify({sommeil_actif:active})});
+  if(result===null&&checkbox)checkbox.checked=!active;
+}
+
+async function setRespirationActif(pid,active,checkbox){
+  var result=await sb('patients?id=eq.'+pid,{method:'PATCH',body:JSON.stringify({respiration_actif:active})});
   if(result===null&&checkbox)checkbox.checked=!active;
 }
 
