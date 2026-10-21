@@ -1313,6 +1313,10 @@ async function showSuivi(fromOrtho,pid,pname,days){
     }
     try{
       exosFaits=await sb('xp_log?patient_id=eq.'+ST.pid+'&exercice_id=not.is.null&select=exercice_id,exercice_name,date_session,avec_ortho&order=date_session.desc');
+      if(exosFaits===null){
+        console.warn('La colonne xp_log.avec_ortho est inaccessible. Exécutez migration_avec_ortho.sql pour afficher les présences enregistrées.');
+        exosFaits=await sb('xp_log?patient_id=eq.'+ST.pid+'&exercice_id=not.is.null&select=exercice_id,exercice_name,date_session&order=date_session.desc');
+      }
     }catch(error){
       console.error('Erreur lors du chargement de l’historique des exercices du patient.',error);
       exosFaits=null;
@@ -1371,8 +1375,14 @@ function buildSuivi(){
   html+=legend;
   if(allDays.length){
     var sorted=allDays.slice().sort(),first=new Date(sorted[0]+'T00:00:00'),todayDate=new Date(today+'T00:00:00');
+    var presenceParJour={};
+    (ST.exerciseHistory||[]).forEach(function(entry){
+      if(!entry.date_session||typeof entry.avec_ortho!=='boolean')return;
+      if(!presenceParJour[entry.date_session])presenceParJour[entry.date_session]=[];
+      if(presenceParJour[entry.date_session].indexOf(entry.avec_ortho)<0)presenceParJour[entry.date_session].push(entry.avec_ortho);
+    });
     var cursor=new Date(first.getFullYear(),first.getMonth(),1);
-    while(cursor<=todayDate){html+=buildMonthCal(cursor,days,lectDays,todayDate);cursor.setMonth(cursor.getMonth()+1);}
+    while(cursor<=todayDate){html+=buildMonthCal(cursor,days,lectDays,todayDate,presenceParJour);cursor.setMonth(cursor.getMonth()+1);}
   }else{
     html+='<div class="empty-state">Aucun jour enregistré.</div>';
   }
@@ -1500,10 +1510,13 @@ function buildSuivi(){
         if(!entry.date_session)return;
         if(!sessionsParDate[entry.date_session])sessionsParDate[entry.date_session]={};
         var key=entry.exercice_id?'id:'+entry.exercice_id:'name:'+entry.exercice_name;
-        if(key!=='name:undefined'&&!sessionsParDate[entry.date_session][key]){
-          sessionsParDate[entry.date_session][key]={name:entry.exercice_name||'Exercice',scores:[],avecOrtho:entry.avec_ortho};
+        if(key==='name:undefined')return;
+        if(!sessionsParDate[entry.date_session][key]){
+          sessionsParDate[entry.date_session][key]={name:entry.exercice_name||'Exercice',scores:[],presences:[]};
         }
-        if(typeof entry.avec_ortho==='boolean')sessionsParDate[entry.date_session][key].avecOrtho=entry.avec_ortho;
+        if(typeof entry.avec_ortho==='boolean'&&sessionsParDate[entry.date_session][key].presences.indexOf(entry.avec_ortho)<0){
+          sessionsParDate[entry.date_session][key].presences.push(entry.avec_ortho);
+        }
       });
       (ST.evalHistory||[]).forEach(function(entry){
         if(!entry.date_session||!Number.isFinite(Number(entry.score)))return;
@@ -1511,7 +1524,7 @@ function buildSuivi(){
         var key=entry.exercice_id?'id:'+entry.exercice_id:'name:'+entry.exercice_name;
         if(key==='name:undefined')return;
         if(!sessionsParDate[entry.date_session][key]){
-          sessionsParDate[entry.date_session][key]={name:entry.exercice_name||'Exercice',scores:[],avecOrtho:null};
+          sessionsParDate[entry.date_session][key]={name:entry.exercice_name||'Exercice',scores:[],presences:[]};
         }
         sessionsParDate[entry.date_session][key].scores.push(Number(entry.score));
       });
@@ -1522,7 +1535,9 @@ function buildSuivi(){
         Object.keys(sessionsParDate[date]).sort(function(a,b){return sessionsParDate[date][a].name.localeCompare(sessionsParDate[date][b].name);}).forEach(function(key){
           var entry=sessionsParDate[date][key];
           html+='<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:#E1F5EE;border-radius:8px;padding:5px 9px;">';
-          var presenceIcon=entry.avecOrtho===true?'<span title="Avec l’orthophoniste" aria-label="Avec l’orthophoniste"> 👩‍⚕️</span>':entry.avecOrtho===false?'<span title="Tout.e seul.e" aria-label="Tout.e seul.e"> 🏠</span>':'';
+          var presenceIcon='';
+          if(entry.presences.indexOf(true)>=0)presenceIcon+='<span title="Avec l’orthophoniste" aria-label="Avec l’orthophoniste"> 👩‍⚕️</span>';
+          if(entry.presences.indexOf(false)>=0)presenceIcon+='<span title="Tout.e seul.e" aria-label="Tout.e seul.e"> 🏠</span>';
           html+='<span style="color:#085041;font-size:12px;font-weight:500;">'+esc(entry.name)+presenceIcon+'</span>';
           html+='<span style="display:flex;align-items:center;gap:4px;">';
           entry.scores.forEach(function(score){
@@ -1540,7 +1555,7 @@ function buildSuivi(){
   document.getElementById('cal-content').innerHTML=html;
 }
 
-function buildMonthCal(date,exoDays,lectDays,todayDate){
+function buildMonthCal(date,exoDays,lectDays,todayDate,presenceParJour){
   var months=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
   var y=date.getFullYear(),m=date.getMonth();
   var html='<div class="month-blk"><div class="month-t">'+months[m]+' '+y+'</div><div class="cal-grid">';
@@ -1560,6 +1575,9 @@ function buildMonthCal(date,exoDays,lectDays,todayDate){
       var dots='';
       if(hasExo)dots+='<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#1D9E75;margin:0 1px;"></span>';
       if(hasLect)dots+='<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#378ADD;margin:0 1px;"></span>';
+      var presences=presenceParJour&&presenceParJour[ds]||[];
+      if(hasExo&&presences.indexOf(true)>=0)dots+='<span title="Avec l’orthophoniste" aria-label="Avec l’orthophoniste" style="font-size:9px;line-height:9px;">👩‍⚕️</span>';
+      if(hasExo&&presences.indexOf(false)>=0)dots+='<span title="Tout.e seul.e" aria-label="Tout.e seul.e" style="font-size:9px;line-height:9px;">🏠</span>';
       if(!hasExo&&!hasLect)cls+=' missed';
       html+='<div class="'+cls+'" style="flex-direction:column;gap:2px;">'+dd+(dots?'<div style="display:flex;justify-content:center;">'+dots+'</div>':'')+'</div>';
     }
