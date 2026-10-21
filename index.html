@@ -646,7 +646,7 @@ async function sbUpload(file,path){
   return SB_URL+'/storage/v1/object/public/exercice-images/'+path;
 }
 
-var ST={pid:null,pname:'',exos:[],days:[],reps:{},chronoDone:{},evalScores:{},timer:300,timerOn:false,timerInt:null,editPid:null,editPname:'',editExos:[],hasLecture:false,hasEpell:false,lectDays:[],lectSessions:[],isOrthoSuivi:false,evalHistory:[],autoEval:true,sommeilActif:false,respirationActif:false,respirationConfigAvailable:true,avecOrtho:null,presenceResolve:null,sommeilEchelle:5,sommeilSaving:false,modeTest:false,_sbReal:null,epellConfig:null,dailySessions:{},sessionsToday:0,respirationsToday:0,sessionStarting:false};
+var ST={pid:null,pname:'',exos:[],days:[],reps:{},chronoDone:{},evalScores:{},timer:300,timerOn:false,timerInt:null,editPid:null,editPname:'',editExos:[],hasLecture:false,hasEpell:false,lectDays:[],lectSessions:[],isOrthoSuivi:false,evalHistory:[],autoEval:true,sommeilActif:false,respirationActif:false,respirationConfigAvailable:true,avecOrtho:null,presenceResolve:null,dailyCountersAvailable:true,sommeilEchelle:5,sommeilSaving:false,modeTest:false,_sbReal:null,epellConfig:null,dailySessions:{},sessionsToday:0,respirationsToday:0,sessionStarting:false};
 var RESP={id:null,startedAt:0,timer:null,stopTimeout:null,active:false,starting:false,points:0,maxReached:false};
 var RESP_MAX_SECONDS=300;
 var RESP_MAX_POINTS=50;
@@ -679,7 +679,7 @@ async function loadProfiles(){
 }
 
 async function selectPatient(pid,pname){
-  ST.pid=pid;ST.pname=pname;ST.reps={};ST.exos=[];ST.exoBonus=null;ST.sessionsToday=0;ST.respirationsToday=0;ST.avecOrtho=null;resetTimer();
+  ST.pid=pid;ST.pname=pname;ST.reps={};ST.exos=[];ST.exoBonus=null;ST.sessionsToday=0;ST.respirationsToday=0;ST.dailyCountersAvailable=true;ST.avecOrtho=null;resetTimer();
   var boutonRespiration=document.getElementById('btn-respiration');
   boutonRespiration.style.display='none';
   boutonRespiration.disabled=true;
@@ -716,10 +716,7 @@ async function selectPatient(pid,pname){
   var epellCfg=await sb('epell_config?patient_id=eq.'+pid+'&select=id,mots');
   ST.hasEpell=epellCfg&&epellCfg.length>0&&epellCfg[0].mots&&epellCfg[0].mots.length>0;
   ST.lectDays=[];
-  if(!ST.modeTest&&!await chargerCompteursQuotidiens()){
-    document.getElementById('exo-card').innerHTML='<div class="empty-state">Impossible de vérifier tes sessions du jour. Réessaie de recharger la page.</div>';
-    return;
-  }
+  if(!ST.modeTest)await chargerCompteursQuotidiens();
   // Charger historique auto-éval pour pondérer
   var evalLog=await sb('eval_scores?patient_id=eq.'+pid+'&select=exercice_id,score');
   var evalMoy={};
@@ -831,13 +828,30 @@ async function verifierColonneAvecOrtho(){
 
 async function chargerCompteursQuotidiens(){
   var rows;
+  var typeAvailable=true;
+  ST.dailyCountersAvailable=false;
   try{
     rows=await sb('xp_log?patient_id=eq.'+ST.pid+'&date_session=eq.'+todayStr()+'&select=type');
   }catch(error){
     console.error('Erreur lors du chargement des compteurs quotidiens.',error);
+  }
+  if(!Array.isArray(rows)){
+    typeAvailable=false;
+    console.warn('Impossible de compter les sessions via xp_log.type. Tentative de lecture sans la colonne type.');
+    try{
+      rows=await sb('xp_log?patient_id=eq.'+ST.pid+'&date_session=eq.'+todayStr()+'&select=date_session');
+    }catch(error){
+      console.error('Échec de la lecture de secours des compteurs quotidiens.',error);
+    }
+  }
+  if(!Array.isArray(rows)||(!typeAvailable&&rows.length>0)){
+    ST.sessionsToday=0;
+    ST.respirationsToday=0;
+    actualiserBoutonRespiration();
+    console.warn('Compteurs quotidiens non déterminables : les exercices restent accessibles, mais la limite journalière ne peut pas être vérifiée. Vérifiez la migration qui ajoute xp_log.type.');
     return false;
   }
-  if(!Array.isArray(rows))return false;
+  ST.dailyCountersAvailable=true;
   ST.sessionsToday=rows.filter(function(row){return row.type==='session_obligatoire';}).length;
   ST.respirationsToday=rows.filter(function(row){return row.type==='respiration';}).length;
   actualiserBoutonRespiration();
@@ -876,12 +890,8 @@ async function lancerSessionObligatoire(){
     return;
   }
   ST.sessionStarting=true;
-  if(!await chargerCompteursQuotidiens()){
-    ST.sessionStarting=false;
-    document.getElementById('exo-card').innerHTML='<div class="empty-state">Impossible de vérifier tes sessions du jour. Réessaie dans un instant.</div>';
-    return;
-  }
-  if(ST.sessionsToday>=3){afficherLimiteSessions();return;}
+  if(ST.dailyCountersAvailable)await chargerCompteursQuotidiens();
+  if(ST.dailyCountersAvailable&&ST.sessionsToday>=3){afficherLimiteSessions();return;}
   document.getElementById('exo-card').innerHTML='<div class="loading">Préparation de ta session...</div>';
   var result;
   try{
@@ -896,7 +906,9 @@ async function lancerSessionObligatoire(){
   }
   ST.sessionStarting=false;
   if(!result){
-    document.getElementById('exo-card').innerHTML='<div class="empty-state">Impossible de démarrer ta session. Réessaie dans un instant.</div>';
+    console.warn('La réservation de session obligatoire a échoué. Les exercices restent accessibles, mais la limite journalière ne pourra pas être garantie.');
+    ST.sommeilActif=false;
+    demarrerSessionPatient();
     return;
   }
   ST.sessionsToday++;
