@@ -154,6 +154,18 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a
 .eval-labels{display:flex;justify-content:space-between;font-size:11px;color:#9b9b96;padding:0 4px;}
 
 .chrono-done-msg{font-size:14px;font-weight:600;color:#085041;text-align:center;padding:14px 0;}
+.articulation-player{background:#fff;border:1.5px solid #e0dfd8;border-radius:14px;padding:20px 16px;text-align:center;}
+.articulation-syllable{font-size:3.5rem;font-weight:800;line-height:1.05;margin:12px 0 20px;color:#1a1a18;}
+.articulation-question{font-size:1.15rem;font-weight:700;line-height:1.4;margin-bottom:16px;}
+.articulation-choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.articulation-choice{min-height:48px;border:0;border-radius:10px;padding:10px 8px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;}
+.articulation-choice:disabled{cursor:default;opacity:0.8;}
+.articulation-feedback{min-height:24px;margin-top:14px;font-size:14px;font-weight:700;}
+.articulation-feedback.correct{color:#257A50;}
+.articulation-feedback.incorrect{color:#C0392B;}
+.articulation-next{width:100%;margin-top:10px;border:0;border-radius:10px;background:#378ADD;color:#fff;padding:12px;font-size:14px;font-weight:700;cursor:pointer;}
+.articulation-score{background:#f0fbf6;border:1px solid #9FE1CB;border-radius:12px;padding:18px;text-align:center;font-size:20px;font-weight:700;color:#085041;}
+.articulation-score small{display:block;font-size:13px;font-weight:500;color:#6b6b66;margin-top:5px;}
 .lect-dot{width:10px;height:10px;border-radius:50%;background:#e0dfd8;transition:background 0.2s;}
 .lect-dot.ok{background:#1D9E75;}
 .lect-dot.err{background:#E24B4A;}
@@ -679,6 +691,7 @@ async function loadProfiles(){
 }
 
 async function selectPatient(pid,pname){
+  annulerTimerArticulation();
   ST.pid=pid;ST.pname=pname;ST.reps={};ST.exos=[];ST.exoBonus=null;ST.sessionsToday=0;ST.respirationsToday=0;ST.dailyCountersAvailable=true;ST.avecOrtho=null;resetTimer();
   var boutonRespiration=document.getElementById('btn-respiration');
   boutonRespiration.style.display='none';
@@ -1062,6 +1075,7 @@ function quitterRespiration(){
 }
 
 function goProfiles(){
+  annulerTimerArticulation();
   clearTimer();ST.reps={};ST.chronoDone={};
   if(ST.modeTest){quitterModeTest();return;}
   show('s-profiles');
@@ -1072,6 +1086,7 @@ function isExoDone(exo){
   if(exo.type==='reps')return (ST.reps[exo.id]||0)>=(exo.reps||10);
   if(exo.type==='sounds')return (exo.sounds||[]).every(function(s,si){return (ST.reps[exo.id+'_'+si]||0)>=s.reps;});
   if(exo.type==='chrono')return ST.chronoDone[exo.id]===true;
+  if(exo.type==='articulation')return ARTICULATION.exoId===exo.id&&ARTICULATION.complete;
   return false;
 }
 
@@ -1091,11 +1106,141 @@ function goExos(){
 }
 
 function buildExos(){
+  annulerTimerArticulation();
   ST.exoIndex=0;
   // Afficher bouton épellation si configuré
   var btnEpell=document.getElementById('btn-epell');
   if(btnEpell) btnEpell.style.display=ST.hasEpell?'block':'none';
   showCurrentExo();
+}
+
+var ARTICULATION_DATA=[
+  {syllable:'pra',first:'Lèvres',second:'Gorge'},
+  {syllable:'pro',first:'Lèvres',second:'Gorge'},
+  {syllable:'pre',first:'Lèvres',second:'Gorge'},
+  {syllable:'par',first:'Lèvres',second:'Lèvres'},
+  {syllable:'per',first:'Lèvres',second:'Lèvres'},
+  {syllable:'bra',first:'Lèvres',second:'Gorge'},
+  {syllable:'bre',first:'Lèvres',second:'Gorge'},
+  {syllable:'bar',first:'Lèvres',second:'Lèvres'},
+  {syllable:'tra',first:'Langue',second:'Gorge'},
+  {syllable:'tre',first:'Langue',second:'Gorge'},
+  {syllable:'tar',first:'Langue',second:'Lèvres'},
+  {syllable:'dra',first:'Langue',second:'Gorge'},
+  {syllable:'dar',first:'Langue',second:'Lèvres'},
+  {syllable:'gra',first:'Gorge',second:'Gorge'},
+  {syllable:'gar',first:'Gorge',second:'Lèvres'},
+  {syllable:'plo',first:'Lèvres',second:'Langue'},
+  {syllable:'blo',first:'Lèvres',second:'Langue'},
+  {syllable:'fra',first:'Lèvres+dents',second:'Gorge'},
+  {syllable:'far',first:'Lèvres+dents',second:'Lèvres'}
+];
+var ARTICULATION_ZONES=['Lèvres','Lèvres+dents','Langue','Palais','Gorge'];
+var ARTICULATION_COLORS={
+  'Lèvres':'#D94F45',
+  'Lèvres+dents':'#E07830',
+  'Langue':'#3A82CC',
+  'Palais':'#7050A0',
+  'Gorge':'#257A50'
+};
+var ARTICULATION={exoId:null,syllables:[],index:0,phase:1,score:0,answered:false,firstCorrect:false,secondCorrect:false,complete:false,runId:0,timer:null};
+
+function annulerTimerArticulation(){
+  if(ARTICULATION.timer){
+    clearTimeout(ARTICULATION.timer);
+    ARTICULATION.timer=null;
+  }
+}
+
+function melangerArticulation(items){
+  var result=items.slice();
+  for(var i=result.length-1;i>0;i--){
+    var j=Math.floor(Math.random()*(i+1));
+    var item=result[i];result[i]=result[j];result[j]=item;
+  }
+  return result;
+}
+
+function commencerArticulation(exo){
+  annulerTimerArticulation();
+  ARTICULATION={exoId:exo.id,syllables:melangerArticulation(ARTICULATION_DATA).slice(0,5),index:0,phase:1,score:0,answered:false,firstCorrect:false,secondCorrect:false,complete:false,runId:ARTICULATION.runId+1,timer:null};
+  afficherArticulation(exo);
+}
+
+function afficherArticulation(exo){
+  var item=ARTICULATION.syllables[ARTICULATION.index];
+  if(!item){terminerArticulation(exo);return;}
+  var consonne=item.syllable.charAt(ARTICULATION.phase===1?0:1);
+  var target=ARTICULATION.phase===1?item.first:item.second;
+  var distracteurs=melangerArticulation(ARTICULATION_ZONES.filter(function(zone){return zone!==target;})).slice(0,3);
+  var choices=melangerArticulation([target].concat(distracteurs));
+  var html='<div class="articulation-player">';
+  html+='<div class="exo-nm">'+esc(exo.name)+'</div>';
+  html+='<div class="reps-label">Syllabe '+(ARTICULATION.index+1)+' / '+ARTICULATION.syllables.length+'</div>';
+  html+='<div class="articulation-syllable">'+esc(item.syllable)+'</div>';
+  html+='<div class="articulation-question">Où s’articule le '+(ARTICULATION.phase===1?'1er':'2e')+' son ? ['+esc(consonne)+']</div>';
+  html+='<div class="articulation-choices">';
+  choices.forEach(function(zone){
+    var zoneIndex=ARTICULATION_ZONES.indexOf(zone);
+    html+='<button type="button" class="articulation-choice" style="background:'+ARTICULATION_COLORS[zone]+'" onclick="repondreArticulation('+zoneIndex+')"'+(ARTICULATION.answered?' disabled':'')+'>'+esc(zone)+'</button>';
+  });
+  html+='</div>';
+  if(ARTICULATION.answered){
+    var correct=ARTICULATION.selected===target;
+    html+='<div class="articulation-feedback '+(correct?'correct':'incorrect')+'" role="status">'+(correct?'Correct !':'Incorrect. La bonne réponse est : '+esc(target)+'.')+'</div>';
+    if(!correct)html+='<button type="button" class="articulation-next" onclick="avancerArticulation()">Suivant</button>';
+  }else{
+    html+='<div class="articulation-feedback" role="status"></div>';
+  }
+  html+='</div>';
+  document.getElementById('exo-card').innerHTML=html;
+}
+
+function repondreArticulation(zoneIndex){
+  if(ARTICULATION.answered)return;
+  var exo=ST.exos[ST.exoIndex||0];
+  var item=ARTICULATION.syllables[ARTICULATION.index];
+  var target=ARTICULATION.phase===1?item.first:item.second;
+  ARTICULATION.selected=ARTICULATION_ZONES[zoneIndex];
+  ARTICULATION.answered=true;
+  if(ARTICULATION.phase===1)ARTICULATION.firstCorrect=ARTICULATION.selected===target;
+  else ARTICULATION.secondCorrect=ARTICULATION.selected===target;
+  afficherArticulation(exo);
+  if(ARTICULATION.selected===target){
+    var runId=ARTICULATION.runId;
+    ARTICULATION.timer=setTimeout(function(){
+      if(ARTICULATION.runId!==runId||!ARTICULATION.answered)return;
+      ARTICULATION.timer=null;
+      avancerArticulation();
+    },1000);
+  }
+}
+
+function avancerArticulation(){
+  if(!ARTICULATION.answered)return;
+  if(ARTICULATION.phase===1){
+    ARTICULATION.phase=2;
+  }else{
+    if(ARTICULATION.firstCorrect&&ARTICULATION.secondCorrect)ARTICULATION.score+=5;
+    ARTICULATION.index++;
+    ARTICULATION.phase=1;
+    ARTICULATION.firstCorrect=false;
+    ARTICULATION.secondCorrect=false;
+  }
+  ARTICULATION.answered=false;
+  ARTICULATION.selected=null;
+  var exo=ST.exos[ST.exoIndex||0];
+  afficherArticulation(exo);
+}
+
+function terminerArticulation(exo){
+  ARTICULATION.complete=true;
+  var html='<div class="articulation-player"><div class="exo-nm" style="margin-bottom:12px">'+esc(exo.name)+'</div>';
+  html+='<div class="articulation-score" role="status">Score : '+ARTICULATION.score+' / '+(ARTICULATION.syllables.length*5)+' points';
+  html+='<small>'+ARTICULATION.syllables.length+' syllabes travaillées</small></div>';
+  html+='</div>';
+  document.getElementById('exo-card').innerHTML=html;
+  onExoComplete(exo);
 }
 
 function buildExoCard(exo){
@@ -1157,6 +1302,11 @@ function showCurrentExo(){
   else if(exo.type==='sounds'){(exo.sounds||[]).forEach(function(s,si){ST.reps[exo.id+'_'+si]=0;});}
   else if(exo.type==='chrono'){ST.chronoDone[exo.id]=false;}
 
+  if(exo.type==='articulation'){
+    commencerArticulation(exo);
+    document.getElementById('btn-reset').style.display='block';
+    return;
+  }
   document.getElementById('exo-card').innerHTML=buildExoCard(exo);
   document.getElementById('btn-reset').style.display='block';
 }
@@ -1184,7 +1334,7 @@ function dotClick(key,idx,total,color){
 }
 
 function onExoComplete(exo){
-  if(ST.autoEval){
+  if(ST.autoEval||exo.type==='articulation'){
     showExoEval(exo);
   } else {
     ST.evalScores=ST.evalScores||{};
@@ -1877,6 +2027,7 @@ async function ouvrirApercu(pid,pname){
 }
 
 function quitterModeTest(){
+  annulerTimerArticulation();
   ST.modeTest=false;
   // Restaurer la vraie fonction sb
   if(ST._sbReal)window.sb=ST._sbReal;
@@ -1926,6 +2077,7 @@ async function confirmerCopie(){
         chrono_type:e.chrono_type,
         chrono_secs:e.chrono_secs,
         xp:e.xp,
+        categorie:e.categorie||catParType(e.type),
         position:e.position,
         image_url:e.image_url||''
       };
@@ -1983,6 +2135,7 @@ function renderEditor(exo,i,cb){
   var sounds=exo.sounds||[];
   var isSound=exo.type==='sounds';
   var isChrono=exo.type==='chrono';
+  var isArticulation=exo.type==='articulation';
   var colorDots=COLORS.map(function(c){return '<div class="color-dot'+(exo.color===c?' selected':'')+'" style="background:'+c+'" onclick="setColor('+i+',\''+c+'\')"></div>';}).join('');
   var soundsHtml='';
   sounds.forEach(function(s,si){
@@ -2000,11 +2153,12 @@ function renderEditor(exo,i,cb){
   html+='<div class="field-row-inline">';
   html+='<div class="field-row" style="margin:0"><label>Dose</label><input type="text" id="edose_'+i+'" value="'+esc(exo.dose||'')+'" placeholder="Ex : 10 fois" /></div>';
   html+='<div class="field-row" style="margin:0"><label>Type</label><select id="etype_'+i+'" onchange="toggleType('+i+')">';
-  html+='<option value="reps"'+(isSound||isChrono?'':' selected')+'>Répétitions</option>';
+  html+='<option value="reps"'+(isSound||isChrono||isArticulation?'':' selected')+'>Répétitions</option>';
   html+='<option value="sounds"'+(isSound?' selected':'')+'>Sons groupés</option>';
   html+='<option value="chrono"'+(isChrono?' selected':'')+'>Chronomètre</option>';
+  if(isArticulation)html+='<option value="articulation" selected>Lieux d’articulation</option>';
   html+='</select></div></div>';
-  html+='<div class="field-row" id="reps-field-'+i+'" style="'+(isSound||isChrono?'display:none':'')+'">';
+  html+='<div class="field-row" id="reps-field-'+i+'" style="'+(isSound||isChrono||isArticulation?'display:none':'')+'">';
   html+='<label>Nombre de cercles</label><input type="number" id="ereps_'+i+'" min="1" max="20" value="'+(exo.reps||10)+'" /></div>';
   html+='<div class="field-row" id="chrono-field-'+i+'" style="'+(isChrono?'':'display:none')+'">';
   html+='<label>Type de chrono</label>';
@@ -2284,6 +2438,7 @@ async function stopStopwatch(exoId,elapsed){
 var CATEGORIES=[
   {id:'myofonctionnel',label:'Myofonctionnel',types:['reps','sounds','chrono']},
   {id:'lecture',label:'Lecture',types:['lecture']},
+  {id:'conscience_phonologique',label:'Conscience phonologique',types:['articulation']},
   {id:'ecriture',label:'Écriture',types:[]},
   {id:'langage_oral',label:'Langage oral',types:[]},
   {id:'autre',label:'Autre',types:[]}
@@ -2360,11 +2515,78 @@ async function switchBiblioTab(catId){
   await loadBiblioContent();
 }
 
+function carteBibliothequeArticulation(patients){
+  var html='<div class="biblio-exo">';
+  html+='<div class="biblio-exo-header"><div><div class="biblio-exo-name">Lieux d’articulation – Coarticulation</div>';
+  html+='<div class="biblio-exo-meta">5 syllabes par session · jusqu’à 3 sessions par jour</div></div></div>';
+  html+='<div class="biblio-exo-how">Identifier la zone d’articulation des deux sons de chaque syllabe, puis obtenir un score et une auto-évaluation.</div>';
+  if(patients.length){
+    html+='<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">';
+    html+='<select id="articulation-patient" class="biblio-cat-select" aria-label="Patient auquel affecter l’exercice" style="flex:1;min-width:170px;">';
+    html+='<option value="">Choisir un patient…</option>';
+    patients.forEach(function(patient){html+='<option value="'+esc(patient.id)+'">'+esc(patient.name)+'</option>';});
+    html+='</select>';
+    html+='<button type="button" class="btn-sm primary" onclick="ajouterArticulationAuPatient()">Ajouter au programme</button>';
+    html+='</div>';
+  }else{
+    html+='<div class="biblio-exo-meta" style="margin-top:10px;">Créez un patient pour pouvoir lui affecter cet exercice.</div>';
+  }
+  html+='<div id="articulation-assign-status" role="status" style="font-size:12px;margin-top:8px;"></div></div>';
+  return html;
+}
+
+async function ajouterArticulationAuPatient(){
+  var select=document.getElementById('articulation-patient');
+  var status=document.getElementById('articulation-assign-status');
+  if(!select||!select.value){
+    if(status)status.textContent='Choisissez un patient.';
+    return;
+  }
+  var pid=select.value;
+  var existing=await sb('exercices?patient_id=eq.'+pid+'&select=id,name,type,position&order=position');
+  if(!Array.isArray(existing)){
+    if(status)status.textContent='Impossible de charger le programme du patient. Réessayez.';
+    return;
+  }
+  var alreadyAssigned=existing.some(function(exo){return exo.type==='articulation'||String(exo.name||'').toLowerCase().trim()==='lieux d’articulation – coarticulation';});
+  if(alreadyAssigned){
+    if(status)status.textContent='Cet exercice est déjà dans le programme de ce patient.';
+    return;
+  }
+  var positions=existing.map(function(exo){return Number(exo.position)||0;});
+  var result=await sb('exercices',{method:'POST',body:JSON.stringify({
+    patient_id:pid,
+    name:'Lieux d’articulation – Coarticulation',
+    dose:'5 syllabes par session',
+    how:'Écoute chaque syllabe et choisis la zone où s’articule le 1er puis le 2e son.',
+    why:'Développer la conscience phonologique et repérer les lieux d’articulation.',
+    color:'#7F77DD',
+    type:'articulation',
+    xp:5,
+    categorie:'conscience_phonologique',
+    position:positions.length?Math.max.apply(Math,positions)+1:0,
+    image_url:''
+  })});
+  if(!result||!result[0]){
+    if(status)status.textContent='L’ajout a échoué. Vérifiez la connexion puis réessayez.';
+    return;
+  }
+  if(status)status.textContent='Exercice ajouté au programme.';
+}
+
 async function loadBiblioContent(){
   document.getElementById('biblio-content').innerHTML='<div class="loading">Chargement...</div>';
   // Charger tous les exercices de l'ortho connectée
   var allPatients=await sb('patients?select=id,name&ortho_id=eq.'+SESSION_UID);
-  if(!allPatients||!allPatients.length){
+  if(!Array.isArray(allPatients)){
+    document.getElementById('biblio-content').innerHTML='<div class="biblio-empty">Impossible de charger les patients. Réessayez.</div>';
+    return;
+  }
+  if(!allPatients.length){
+    if(biblioCatActive==='conscience_phonologique'){
+      document.getElementById('biblio-content').innerHTML=carteBibliothequeArticulation([]);
+      return;
+    }
     document.getElementById('biblio-content').innerHTML='<div class="biblio-empty">Aucun exercice créé pour le moment.</div>';
     return;
   }
@@ -2382,7 +2604,7 @@ async function loadBiblioContent(){
   // Filtrer par catégorie active
   var filtered=allExos.filter(function(e){
     var cat=e.categorie||catParType(e.type);
-    return cat===biblioCatActive;
+    return cat===biblioCatActive&&e.type!=='articulation';
   });
 
   // Dédupliquer par nom (garder le premier de chaque nom)
@@ -2394,14 +2616,12 @@ async function loadBiblioContent(){
   });
   unique.sort(function(a,b){return a.name.localeCompare(b.name);});
 
+  var html=biblioCatActive==='conscience_phonologique'?carteBibliothequeArticulation(allPatients):'';
   if(!unique.length){
-    document.getElementById('biblio-content').innerHTML='<div class="biblio-empty">Aucun exercice dans cette catégorie.</div>';
+    document.getElementById('biblio-content').innerHTML=html||'<div class="biblio-empty">Aucun exercice dans cette catégorie.</div>';
     return;
   }
 
-  var catOptions=CATEGORIES.map(function(c){return '<option value="'+c.id+'">'+ c.label+'</option>';}).join('');
-
-  var html='';
   unique.forEach(function(exo){
     var cat=exo.categorie||catParType(exo.type);
     html+='<div class="biblio-exo">';
@@ -2460,7 +2680,7 @@ function getRang(xp){
 }
 
 async function enregistrerXP(exo){
-  var xp=(exo.xp||10)+(exo._isBonus?5:0);
+  var xp=exo.type==='articulation'?ARTICULATION.score:(exo.xp||10)+(exo._isBonus?5:0);
   var log={
     patient_id:ST.pid,
     exercice_id:exo.id,
@@ -2469,6 +2689,7 @@ async function enregistrerXP(exo){
     date_session:todayStr(),
     avec_ortho:ST.avecOrtho
   };
+  if(exo.type==='articulation')log.score=ARTICULATION.score;
   await sb('xp_log',{method:'POST',body:JSON.stringify(log)});
   if(exo._isBonus){
     ST.bonusDone=true;
