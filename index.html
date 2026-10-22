@@ -449,6 +449,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a
     <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
       <button class="edit-tab active" id="tab-myo" onclick="switchEditTab('myo')">💪 Myofonctionnel</button>
       <button class="edit-tab" id="tab-lecture" onclick="switchEditTab('lecture')">📖 Lecture</button>
+      <button class="edit-tab" id="tab-phonologie" onclick="switchEditTab('phonologie')">🗣️ Conscience phonologique</button>
       <button class="edit-tab" id="tab-epell" onclick="switchEditTab('epell')">⌨️ Épellation</button>
     </div>
 
@@ -472,6 +473,22 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a
         <label style="font-size:11px;color:#9b9b96;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">Liste de mots (un mot par ligne)</label>
         <textarea id="edit-lect-mots" style="width:100%;min-height:200px;font-size:14px;padding:10px;border:1px solid #d0cfc8;border-radius:8px;outline:none;font-family:inherit;margin-top:4px;line-height:1.8;" placeholder="bateau&#10;gâteau&#10;chapeau&#10;manteau&#10;..."></textarea>
       </div>
+    </div>
+
+    <!-- SECTION CONSCIENCE PHONOLOGIQUE -->
+    <div id="edit-section-phonologie" style="display:none;">
+      <div class="exo-editor">
+        <div class="exo-editor-header">
+          <span class="exo-editor-num">Exercice 1</span>
+          <label class="btn-sm" style="display:flex;align-items:center;gap:6px;">
+            <input type="checkbox" id="edit-articulation-enabled" style="accent-color:#1D9E75;">
+            Activer
+          </label>
+        </div>
+        <div class="biblio-exo-name">Lieux d’articulation – Coarticulation</div>
+        <div class="biblio-exo-how" style="margin-top:6px;">5 syllabes aléatoires par session, jusqu’à 3 sessions par jour. Le patient identifie le lieu d’articulation des deux sons et s’auto-évalue à la fin.</div>
+      </div>
+      <div id="edit-articulation-status" role="status" style="font-size:12px;color:#C0392B;margin-top:8px;"></div>
     </div>
 
     <!-- SECTION ÉPELLATION -->
@@ -2102,7 +2119,13 @@ async function openEditor(pid,pname,sourceNote){
   switchEditTab('myo');
   document.getElementById('edit-exos-list').innerHTML='<div class="loading">Chargement...</div>';
   var exos=await sb('exercices?patient_id=eq.'+pid+'&order=position');
-  ST.editExos=(exos||[]).map(function(e){return Object.assign({},e,{_tmpImg:null});});
+  var articulationToggle=document.getElementById('edit-articulation-enabled');
+  var articulationStatus=document.getElementById('edit-articulation-status');
+  ST.editArticulationExo=Array.isArray(exos)?exos.find(function(e){return e.type==='articulation';})||null:null;
+  articulationToggle.disabled=!Array.isArray(exos);
+  articulationToggle.checked=!!ST.editArticulationExo;
+  articulationStatus.textContent=Array.isArray(exos)?'':'Impossible de charger les exercices du patient. Réessayez avant de modifier le programme.';
+  ST.editExos=(exos||[]).filter(function(e){return e.type!=='articulation';}).map(function(e){return Object.assign({},e,{_tmpImg:null});});
   renderEditors();
   // Charger config lecture
   var liste=await sb('lecture_listes?patient_id=eq.'+pid);
@@ -2470,11 +2493,53 @@ function buildBiblioTabs(){
 async function switchEditTab(tab){
   document.getElementById('tab-myo').classList.toggle('active',tab==='myo');
   document.getElementById('tab-lecture').classList.toggle('active',tab==='lecture');
+  document.getElementById('tab-phonologie').classList.toggle('active',tab==='phonologie');
   document.getElementById('tab-epell').classList.toggle('active',tab==='epell');
   document.getElementById('edit-section-myo').style.display=tab==='myo'?'block':'none';
   document.getElementById('edit-section-lecture').style.display=tab==='lecture'?'block':'none';
+  document.getElementById('edit-section-phonologie').style.display=tab==='phonologie'?'block':'none';
   document.getElementById('edit-section-epell').style.display=tab==='epell'?'block':'none';
   if(tab==='epell') openEpellConfig();
+}
+
+async function saveArticulationProgram(){
+  var enabled=document.getElementById('edit-articulation-enabled').checked;
+  var status=document.getElementById('edit-articulation-status');
+  if(document.getElementById('edit-articulation-enabled').disabled){
+    status.textContent='Impossible de sauvegarder : les exercices du patient n’ont pas pu être chargés.';
+    return false;
+  }
+  status.textContent='';
+  if(enabled&&!ST.editArticulationExo){
+    var result=await sb('exercices',{method:'POST',body:JSON.stringify({
+      patient_id:ST.editPid,
+      name:'Lieux d’articulation – Coarticulation',
+      dose:'5 syllabes par session',
+      how:'Écoute chaque syllabe et choisis la zone où s’articule le 1er puis le 2e son.',
+      why:'Développer la conscience phonologique et repérer les lieux d’articulation.',
+      color:'#7F77DD',
+      type:'articulation',
+      xp:5,
+      categorie:'conscience_phonologique',
+      position:ST.editExos.length,
+      image_url:''
+    })});
+    if(!Array.isArray(result)||!result.length){
+      status.textContent='Impossible d’activer l’exercice. Vérifiez la connexion puis réessayez.';
+      return false;
+    }
+    ST.editArticulationExo=result[0];
+    return true;
+  }
+  if(!enabled&&ST.editArticulationExo){
+    var deleted=await sb('exercices?id=eq.'+ST.editArticulationExo.id,{method:'DELETE'});
+    if(deleted===null){
+      status.textContent='Impossible de désactiver l’exercice. Vérifiez la connexion puis réessayez.';
+      return false;
+    }
+    ST.editArticulationExo=null;
+  }
+  return true;
 }
 
 async function saveAllEdits(){
@@ -2483,6 +2548,13 @@ async function saveAllEdits(){
 
   // Sauvegarder les exercices myo
   await saveAllExos(true);
+
+  // Sauvegarder le programme de conscience phonologique
+  if(!await saveArticulationProgram()){
+    btn.textContent='Enregistrer le programme';btn.disabled=false;
+    await switchEditTab('phonologie');
+    return;
+  }
 
   // Sauvegarder exos_par_jour
   var exosParJour=parseInt(document.getElementById('edit-exos-par-jour').value)||3;
