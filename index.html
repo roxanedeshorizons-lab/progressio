@@ -1031,6 +1031,7 @@ async function commencerRespiration(){
         patient_id:ST.pid,
         type:'respiration',
         xp:0,
+        score:0,
         date_session:todayStr()
       })});
       if(!result||!result[0]||!result[0].id)throw new Error('La session de respiration n’a pas été enregistrée.');
@@ -1063,12 +1064,13 @@ async function enregistrerPointsRespiration(){
   try{
     if(RESP.logPromise)await RESP.logPromise;
     if(RESP.id){
-      result=await sb('xp_log?id=eq.'+RESP.id,{method:'PATCH',body:JSON.stringify({xp:RESP.points})});
+      result=await sb('xp_log?id=eq.'+RESP.id,{method:'PATCH',body:JSON.stringify({xp:RESP.points,score:RESP.points})});
     }else{
       result=await sb('xp_log',{method:'POST',body:JSON.stringify({
         patient_id:ST.pid,
         type:'respiration',
         xp:RESP.points,
+        score:RESP.points,
         date_session:todayStr()
       })});
     }
@@ -2758,10 +2760,10 @@ async function enregistrerXP(exo){
     exercice_id:exo.id,
     exercice_name:exo.name+(exo._isBonus?' (bonus)':''),
     xp:xp,
+    score:xp,
     date_session:todayStr(),
     avec_ortho:ST.avecOrtho
   };
-  if(exo.type==='articulation')log.score=ARTICULATION.score;
   await sb('xp_log',{method:'POST',body:JSON.stringify(log)});
   if(exo._isBonus){
     ST.bonusDone=true;
@@ -3476,7 +3478,7 @@ async function epellChoixPicto(mot){
     document.getElementById('epell-result-emoji').textContent='🎉';
     document.getElementById('epell-result-msg').textContent='Bravo ! +'+xp+' '+libellePoints(xp);
     document.getElementById('epell-result-msg').style.color='#1D9E75';
-    await sb('xp_log',{method:'POST',body:JSON.stringify({patient_id:ST.pid,xp:xp,date_session:todayStr(),source:'epell',avec_ortho:ST.avecOrtho})});
+    await sb('xp_log',{method:'POST',body:JSON.stringify({patient_id:ST.pid,xp:xp,score:xp,date_session:todayStr(),source:'epell',avec_ortho:ST.avecOrtho})});
   } else {
     document.getElementById('epell-result-emoji').textContent='💪';
     document.getElementById('epell-result-msg').textContent='C’était "'+EPELL.motCourant+'" — Continue !';
