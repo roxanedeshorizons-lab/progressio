@@ -2415,7 +2415,7 @@ async function startCountdown(exoId,totalSecs,color){
       var exo=ST.exos.find(function(e){return e.id===exoId;});
       if(exo){
         if(ST.autoEval){setTimeout(function(){showExoEval(exo);},400);}
-        else{ST.evalScores=ST.evalScores||{};ST.evalScores[exo.id]=0;if(ST.exos.every(function(e){return isExoDone(e);}))verifierBonusOuBravo();}
+        else{ST.evalScores=ST.evalScores||{};ST.evalScores[exo.id]=0;enregistrerXP(exo);if(ST.exos.every(function(e){return isExoDone(e);}))verifierBonusOuBravo();}
       }
     }
   },1000);
@@ -2455,7 +2455,7 @@ async function stopStopwatch(exoId,elapsed){
   var exo=ST.exos.find(function(e){return e.id===exoId;});
   if(exo){
     if(ST.autoEval){setTimeout(function(){showExoEval(exo);},400);}
-    else{ST.evalScores=ST.evalScores||{};ST.evalScores[exo.id]=0;if(ST.exos.every(function(e){return isExoDone(e);}))verifierBonusOuBravo();}
+    else{ST.evalScores=ST.evalScores||{};ST.evalScores[exo.id]=0;enregistrerXP(exo);if(ST.exos.every(function(e){return isExoDone(e);}))verifierBonusOuBravo();}
   }
 }
 
