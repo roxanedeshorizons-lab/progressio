@@ -675,7 +675,7 @@ async function sbUpload(file,path){
   return SB_URL+'/storage/v1/object/public/exercice-images/'+path;
 }
 
-var ST={pid:null,pname:'',exos:[],days:[],reps:{},chronoDone:{},evalScores:{},timer:300,timerOn:false,timerInt:null,editPid:null,editPname:'',editExos:[],hasLecture:false,hasEpell:false,lectDays:[],lectSessions:[],isOrthoSuivi:false,evalHistory:[],autoEval:true,sommeilActif:false,respirationActif:false,respirationConfigAvailable:true,avecOrtho:null,presenceResolve:null,dailyCountersAvailable:true,sommeilEchelle:5,sommeilSaving:false,modeTest:false,_sbReal:null,epellConfig:null,dailySessions:{},sessionsToday:0,respirationsToday:0,sessionStarting:false};
+var ST={pid:null,pname:'',exos:[],days:[],reps:{},chronoDone:{},evalScores:{},timer:300,timerOn:false,timerInt:null,editPid:null,editPname:'',editExos:[],hasLecture:false,hasEpell:false,lectDays:[],lectSessions:[],isOrthoSuivi:false,evalHistory:[],autoEval:true,sommeilActif:false,respirationActif:false,respirationConfigAvailable:true,avecOrtho:null,presenceResolve:null,dailyCountersAvailable:true,sommeilEchelle:5,sommeilSaving:false,modeTest:false,_sbReal:null,epellConfig:null,dailySessions:{},sessionsToday:0,respirationsToday:0,sessionStarting:false,sessionMarkerId:null,sessionMarkerUpdating:false};
 var RESP={id:null,startedAt:0,timer:null,stopTimeout:null,active:false,starting:false,points:0,maxReached:false};
 var RESP_MAX_SECONDS=300;
 var RESP_MAX_POINTS=50;
@@ -709,7 +709,7 @@ async function loadProfiles(){
 
 async function selectPatient(pid,pname){
   annulerTimerArticulation();
-  ST.pid=pid;ST.pname=pname;ST.reps={};ST.exos=[];ST.exoBonus=null;ST.sessionsToday=0;ST.respirationsToday=0;ST.dailyCountersAvailable=true;ST.avecOrtho=null;resetTimer();
+  ST.pid=pid;ST.pname=pname;ST.reps={};ST.exos=[];ST.exoBonus=null;ST.sessionsToday=0;ST.respirationsToday=0;ST.dailyCountersAvailable=true;ST.avecOrtho=null;ST.sessionMarkerId=null;ST.sessionMarkerUpdating=false;resetTimer();
   var boutonRespiration=document.getElementById('btn-respiration');
   boutonRespiration.style.display='none';
   boutonRespiration.disabled=true;
@@ -882,7 +882,7 @@ async function chargerCompteursQuotidiens(){
     return false;
   }
   ST.dailyCountersAvailable=true;
-  ST.sessionsToday=rows.filter(function(row){return row.type==='session_obligatoire';}).length;
+  ST.sessionsToday=rows.filter(function(row){return row.type==='session_terminee';}).length;
   ST.respirationsToday=rows.filter(function(row){return row.type==='respiration';}).length;
   actualiserBoutonRespiration();
   return true;
@@ -941,7 +941,8 @@ async function lancerSessionObligatoire(){
     demarrerSessionPatient();
     return;
   }
-  ST.sessionsToday++;
+  ST.sessionMarkerId=Array.isArray(result)&&result[0]?result[0].id:null;
+  if(!ST.sessionMarkerId)console.error('Le marqueur de session a été créé sans identifiant exploitable.',result);
   ST.sommeilActif=false;
   demarrerSessionPatient();
 }
@@ -1335,7 +1336,27 @@ function passerExoSuivant(){
   showCurrentExo();
 }
 
-function verifierBonusOuBravo(){
+async function verifierBonusOuBravo(){
+  if(ST.sessionMarkerUpdating)return;
+  var markerId=ST.sessionMarkerId;
+  var patientId=ST.pid;
+  if(markerId){
+    ST.sessionMarkerId=null;
+    ST.sessionMarkerUpdating=true;
+    try{
+      var result=await sb('xp_log?id=eq.'+encodeURIComponent(markerId),{
+        method:'PATCH',
+        body:JSON.stringify({type:'session_terminee'})
+      });
+      if(!Array.isArray(result)||!result.length)throw new Error('La mise à jour du marqueur de session n’a pas confirmé la session terminée.');
+      if(ST.pid===patientId)ST.sessionsToday++;
+    }catch(error){
+      console.error('Erreur lors de la clôture du marqueur de session.',error);
+      if(ST.pid===patientId&&!ST.sessionMarkerId)ST.sessionMarkerId=markerId;
+    }finally{
+      ST.sessionMarkerUpdating=false;
+    }
+  }
   setTimeout(showBravo,300);
 }
 
