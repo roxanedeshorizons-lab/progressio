@@ -1941,7 +1941,12 @@ async function sb(path,opts){
   },opts||{}));
   if(!res.ok){
     var errorBody=await res.text();
-    console.error('Erreur Supabase',res.status,res.statusText,path,errorBody);
+    console.error('Erreur HTTP Supabase', {
+      statusCode:res.status,
+      statusText:res.statusText,
+      path:path,
+      responseBody:errorBody
+    });
     return null;
   }
   var t=await res.text();return t?JSON.parse(t):[];
@@ -2764,7 +2769,12 @@ async function enregistrerXP(exo){
     date_session:todayStr(),
     avec_ortho:ST.avecOrtho
   };
-  await sb('xp_log',{method:'POST',body:JSON.stringify(log)});
+  var response=await sb('xp_log',{method:'POST',body:JSON.stringify(log)});
+  console.log('[Progressio] Résultat de l’enregistrement XP dans xp_log', {
+    sent:log,
+    response:response,
+    success:response!==null
+  });
   if(exo._isBonus){
     ST.bonusDone=true;
     if(ST._dailySessionKey&&ST.dailySessions[ST._dailySessionKey]){
