@@ -817,7 +817,7 @@ async function selectPatient(pid,pname){
     demarrerSessionPatient();
     return;
   }
-  if(ST.exos.length&&ST.sessionsToday>=3){ST.sessionStarting=false;afficherLimiteSessions();return;}
+  if(ST.exos.length&&ST.sessionsToday>=ST.exosParJour){ST.sessionStarting=false;afficherLimiteSessions();return;}
   if(ST.sommeilActif){showSleepEval();return;}
   lancerSessionObligatoire();
 }
@@ -907,7 +907,7 @@ function actualiserBoutonRespiration(){
 function afficherLimiteSessions(){
   document.getElementById('exo-card').innerHTML='<div class="empty-state">Tu as déjà bien travaillé aujourd’hui ! Reviens demain 💪</div>';
   document.getElementById('pfill').style.width='100%';
-  document.getElementById('plbl').textContent='3/3';
+  document.getElementById('plbl').textContent=ST.exosParJour+'/'+ST.exosParJour;
   document.getElementById('btn-reset').style.display='none';
   document.getElementById('btn-bonus').style.display='none';
 }
@@ -921,7 +921,7 @@ async function lancerSessionObligatoire(){
   }
   ST.sessionStarting=true;
   if(ST.dailyCountersAvailable)await chargerCompteursQuotidiens();
-  if(ST.dailyCountersAvailable&&ST.sessionsToday>=3){afficherLimiteSessions();return;}
+  if(ST.dailyCountersAvailable&&ST.sessionsToday>=ST.exosParJour){ST.sessionStarting=false;afficherLimiteSessions();return;}
   document.getElementById('exo-card').innerHTML='<div class="loading">Préparation de ta session...</div>';
   var result;
   try{
