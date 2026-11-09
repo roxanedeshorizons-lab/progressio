@@ -101,6 +101,24 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a
 .phrase-player-text{font-size:clamp(24px,6vw,36px);font-weight:700;line-height:1.35;color:#1a1a18;margin:18px 0 24px;overflow-wrap:anywhere;}
 .phrase-player-btn{width:100%;font-size:15px;font-weight:600;color:#fff;background:#378ADD;border:none;border-radius:10px;padding:13px;cursor:pointer;margin-bottom:10px;}
 .phrase-player-next{width:100%;font-size:15px;font-weight:600;color:#fff;background:#1D9E75;border:none;border-radius:10px;padding:13px;cursor:pointer;}
+.phrase-bank-list{display:flex;flex-direction:column;gap:12px;}
+.phrase-bank-card{background:#fff;border:1px solid #e0dfd8;border-radius:14px;padding:16px;margin-bottom:12px;}
+.phrase-bank-card h3{font-size:16px;margin-bottom:10px;}
+.phrase-bank-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.phrase-bank-phrases{white-space:pre-wrap;line-height:1.55;font-size:13px;color:#444;margin:8px 0;}
+.phrase-bank-player{text-align:center;background:#fff;border:1px solid #e0dfd8;border-radius:14px;padding:22px 18px;margin-top:16px;}
+.phrase-bank-player-text{font-size:clamp(26px,7vw,40px);font-weight:700;line-height:1.35;overflow-wrap:anywhere;margin:22px 0;}
+.phrase-bank-action{width:100%;font-size:15px;font-weight:700;border:0;border-radius:10px;padding:13px;margin-top:9px;cursor:pointer;}
+.phrase-bank-retry{background:#FEF3C7;color:#854D0E;}
+.phrase-bank-next{background:#1D9E75;color:#fff;}
+.phrase-bank-status{font-size:13px;color:#6b6b66;margin-top:10px;}
+.phrase-bank-assignment{border-top:1px solid #e0dfd8;padding-top:12px;margin-top:12px;}
+.phrase-bank-pin-list{display:flex;flex-direction:column;gap:5px;margin:8px 0;}
+.phrase-bank-pin-list label{font-size:12px;line-height:1.4;display:flex;gap:7px;align-items:flex-start;}
+.phrase-bank-analysis{border-top:1px solid #e0dfd8;margin-top:14px;padding-top:12px;}
+.phrase-bank-analysis table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;}
+.phrase-bank-analysis th,.phrase-bank-analysis td{text-align:left;padding:7px 5px;border-bottom:1px solid #eee;vertical-align:top;}
+.phrase-bank-analysis tr.phrase-bank-hard{background:#fff3e8;font-weight:600;}
 
 /* RÉCAP */
 .recap-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:98;align-items:center;justify-content:center;}
@@ -332,6 +350,8 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a
     <button id="btn-bonus" onclick="lancerBonus()" style="display:none;width:100%;margin-top:12px;font-size:14px;font-weight:600;color:#fff;background:#E0A020;border:none;border-radius:10px;padding:12px;cursor:pointer;text-align:center;"></button>
     <button id="btn-epell" onclick="lancerEpellation()" style="display:none;width:100%;margin-top:10px;font-size:14px;font-weight:600;color:#fff;background:#7F6FCC;border:none;border-radius:10px;padding:12px;cursor:pointer;text-align:center;">⌨️ Exercice d'épellation</button>
     <button id="btn-respiration" onclick="commencerRespiration()" style="display:none;width:100%;margin-top:10px;font-size:14px;font-weight:600;color:#fff;background:#378ADD;border:none;border-radius:10px;padding:12px;cursor:pointer;text-align:center;">⏱️ Chrono respiration</button>
+    <button id="btn-phrase-banks" onclick="ouvrirBanquesPatient()" style="display:none;width:100%;margin-top:10px;font-size:14px;font-weight:600;color:#fff;background:#7F77DD;border:none;border-radius:10px;padding:12px;cursor:pointer;text-align:center;">🗣️ Phrases d’articulation</button>
+    <div id="phrase-bank-patient-status" class="phrase-bank-status" role="status"></div>
   </div>
 </div>
 
@@ -431,6 +451,33 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a
     <div id="ortho-patients"></div>
     <button class="add-btn" id="ortho-add-btn" onclick="openAddModal()" style="display:none;margin-top:8px;">+ Nouveau patient</button>
     <button class="add-btn" id="ortho-biblio-btn" onclick="showBibliotheque()" style="display:none;margin-top:4px;border-style:solid;background:#7F77DD;color:#fff;border-color:#7F77DD;">📚 Bibliothèque d'exercices</button>
+    <button class="add-btn" id="ortho-phrase-banks-btn" onclick="openPhraseBankManager()" style="display:none;margin-top:4px;border-style:solid;background:#378ADD;color:#fff;border-color:#378ADD;">🗣️ Banques de phrases</button>
+  </div>
+</div>
+
+<!-- GESTION DES BANQUES DE PHRASES -->
+<div id="s-phrase-banks-ortho" class="screen">
+  <div style="padding:1rem 0 2rem;">
+    <div class="page-header">
+      <h2>Banques de phrases</h2>
+      <button class="back-btn" onclick="show('s-ortho');loadOrtho();">← Retour</button>
+    </div>
+    <p style="font-size:13px;color:#6b6b66;line-height:1.5;margin:-8px 0 16px;">Créez des banques réutilisables, attribuez-les aux patients et suivez leurs essais.</p>
+    <div id="phrase-bank-create"></div>
+    <div id="phrase-bank-manager-status" class="phrase-bank-status" role="status"></div>
+    <div id="phrase-bank-manager-list"></div>
+  </div>
+</div>
+
+<!-- BANQUES DE PHRASES : VUE PATIENT -->
+<div id="s-phrase-banks-patient" class="screen">
+  <div style="padding:1rem 0 2rem;">
+    <div class="page-header">
+      <h2>Phrases d’articulation</h2>
+      <button class="back-btn" onclick="retourBanquesPatient()">← Retour</button>
+    </div>
+    <div id="phrase-bank-patient-list"></div>
+    <div id="phrase-bank-patient-card"></div>
   </div>
 </div>
 
@@ -729,7 +776,7 @@ function phraseSuivante(){
   afficherPhrase(exo);
 }
 
-var ST={pid:null,pname:'',exos:[],days:[],reps:{},chronoDone:{},evalScores:{},timer:300,timerOn:false,timerInt:null,editPid:null,editPname:'',editExos:[],hasLecture:false,hasEpell:false,lectDays:[],lectSessions:[],isOrthoSuivi:false,evalHistory:[],autoEval:true,sommeilActif:false,respirationActif:false,respirationConfigAvailable:true,avecOrtho:null,presenceResolve:null,dailyCountersAvailable:true,sommeilEchelle:5,sommeilSaving:false,modeTest:false,_sbReal:null,epellConfig:null,dailySessions:{},sessionsToday:0,respirationsToday:0,sessionStarting:false,sessionMarkerId:null,sessionMarkerUpdating:false};
+var ST={pid:null,pname:'',exos:[],days:[],reps:{},chronoDone:{},evalScores:{},timer:300,timerOn:false,timerInt:null,editPid:null,editPname:'',editExos:[],hasLecture:false,hasEpell:false,lectDays:[],lectSessions:[],isOrthoSuivi:false,evalHistory:[],autoEval:true,sommeilActif:false,respirationActif:false,respirationConfigAvailable:true,avecOrtho:null,presenceResolve:null,dailyCountersAvailable:true,sommeilEchelle:5,sommeilSaving:false,modeTest:false,_sbReal:null,epellConfig:null,dailySessions:{},sessionsToday:0,respirationsToday:0,sessionStarting:false,sessionMarkerId:null,sessionMarkerUpdating:false,phraseBanks:[],phraseBankSession:null,phraseBankLoadError:false};
 var RESP={id:null,startedAt:0,timer:null,stopTimeout:null,active:false,starting:false,points:0,maxReached:false};
 var RESP_MAX_SECONDS=300;
 var RESP_MAX_POINTS=50;
@@ -800,6 +847,17 @@ async function selectPatient(pid,pname){
   ST.hasLecture=listes&&listes.length>0&&listes[0].mots&&listes[0].mots.length>0;
   var epellCfg=await sb('epell_config?patient_id=eq.'+pid+'&select=id,mots');
   ST.hasEpell=epellCfg&&epellCfg.length>0&&epellCfg[0].mots&&epellCfg[0].mots.length>0;
+  var phraseBankButton=document.getElementById('btn-phrase-banks');
+  var phraseBankStatus=document.getElementById('phrase-bank-patient-status');
+  phraseBankButton.style.display='none';
+  phraseBankStatus.textContent='';
+  ST.phraseBanks=await chargerBanquesPatient(pid);
+  ST.phraseBankLoadError=ST.phraseBanks===null;
+  if(ST.phraseBankLoadError){
+    phraseBankStatus.textContent='Les banques de phrases sont indisponibles. Vérifiez que migration_banques_phrases.sql a été exécutée dans Supabase.';
+  }else if(ST.phraseBanks.length){
+    phraseBankButton.style.display='block';
+  }
   ST.lectDays=[];
   if(!ST.modeTest)await chargerCompteursQuotidiens();
   // Charger historique auto-éval pour pondérer
@@ -1502,7 +1560,7 @@ function checkAllDone(){
   }
 }
 
-function showExoEval(exo){
+function showExoEval(exo,containerId){
   var colors=['#C8F0D0','#A8E6B0','#7DD68A','#FFE08A','#FFB347','#FF8C42','#FF6B35','#E03E3E','#C0392B','#1a1a18'];
   var html='<div class="inline-eval" id="ieval_'+exo.id+'">';
   html+='<div class="inline-eval-label">Comment c\'était ?</div>';
@@ -1516,7 +1574,7 @@ function showExoEval(exo){
   html+='<div class="eval-labels"><span>Facile</span><span>Difficile ++</span></div>';
   html+='</div>';
   // Injecter dans la carte exercice
-  var card=document.getElementById('exo-card');
+  var card=document.getElementById(containerId||'exo-card');
   var existing=card?card.querySelector('.inline-eval'):null;
   if(existing)existing.remove();
   if(card)card.insertAdjacentHTML('beforeend',html);
@@ -1533,6 +1591,40 @@ function setInlineEval(exoId,val,container){
 }
 
 async function submitInlineEval(exoId){
+  var bankSession=ST.phraseBankSession;
+  if(bankSession&&bankSession.finished&&bankSession.evalExo.id===exoId){
+    var bankScore=ST.evalScores&&ST.evalScores[exoId];
+    if(!bankScore)return;
+    if(!bankSession.xpSaved){
+      var xpResult=await enregistrerXP({
+        id:null,
+        name:'Phrases — '+bankSession.bank.nom,
+        xp:Math.min(bankSession.items.length,10)*5
+      });
+      if(!Array.isArray(xpResult)||!xpResult.length){
+        afficherStatutSessionBanque('Impossible d’enregistrer les points. Réessayez en sélectionnant une note.');
+        return;
+      }
+      bankSession.xpSaved=true;
+    }
+    if(!bankSession.evalSaved){
+      var evalResult=await sb('eval_scores',{method:'POST',body:JSON.stringify({
+        patient_id:ST.pid,
+        exercice_id:null,
+        exercice_name:'Phrases — '+bankSession.bank.nom,
+        score:bankScore,
+        date_session:todayStr()
+      })});
+      if(!Array.isArray(evalResult)||!evalResult.length){
+        afficherStatutSessionBanque('Les points sont enregistrés, mais l’auto-évaluation n’a pas pu être sauvegardée.');
+        return;
+      }
+      bankSession.evalSaved=true;
+    }
+    ST.phraseBankSession=null;
+    show('s-exos');
+    return;
+  }
   var exo=ST.exos.find(function(e){return e.id===exoId;});
   var score=ST.evalScores&&ST.evalScores[exoId];
   if(exo&&score){
@@ -2042,6 +2134,7 @@ async function loadOrtho(){
   document.getElementById('ortho-loading').style.display='block';
   document.getElementById('ortho-patients').innerHTML='';
   document.getElementById('ortho-add-btn').style.display='none';
+  document.getElementById('ortho-phrase-banks-btn').style.display='none';
   var patients=await sb('patients?select=id,name,auto_eval,exos_par_jour,sommeil_actif,sommeil_echelle,respiration_actif&ortho_id=eq.'+SESSION_UID+'&order=created_at');
   if(!patients){
     ST.respirationConfigAvailable=false;
@@ -2079,6 +2172,7 @@ async function loadOrtho(){
   document.getElementById('ortho-patients').innerHTML=html||'<div class="empty-state">Aucun patient.</div>';
   document.getElementById('ortho-add-btn').style.display='flex';
   document.getElementById('ortho-biblio-btn').style.display='flex';
+  document.getElementById('ortho-phrase-banks-btn').style.display='flex';
 }
 
 async function configExosParJour(pid,current){
@@ -2271,7 +2365,7 @@ function renderEditor(exo,i,cb){
   html+='<option value="reps"'+(isSound||isChrono||isArticulation||isPhrases?'':' selected')+'>Répétitions</option>';
   html+='<option value="sounds"'+(isSound?' selected':'')+'>Sons groupés</option>';
   html+='<option value="chrono"'+(isChrono?' selected':'')+'>Chronomètre</option>';
-  html+='<option value="phrases"'+(isPhrases?' selected':'')+'>Répétition de phrases</option>';
+  if(isPhrases)html+='<option value="phrases" selected>Répétition de phrases (ancien exercice)</option>';
   if(isArticulation)html+='<option value="articulation" selected>Lieux d’articulation</option>';
   html+='</select></div></div>';
   html+='<div class="field-row" id="reps-field-'+i+'" style="'+(isSound||isChrono||isArticulation||isPhrases?'display:none':'')+'">';
@@ -2892,7 +2986,6 @@ async function loadBiblioContent(){
   unique.sort(function(a,b){return a.name.localeCompare(b.name);});
 
   var html=biblioSubcategoryActive==='phonologie'?carteBibliothequeArticulation(allPatients):'';
-  if(isLangageOralRoot||biblioSubcategoryActive==='parole')html+=carteBibliothequePhrases(allPatients);
   if(!unique.length){
     document.getElementById('biblio-content').innerHTML=html||'<div class="biblio-empty">Aucun exercice dans cette sous-catégorie.</div>';
     return;
@@ -2923,64 +3016,513 @@ async function loadBiblioContent(){
   document.getElementById('biblio-content').innerHTML=html;
 }
 
-function carteBibliothequePhrases(patients){
-  var html='<div class="biblio-exo"><div class="biblio-exo-name">Répétition de phrases</div>';
-  html+='<div class="biblio-exo-how" style="margin-top:6px;">Faites travailler des sons ciblés à partir d’une liste de phrases lues une par une au patient.</div>';
-  if(patients.length){
-    html+='<div class="field-row" style="margin-top:12px;"><label for="phrases-patient">Patient</label><select id="phrases-patient" class="biblio-cat-select" style="width:100%;padding:8px;"><option value="">Choisir un patient…</option>';
-    patients.forEach(function(patient){html+='<option value="'+esc(patient.id)+'">'+esc(patient.name)+'</option>';});
-    html+='</select></div>';
-    html+='<div class="field-row"><label for="phrases-targets">Sons ciblés</label><input id="phrases-targets" type="text" placeholder="Ex. : ch, j" /></div>';
-    html+='<div class="field-row"><label for="phrases-list">Phrases (une par ligne)</label><textarea id="phrases-list" style="width:100%;min-height:150px;font-size:14px;padding:10px;border:1px solid #d0cfc8;border-radius:8px;outline:none;font-family:inherit;line-height:1.8;" placeholder="Le chat cherche son chapeau.&#10;Julie joue dans le jardin."></textarea></div>';
-    html+='<button type="button" class="btn-sm primary" onclick="ajouterRepetitionPhrases()">Ajouter au programme</button>';
-    html+='<div id="phrases-assign-status" role="status" style="font-size:12px;margin-top:8px;"></div>';
-  }else{
-    html+='<div class="biblio-exo-meta" style="margin-top:10px;">Créez un patient pour pouvoir lui affecter cet exercice.</div>';
-  }
-  return html+'</div>';
+function nouvelIdPhrase(){
+  if(window.crypto&&typeof window.crypto.randomUUID==='function')return window.crypto.randomUUID();
+  return 'phrase_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2);
 }
 
-async function ajouterRepetitionPhrases(){
-  var status=document.getElementById('phrases-assign-status');
-  var patient=document.getElementById('phrases-patient');
-  var targets=document.getElementById('phrases-targets').value.trim();
-  var phrases=document.getElementById('phrases-list').value.split('\n').map(function(phrase){return phrase.trim();}).filter(Boolean);
-  if(!patient||!patient.value){
-    status.textContent='Choisissez un patient.';
+function phrasesBanque(bank){
+  var source=Array.isArray(bank.phrases)?bank.phrases:[];
+  var usedIndices={};
+  return source.map(function(item,i){
+    var phrase=typeof item==='string'?{id:'phrase_'+i,index:i,text:item}:(item||{});
+    var index=Number(phrase.index);
+    if(!Number.isInteger(index)||index<0||usedIndices[index]){
+      index=i;
+      while(usedIndices[index])index++;
+    }
+    usedIndices[index]=true;
+    var id=String(phrase.id||('phrase_'+index));
+    if(source.slice(0,i).some(function(previous){return previous&&typeof previous==='object'&&String(previous.id)===id;}))id=id+'_'+index;
+    return {id:id,index:index,text:String(phrase.text||'')};
+  }).filter(function(phrase){return phrase.text.trim();});
+}
+
+function lirePhrasesBanque(texte,previous){
+  var anciennes=phrasesBanque({phrases:previous||[]});
+  var used={};
+  var prochainIndex=anciennes.reduce(function(max,phrase){return Math.max(max,phrase.index+1);},0);
+  return texte.split('\n').map(function(line){return line.trim();}).filter(Boolean).map(function(text){
+    var existing=anciennes.find(function(phrase){return phrase.text===text&&!used[phrase.id];});
+    if(existing){
+      used[existing.id]=true;
+      return existing;
+    }
+    return {id:nouvelIdPhrase(),index:prochainIndex++,text:text};
+  });
+}
+
+function afficherStatutBanques(message){
+  var status=document.getElementById('phrase-bank-manager-status');
+  if(status)status.textContent=message;
+}
+
+async function openPhraseBankManager(){
+  show('s-phrase-banks-ortho');
+  afficherStatutBanques('');
+  document.getElementById('phrase-bank-manager-list').innerHTML='<div class="loading">Chargement des banques…</div>';
+  var patients=await sb('patients?select=id,name&ortho_id=eq.'+encodeURIComponent(SESSION_UID)+'&order=name');
+  var banks=await sb('banques_phrases?select=id,nom,phrases,created_at&ortho_id=eq.'+encodeURIComponent(SESSION_UID)+'&order=created_at');
+  if(!Array.isArray(patients)||!Array.isArray(banks)){
+    afficherStatutBanques('Impossible de charger les banques ou les patients. Vérifiez que migration_banques_phrases.sql a été exécutée dans Supabase.');
+    document.getElementById('phrase-bank-manager-list').innerHTML='';
     return;
   }
-  if(!targets){
-    status.textContent='Indiquez les sons ciblés.';
+  var patientFilter=patients.length?'&patient_id=in.('+patients.map(function(patient){return patient.id;}).join(',')+')':'';
+  var bankFilter=banks.length?'&banque_id=in.('+banks.map(function(bank){return bank.id;}).join(',')+')':'';
+  var assignments=patients.length&&banks.length
+    ?await sb('banques_phrases_patients?select=id,banque_id,patient_id,phrases_par_session,epinglees'+patientFilter+bankFilter)
+    :[];
+  if(!Array.isArray(assignments)){
+    afficherStatutBanques('Impossible de charger les affectations des banques de phrases.');
+    document.getElementById('phrase-bank-manager-list').innerHTML='';
     return;
   }
-  if(!phrases.length){
-    status.textContent='Saisissez au moins une phrase.';
+  ST.phraseBankPatients=patients;
+  ST.phraseBanks=banks;
+  ST.phraseBankAssignments=assignments;
+  renderPhraseBankManager();
+}
+
+function renderPhraseBankManager(){
+  var createHtml='<div class="phrase-bank-card"><h3>Créer une banque</h3>';
+  createHtml+='<div class="field-row"><label for="phrase-bank-new-name">Nom de la banque</label><input id="phrase-bank-new-name" type="text" maxlength="120" placeholder="Ex. : /ʒ/ et /ʃ/" /></div>';
+  createHtml+='<div class="field-row"><label for="phrase-bank-new-phrases">Phrases (une par ligne)</label><textarea id="phrase-bank-new-phrases" style="width:100%;min-height:130px;padding:10px;border:1px solid #d0cfc8;border-radius:8px;font:inherit;" placeholder="Julie joue dans le jardin.&#10;Le chat cherche son chapeau."></textarea></div>';
+  createHtml+='<button type="button" class="btn-sm primary" onclick="creerBanquePhrases()">Créer la banque</button></div>';
+  document.getElementById('phrase-bank-create').innerHTML=createHtml;
+  var html='';
+  (ST.phraseBanks||[]).forEach(function(bank){
+    var phrases=phrasesBanque(bank);
+    html+='<section class="phrase-bank-card" aria-labelledby="bank-title-'+bank.id+'">';
+    html+='<h3 id="bank-title-'+bank.id+'">Modifier une banque</h3>';
+    html+='<div class="field-row"><label for="bank-name-'+bank.id+'">Nom</label><input id="bank-name-'+bank.id+'" type="text" maxlength="120" value="'+esc(bank.nom)+'" /></div>';
+    html+='<div class="field-row"><label for="bank-phrases-'+bank.id+'">Phrases (une par ligne)</label><textarea id="bank-phrases-'+bank.id+'" style="width:100%;min-height:130px;padding:10px;border:1px solid #d0cfc8;border-radius:8px;font:inherit;">'+esc(phrases.map(function(phrase){return phrase.text;}).join('\n'))+'</textarea></div>';
+    html+='<div class="phrase-bank-actions"><button type="button" class="btn-sm primary" onclick="sauverBanquePhrases(\''+bank.id+'\')">Enregistrer</button>';
+    html+='<button type="button" class="btn-sm danger" onclick="supprimerBanquePhrases(\''+bank.id+'\')">Supprimer</button>';
+    html+='<button type="button" class="btn-sm" onclick="analyserBanquePhrases(\''+bank.id+'\')">Analyse par patient</button></div>';
+    html+='<div class="phrase-bank-assignment"><strong>Affecter aux patients et épingler des phrases</strong>';
+    if(!(ST.phraseBankPatients||[]).length)html+='<p class="phrase-bank-status">Créez un patient pour affecter cette banque.</p>';
+    (ST.phraseBankPatients||[]).forEach(function(patient){
+      var assignment=(ST.phraseBankAssignments||[]).find(function(item){return item.banque_id===bank.id&&item.patient_id===patient.id;});
+      var assignmentId=bank.id+'-'+patient.id;
+      var pinned=assignment&&Array.isArray(assignment.epinglees)?assignment.epinglees:[];
+      html+='<div class="phrase-bank-assignment" id="bank-assignment-'+assignmentId+'">';
+      html+='<label style="display:flex;align-items:center;gap:8px;font-weight:600;"><input id="bank-assigned-'+assignmentId+'" type="checkbox" '+(assignment?'checked':'')+' />'+esc(patient.name)+'</label>';
+      html+='<div class="field-row" style="margin-top:8px;"><label for="bank-quota-'+assignmentId+'">Phrases par session (1 à 10)</label><input id="bank-quota-'+assignmentId+'" type="number" min="1" max="10" value="'+(assignment?Math.max(1,Math.min(10,Number(assignment.phrases_par_session)||5)):5)+'" style="width:90px;" /></div>';
+      html+='<div class="phrase-bank-status">Phrases épinglées (elles reviennent à chaque session) :</div><div class="phrase-bank-pin-list">';
+      phrases.forEach(function(phrase){
+        html+='<label><input type="checkbox" class="bank-pin-'+assignmentId+'" value="'+esc(phrase.id)+'" '+(pinned.indexOf(phrase.id)>=0?'checked':'')+' />'+esc(phrase.text)+'</label>';
+      });
+      html+='</div><button type="button" class="btn-sm" onclick="sauverAffectationBanque(\''+bank.id+'\',\''+patient.id+'\')">'+(assignment?'Enregistrer les réglages':'Affecter la banque')+'</button>';
+      html+='<div id="bank-assignment-status-'+assignmentId+'" class="phrase-bank-status" role="status"></div></div>';
+    });
+    html+='</div><div id="bank-analysis-'+bank.id+'" class="phrase-bank-analysis" aria-live="polite"></div></section>';
+  });
+  document.getElementById('phrase-bank-manager-list').innerHTML=html||'<div class="empty-state">Aucune banque créée pour le moment.</div>';
+}
+
+async function creerBanquePhrases(){
+  var name=document.getElementById('phrase-bank-new-name').value.trim();
+  var phrases=lirePhrasesBanque(document.getElementById('phrase-bank-new-phrases').value,[]);
+  if(!name||!phrases.length){
+    afficherStatutBanques('Saisissez un nom et au moins une phrase.');
     return;
   }
-  var existing=await sb('exercices?patient_id=eq.'+patient.value+'&select=position&order=position');
-  if(!Array.isArray(existing)){
-    status.textContent='Impossible de charger le programme du patient. Réessayez.';
+  var result=await sb('banques_phrases',{method:'POST',body:JSON.stringify({ortho_id:SESSION_UID,nom:name,phrases:phrases})});
+  if(!Array.isArray(result)||!result.length){
+    afficherStatutBanques('La création de la banque a échoué. Vérifiez la connexion puis réessayez.');
     return;
   }
-  var result=await sb('exercices',{method:'POST',body:JSON.stringify({
-    patient_id:patient.value,
-    name:'Répétition de phrases',
-    dose:phrases.length+' phrases',
-    how:'Écoute chaque phrase, puis répète-la à voix haute.',
-    why:'Travailler les sons ciblés : '+targets+'.',
-    color:'#378ADD',
-    type:'phrases',
-    sounds:{phrases:phrases,targets:targets},
-    xp:10,
-    categorie:'parole',
-    position:existing.length?Math.max.apply(null,existing.map(function(exo){return Number(exo.position)||0;}))+1:0,
-    image_url:''
+  await openPhraseBankManager();
+  afficherStatutBanques('Banque créée.');
+}
+
+async function sauverBanquePhrases(bankId){
+  var bank=(ST.phraseBanks||[]).find(function(item){return item.id===bankId;});
+  if(!bank)return;
+  var name=document.getElementById('bank-name-'+bankId).value.trim();
+  var phrases=lirePhrasesBanque(document.getElementById('bank-phrases-'+bankId).value,bank.phrases);
+  if(!name||!phrases.length){
+    afficherStatutBanques('Chaque banque doit avoir un nom et au moins une phrase.');
+    return;
+  }
+  var result=await sb('banques_phrases?id=eq.'+encodeURIComponent(bankId)+'&ortho_id=eq.'+encodeURIComponent(SESSION_UID),{
+    method:'PATCH',body:JSON.stringify({nom:name,phrases:phrases})
+  });
+  if(!Array.isArray(result)||!result.length){
+    afficherStatutBanques('La modification de la banque a échoué. Vérifiez la connexion puis réessayez.');
+    return;
+  }
+  var livePhraseIds=phrases.map(function(phrase){return phrase.id;});
+  var affected=(ST.phraseBankAssignments||[]).filter(function(assignment){return assignment.banque_id===bankId;});
+  for(var i=0;i<affected.length;i++){
+    var validPins=(affected[i].epinglees||[]).filter(function(id){return livePhraseIds.indexOf(id)>=0;});
+    if(validPins.length!==(affected[i].epinglees||[]).length){
+      var updatePins=await sb('banques_phrases_patients?id=eq.'+encodeURIComponent(affected[i].id),{
+        method:'PATCH',body:JSON.stringify({epinglees:validPins})
+      });
+      if(!Array.isArray(updatePins)||!updatePins.length){
+        afficherStatutBanques('La banque est enregistrée, mais certaines épingles n’ont pas pu être mises à jour.');
+        return;
+      }
+    }
+  }
+  await openPhraseBankManager();
+  afficherStatutBanques('Banque enregistrée.');
+}
+
+async function supprimerBanquePhrases(bankId){
+  var bank=(ST.phraseBanks||[]).find(function(item){return item.id===bankId;});
+  if(!bank||!confirm('Supprimer la banque « '+bank.nom+' » et son historique ?'))return;
+  var result=await sb('banques_phrases?id=eq.'+encodeURIComponent(bankId)+'&ortho_id=eq.'+encodeURIComponent(SESSION_UID),{method:'DELETE'});
+  if(result===null){
+    afficherStatutBanques('La suppression de la banque a échoué. Vérifiez la connexion puis réessayez.');
+    return;
+  }
+  await openPhraseBankManager();
+  afficherStatutBanques('Banque supprimée.');
+}
+
+async function sauverAffectationBanque(bankId,patientId){
+  var key=bankId+'-'+patientId;
+  var enabled=document.getElementById('bank-assigned-'+key).checked;
+  var status=document.getElementById('bank-assignment-status-'+key);
+  var assignment=(ST.phraseBankAssignments||[]).find(function(item){return item.banque_id===bankId&&item.patient_id===patientId;});
+  if(!enabled){
+    if(!assignment){status.textContent='';return;}
+    var deleted=await sb('banques_phrases_patients?id=eq.'+encodeURIComponent(assignment.id),{method:'DELETE'});
+    if(deleted===null){status.textContent='Impossible de retirer cette affectation.';return;}
+    status.textContent='Banque retirée du patient.';
+    await openPhraseBankManager();
+    afficherStatutBanques('Banque retirée du patient.');
+    return;
+  }
+  var quotaInput=document.getElementById('bank-quota-'+key);
+  var quota=Math.max(1,Math.min(10,parseInt(quotaInput.value,10)||5));
+  quotaInput.value=quota;
+  var pins=Array.prototype.map.call(document.querySelectorAll('.bank-pin-'+key+':checked'),function(input){return input.value;});
+  var payload={banque_id:bankId,patient_id:patientId,phrases_par_session:quota,epinglees:pins};
+  var result=assignment
+    ?await sb('banques_phrases_patients?id=eq.'+encodeURIComponent(assignment.id),{method:'PATCH',body:JSON.stringify(payload)})
+    :await sb('banques_phrases_patients',{method:'POST',body:JSON.stringify(payload)});
+  if(!Array.isArray(result)||!result.length){status.textContent='Impossible d’enregistrer cette affectation.';return;}
+  status.textContent='Réglages enregistrés.';
+  await openPhraseBankManager();
+  afficherStatutBanques('Réglages du patient enregistrés.');
+}
+
+async function analyserBanquePhrases(bankId){
+  var container=document.getElementById('bank-analysis-'+bankId);
+  var bank=(ST.phraseBanks||[]).find(function(item){return item.id===bankId;});
+  if(!container||!bank)return;
+  container.innerHTML='<div class="loading">Chargement de l’analyse…</div>';
+  var logs=await sb('banques_phrases_log?banque_id=eq.'+encodeURIComponent(bankId)+'&order=id.asc&select=patient_id,phrase_index,essais,date_session,cycle_num,id');
+  if(!Array.isArray(logs)){
+    container.innerHTML='<div class="phrase-bank-status">Impossible de charger les essais enregistrés.</div>';
+    return;
+  }
+  var phrases=phrasesBanque(bank);
+  var assignments=(ST.phraseBankAssignments||[]).filter(function(item){return item.banque_id===bankId;});
+  if(!assignments.length){
+    container.innerHTML='<div class="phrase-bank-status">Aucun patient n’est affecté à cette banque.</div>';
+    return;
+  }
+  var html='';
+  assignments.forEach(function(assignment){
+    var patient=(ST.phraseBankPatients||[]).find(function(item){return item.id===assignment.patient_id;});
+    var patientLogs=logs.filter(function(log){return log.patient_id===assignment.patient_id;});
+    var cycleGroups={};
+    patientLogs.forEach(function(log){
+      var cycle=Number(log.cycle_num)||1;
+      if(!cycleGroups[cycle])cycleGroups[cycle]={};
+      cycleGroups[cycle][log.phrase_index]=true;
+    });
+      var cycleNumbers=Object.keys(cycleGroups).map(Number);
+    var currentCycle=cycleNumbers.length?Math.max.apply(null,cycleNumbers):1;
+    var completedCycles=cycleNumbers.filter(function(cycle){
+      return phrases.length>0&&phrases.every(function(phrase){return cycleGroups[cycle][phrase.index];});
+    }).length;
+      var currentCycleComplete=phrases.length>0&&phrases.every(function(phrase){return (cycleGroups[currentCycle]||{})[phrase.index];});
+      if(currentCycleComplete)currentCycle++;
+      var currentSeen=currentCycleComplete?{}:(cycleGroups[currentCycle]||{});
+    var unseen=phrases.filter(function(phrase){return !currentSeen[phrase.index];});
+    html+='<div class="phrase-bank-card"><h4>'+esc(patient?patient.name:'Patient')+'</h4>';
+    html+='<div class="phrase-bank-status">Cycles complétés : '+completedCycles+' · Cycle en cours : '+currentCycle+' · Phrases pas encore vues : '+unseen.length+'</div>';
+    if(unseen.length)html+='<div class="phrase-bank-phrases">'+unseen.map(function(phrase){return esc(phrase.text);}).join('\n')+'</div>';
+    if(!phrases.length){
+      html+='<div class="phrase-bank-status">Cette banque ne contient aucune phrase.</div>';
+    }else{
+      var stats=phrases.map(function(phrase){
+        var passages=patientLogs.filter(function(log){return Number(log.phrase_index)===phrase.index;});
+        var average=passages.length?passages.reduce(function(sum,log){return sum+Number(log.essais||1);},0)/passages.length:0;
+        return {phrase:phrase,passages:passages,average:average};
+      });
+      var mostTries=stats.reduce(function(max,item){return Math.max(max,item.average);},0);
+      html+='<div style="overflow-x:auto;"><table><thead><tr><th>Phrase</th><th>Passages</th><th>Moyenne</th><th>Évolution des essais</th></tr></thead><tbody>';
+      stats.forEach(function(stat){
+        var evolution=stat.passages.map(function(log){return esc(log.date_session)+' : '+Number(log.essais||1);}).join(' → ');
+        var trend=stat.passages.length>1
+          ?Number(stat.passages[0].essais||1)+' → '+Number(stat.passages[stat.passages.length-1].essais||1)
+          :'—';
+        var detail=evolution?(evolution+' ( '+trend+' )'):'—';
+        html+='<tr'+(stat.passages.length&&stat.average===mostTries?' class="phrase-bank-hard"':'')+'>';
+        html+='<td>'+esc(stat.phrase.text)+'</td><td>'+stat.passages.length+'</td>';
+        html+='<td>'+(stat.passages.length?stat.average.toFixed(1):'—')+'</td><td>'+detail+'</td></tr>';
+      });
+      html+='</tbody></table></div>';
+    }
+    html+='</div>';
+  });
+  container.innerHTML=html;
+}
+
+async function chargerBanquesPatient(patientId){
+  var assignments=await sb('banques_phrases_patients?patient_id=eq.'+encodeURIComponent(patientId)+'&select=id,banque_id,phrases_par_session,epinglees');
+  if(!Array.isArray(assignments))return null;
+  var banks=[];
+  for(var i=0;i<assignments.length;i++){
+    var result=await sb('banques_phrases?id=eq.'+encodeURIComponent(assignments[i].banque_id)+'&select=id,nom,phrases');
+    if(!Array.isArray(result))return null;
+    if(result[0])banks.push({assignment:assignments[i],bank:result[0]});
+  }
+  return banks;
+}
+
+function ouvrirBanquesPatient(){
+  var list=document.getElementById('phrase-bank-patient-list');
+  var card=document.getElementById('phrase-bank-patient-card');
+  card.innerHTML='';
+  if(!ST.phraseBanks||!ST.phraseBanks.length){
+    list.innerHTML='<div class="empty-state">Aucune banque de phrases n’est configurée pour toi.</div>';
+  }else{
+    var html='<div class="phrase-bank-list">';
+    ST.phraseBanks.forEach(function(entry){
+      var phrases=phrasesBanque(entry.bank);
+      html+='<div class="phrase-bank-card"><h3>'+esc(entry.bank.nom)+'</h3>';
+      html+='<div class="phrase-bank-status">'+phrases.length+' phrases dans la banque · '+Math.max(1,Math.min(10,Number(entry.assignment.phrases_par_session)||5))+' par session, hors phrases épinglées</div>';
+      html+='<button type="button" class="phrase-bank-action phrase-bank-next" onclick="commencerSessionBanque(\''+entry.bank.id+'\')">Commencer</button></div>';
+    });
+    html+='</div>';
+    list.innerHTML=html;
+  }
+  show('s-phrase-banks-patient');
+}
+
+function retourBanquesPatient(){
+  if(window.speechSynthesis)window.speechSynthesis.cancel();
+  ST.phraseBankSession=null;
+  show('s-exos');
+}
+
+function melangerBanquePhrases(items,avoidIndex){
+  var shuffled=items.slice();
+  for(var i=shuffled.length-1;i>0;i--){
+    var j=Math.floor(Math.random()*(i+1));
+    var item=shuffled[i];shuffled[i]=shuffled[j];shuffled[j]=item;
+  }
+  if(shuffled.length>1&&shuffled[0].index===avoidIndex){
+    var swapIndex=1+Math.floor(Math.random()*(shuffled.length-1));
+    var first=shuffled[0];shuffled[0]=shuffled[swapIndex];shuffled[swapIndex]=first;
+  }
+  return shuffled;
+}
+
+function preparerSessionBanque(entry,logs){
+  var phrases=phrasesBanque(entry.bank).sort(function(a,b){return a.index-b.index;});
+  if(!phrases.length)return [];
+  var assignment=entry.assignment;
+  var phraseById={};
+  phrases.forEach(function(phrase){phraseById[phrase.id]=phrase;});
+  var cycles={};
+  var maxCycle=0;
+  logs.forEach(function(log){
+    var cycle=Number(log.cycle_num)||1;
+    maxCycle=Math.max(maxCycle,cycle);
+    if(!cycles[cycle])cycles[cycle]={};
+    cycles[cycle][Number(log.phrase_index)]=true;
+  });
+  var cycle=maxCycle||1;
+  var seen=cycles[cycle]||{};
+  var currentRows=logs.filter(function(log){return Number(log.cycle_num)===cycle;});
+  var boundaryAvoid=currentRows.length?Number(currentRows[currentRows.length-1].phrase_index):-1;
+  var lastIndex=boundaryAvoid;
+  function cycleComplet(){
+    return phrases.every(function(phrase){return !!seen[phrase.index];});
+  }
+  function nouveauCycle(lastPhraseIndex){
+    cycle++;
+    seen={};
+    boundaryAvoid=lastPhraseIndex;
+  }
+  var cycleAtStartComplete=cycleComplet();
+  if(cycleAtStartComplete)nouveauCycle(lastIndex);
+  var session=[],sessionIds={};
+  function appendPhrase(phrase,cycleNum){
+    if(sessionIds[phrase.index])return;
+    sessionIds[phrase.index]=true;
+    session.push({phrase:phrase,cycle_num:cycleNum,essais:1});
+  }
+  var pinnedIds=Array.isArray(assignment.epinglees)?assignment.epinglees:[];
+  var pinnedPhrases=pinnedIds.map(function(id){return phraseById[id];}).filter(Boolean);
+  if(cycleAtStartComplete&&pinnedPhrases.length>1&&pinnedPhrases[0].index===boundaryAvoid){
+    var alternatePin=pinnedPhrases.findIndex(function(phrase){return phrase.index!==boundaryAvoid;});
+    var firstPin=pinnedPhrases[0];pinnedPhrases[0]=pinnedPhrases[alternatePin];pinnedPhrases[alternatePin]=firstPin;
+  }
+  pinnedPhrases.forEach(function(phrase){
+    appendPhrase(phrase,cycle);
+    if(!seen[phrase.index])seen[phrase.index]=true;
+    lastIndex=phrase.index;
+    if(cycleComplet())nouveauCycle(lastIndex);
+  });
+  var pinnedCount=session.length;
+  var quota=Math.max(1,Math.min(10,Number(assignment.phrases_par_session)||5));
+  var normalTarget=Math.min(quota,Math.max(0,phrases.length-pinnedCount));
+  var normalCount=0;
+  while(normalCount<normalTarget){
+    var unseen=phrases.filter(function(phrase){return !seen[phrase.index]&&!sessionIds[phrase.index];});
+    if(!unseen.length){
+      nouveauCycle(lastIndex);
+      unseen=phrases.filter(function(phrase){return !sessionIds[phrase.index];});
+      if(!unseen.length)break;
+    }
+    var shuffled=melangerBanquePhrases(unseen,boundaryAvoid);
+    var selected=shuffled[0];
+    boundaryAvoid=-1;
+    appendPhrase(selected,cycle);
+    seen[selected.index]=true;
+    lastIndex=selected.index;
+    normalCount++;
+    if(cycleComplet())nouveauCycle(lastIndex);
+  }
+  var previousIndex=logs.length?Number(logs[logs.length-1].phrase_index):-1;
+  var previousCycle=maxCycle;
+  for(var sessionStart=0;sessionStart<session.length;){
+    var sessionCycle=session[sessionStart].cycle_num;
+    var sessionEnd=sessionStart+1;
+    while(sessionEnd<session.length&&session[sessionEnd].cycle_num===sessionCycle)sessionEnd++;
+    if(sessionCycle>previousCycle&&session[sessionStart].phrase.index===previousIndex){
+      for(var swapIndex=sessionStart+1;swapIndex<sessionEnd;swapIndex++){
+        if(session[swapIndex].phrase.index!==previousIndex){
+          var firstItem=session[sessionStart];session[sessionStart]=session[swapIndex];session[swapIndex]=firstItem;
+          break;
+        }
+      }
+    }
+    previousIndex=session[sessionEnd-1].phrase.index;
+    previousCycle=sessionCycle;
+    sessionStart=sessionEnd;
+  }
+  return session;
+}
+
+function afficherStatutSessionBanque(message){
+  var status=document.getElementById('phrase-bank-session-status');
+  if(status)status.textContent=message;
+}
+
+async function commencerSessionBanque(bankId){
+  var entry=(ST.phraseBanks||[]).find(function(item){return item.bank.id===bankId;});
+  if(!entry)return;
+  var logs=await sb('banques_phrases_log?patient_id=eq.'+encodeURIComponent(ST.pid)+'&banque_id=eq.'+encodeURIComponent(bankId)+'&order=id.asc&select=id,phrase_index,cycle_num');
+  if(!Array.isArray(logs)){
+    document.getElementById('phrase-bank-patient-card').innerHTML='<div class="phrase-bank-status" role="alert">Impossible de charger la rotation de cette banque.</div>';
+    return;
+  }
+  var items=preparerSessionBanque(entry,logs);
+  if(!items.length){
+    document.getElementById('phrase-bank-patient-card').innerHTML='<div class="phrase-bank-status" role="alert">Cette banque ne contient aucune phrase.</div>';
+    return;
+  }
+  if(window.speechSynthesis)window.speechSynthesis.cancel();
+  ST.phraseBankSession={
+    bank:entry.bank,
+    items:items,
+    index:0,
+    finished:false,
+    xpSaved:false,
+    evalSaved:false,
+    evalExo:{id:'phrase-bank-'+bankId,name:'Phrases — '+entry.bank.nom}
+  };
+  afficherPhraseBanque();
+}
+
+function afficherPhraseBanque(){
+  var session=ST.phraseBankSession;
+  if(!session)return;
+  var item=session.items[session.index];
+  var html='<div class="phrase-bank-player" id="phrase-bank-player-card">';
+  html+='<div class="reps-label">'+esc(session.bank.nom)+' · Phrase '+(session.index+1)+' / '+session.items.length+'</div>';
+  html+='<div class="phrase-bank-player-text">'+esc(item.phrase.text)+'</div>';
+  html+='<div id="phrase-bank-attempt-count" class="phrase-bank-status" aria-live="polite">Essais pour cette phrase : '+item.essais+'</div>';
+  html+='<button type="button" class="phrase-bank-action" style="background:#378ADD;color:#fff;" onclick="ecouterPhraseBanque()">🔊 Écouter</button>';
+  html+='<button type="button" class="phrase-bank-action phrase-bank-retry" onclick="reessayerPhraseBanque()">🔄 Je réessaie</button>';
+  html+='<button type="button" class="phrase-bank-action phrase-bank-next" onclick="phraseBanqueSuivante()">✅ Phrase suivante</button>';
+  html+='<div id="phrase-bank-session-status" class="phrase-bank-status" role="status"></div></div>';
+  document.getElementById('phrase-bank-patient-list').innerHTML='';
+  document.getElementById('phrase-bank-patient-card').innerHTML=html;
+}
+
+function ecouterPhraseBanque(){
+  if(!window.speechSynthesis||typeof SpeechSynthesisUtterance==='undefined'){
+    afficherStatutSessionBanque('La lecture audio n’est pas disponible sur cet appareil.');
+    return;
+  }
+  var session=ST.phraseBankSession;
+  if(!session)return;
+  window.speechSynthesis.cancel();
+  var utterance=new SpeechSynthesisUtterance(session.items[session.index].phrase.text);
+  utterance.lang='fr-FR';
+  window.speechSynthesis.speak(utterance);
+}
+
+function reessayerPhraseBanque(){
+  var session=ST.phraseBankSession;
+  if(!session||session.finished)return;
+  session.items[session.index].essais++;
+  document.getElementById('phrase-bank-attempt-count').textContent='Essais pour cette phrase : '+session.items[session.index].essais;
+}
+
+async function phraseBanqueSuivante(){
+  var session=ST.phraseBankSession;
+  if(!session||session.finished)return;
+  if(window.speechSynthesis)window.speechSynthesis.cancel();
+  var item=session.items[session.index];
+  var result=await sb('banques_phrases_log',{method:'POST',body:JSON.stringify({
+    patient_id:ST.pid,
+    banque_id:session.bank.id,
+    phrase_index:item.phrase.index,
+    essais:Math.max(1,item.essais),
+    date_session:todayStr(),
+    cycle_num:item.cycle_num
   })});
-  if(!result||!result[0]){
-    status.textContent='L’ajout a échoué. Vérifiez la connexion puis réessayez.';
+  if(!Array.isArray(result)||!result.length){
+    afficherStatutSessionBanque('Impossible d’enregistrer cette phrase. Réessaie avant de continuer.');
     return;
   }
-  status.textContent='Exercice ajouté au programme.';
+  session.index++;
+  if(session.index>=session.items.length){
+    terminerSessionBanque();
+  }else{
+    afficherPhraseBanque();
+  }
+}
+
+async function terminerSessionBanque(){
+  var session=ST.phraseBankSession;
+  if(!session)return;
+  session.finished=true;
+  var xp=Math.min(session.items.length,10)*5;
+  if(ST.autoEval){
+    showExoEval(session.evalExo,'phrase-bank-patient-card');
+    return;
+  }
+  var result=await enregistrerXP({id:null,name:session.evalExo.name,xp:xp});
+  if(!Array.isArray(result)||!result.length){
+    document.getElementById('phrase-bank-patient-card').innerHTML='<div class="phrase-bank-status" role="alert">La session est terminée, mais les points n’ont pas pu être enregistrés. <button type="button" class="btn-sm" onclick="terminerSessionBanque()">Réessayer</button></div>';
+    return;
+  }
+  ST.phraseBankSession=null;
+  show('s-exos');
 }
 
 async function changerCategorie(exoId,newCat){
@@ -3048,6 +3590,7 @@ async function enregistrerXP(exo){
       ST.dailySessions[ST._dailySessionKey].bonusDone=true;
     }
   }
+  return response;
 }
 
 async function showProfil(){
