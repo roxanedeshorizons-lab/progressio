@@ -81,9 +81,15 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a
 .edit-tab.active{background:#1D9E75;border-color:#1D9E75;color:#fff;}
 
 /* BIBLIOTHÈQUE */
-.biblio-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
-.biblio-tab{font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;border:1.5px solid #e0dfd8;background:#fff;color:#6b6b66;cursor:pointer;transition:all 0.15s;}
-.biblio-tab.active{background:#7F77DD;border-color:#7F77DD;color:#fff;}
+.biblio-categories{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;}
+.biblio-category{background:#fff;border:1px solid #e0dfd8;border-radius:12px;overflow:hidden;}
+.biblio-category-toggle{display:flex;justify-content:space-between;align-items:center;width:100%;padding:13px 16px;border:0;background:#fff;color:#1a1a18;font:inherit;font-size:14px;font-weight:700;text-align:left;cursor:pointer;}
+.biblio-category-toggle:hover,.biblio-category-toggle[aria-expanded="true"]{background:#f5f4f0;color:#5B50B5;}
+.biblio-category-arrow{font-size:12px;color:#9b9b96;transition:transform 0.15s;}
+.biblio-category-toggle[aria-expanded="true"] .biblio-category-arrow{transform:rotate(180deg);}
+.biblio-subcategories{display:flex;gap:6px;flex-wrap:wrap;padding:0 12px 12px;}
+.biblio-subcategory{font-size:12px;font-weight:600;padding:6px 11px;border-radius:18px;border:1px solid #e0dfd8;background:#fff;color:#6b6b66;cursor:pointer;}
+.biblio-subcategory:hover,.biblio-subcategory.active{background:#7F77DD;border-color:#7F77DD;color:#fff;}
 .biblio-exo{background:#fff;border:1px solid #e0dfd8;border-radius:12px;padding:14px 16px;margin-bottom:8px;}
 .biblio-exo-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px;}
 .biblio-exo-name{font-size:14px;font-weight:600;color:#1a1a18;}
@@ -91,6 +97,10 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a
 .biblio-exo-how{font-size:12px;color:#6b6b66;line-height:1.4;}
 .biblio-cat-select{font-size:12px;padding:3px 8px;border:1px solid #d0cfc8;border-radius:6px;outline:none;color:#6b6b66;background:#f5f4f0;cursor:pointer;}
 .biblio-empty{text-align:center;color:#9b9b96;font-size:13px;padding:32px 0;line-height:1.6;}
+.phrase-player{text-align:center;padding:18px 4px;}
+.phrase-player-text{font-size:clamp(24px,6vw,36px);font-weight:700;line-height:1.35;color:#1a1a18;margin:18px 0 24px;overflow-wrap:anywhere;}
+.phrase-player-btn{width:100%;font-size:15px;font-weight:600;color:#fff;background:#378ADD;border:none;border-radius:10px;padding:13px;cursor:pointer;margin-bottom:10px;}
+.phrase-player-next{width:100%;font-size:15px;font-weight:600;color:#fff;background:#1D9E75;border:none;border-radius:10px;padding:13px;cursor:pointer;}
 
 /* RÉCAP */
 .recap-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:98;align-items:center;justify-content:center;}
@@ -675,6 +685,50 @@ async function sbUpload(file,path){
   return SB_URL+'/storage/v1/object/public/exercice-images/'+path;
 }
 
+function afficherPhrase(exo){
+  var phraseData=exo.sounds&&!Array.isArray(exo.sounds)?exo.sounds:{};
+  var phrases=phraseData.phrases||[];
+  var index=ST.phraseIndex||0;
+  if(index>=phrases.length){
+    onExoComplete(exo);
+    return;
+  }
+  var targets=phraseData.targets||'';
+  var html='<div class="exo"><div class="exo-inner"><div class="exo-main">';
+  html+='<div class="exo-title-row"><span class="exo-nm">'+esc(exo.name)+'</span><span class="exo-dose">'+esc(exo.dose||'')+'</span></div>';
+  if(targets)html+='<div class="exo-how">Sons travaillés : '+esc(targets)+'</div>';
+  html+='<div class="phrase-player"><div class="reps-label">Phrase '+(index+1)+' / '+phrases.length+'</div>';
+  html+='<div class="phrase-player-text">'+esc(phrases[index])+'</div>';
+  html+='<button type="button" class="phrase-player-btn" onclick="lirePhraseCourante()">🔊 Écouter</button>';
+  html+='<button type="button" class="phrase-player-next" onclick="phraseSuivante()">'
+    +(index+1===phrases.length?'Terminer':'Phrase suivante →')+'</button>';
+  html+='</div></div></div></div>';
+  document.getElementById('exo-card').innerHTML=html;
+}
+
+function lirePhraseCourante(){
+  if(!window.speechSynthesis||typeof SpeechSynthesisUtterance==='undefined'){
+    alert('La lecture audio n’est pas disponible sur cet appareil.');
+    return;
+  }
+  var exo=ST.exos[ST.exoIndex||0];
+  var phraseData=exo&&exo.sounds&&!Array.isArray(exo.sounds)?exo.sounds:{};
+  var phrase=(phraseData.phrases||[])[ST.phraseIndex||0];
+  if(!phrase)return;
+  window.speechSynthesis.cancel();
+  var utterance=new SpeechSynthesisUtterance(phrase);
+  utterance.lang='fr-FR';
+  window.speechSynthesis.speak(utterance);
+}
+
+function phraseSuivante(){
+  if(window.speechSynthesis)window.speechSynthesis.cancel();
+  var exo=ST.exos[ST.exoIndex||0];
+  if(!exo||exo.type!=='phrases')return;
+  ST.phraseIndex=(ST.phraseIndex||0)+1;
+  afficherPhrase(exo);
+}
+
 var ST={pid:null,pname:'',exos:[],days:[],reps:{},chronoDone:{},evalScores:{},timer:300,timerOn:false,timerInt:null,editPid:null,editPname:'',editExos:[],hasLecture:false,hasEpell:false,lectDays:[],lectSessions:[],isOrthoSuivi:false,evalHistory:[],autoEval:true,sommeilActif:false,respirationActif:false,respirationConfigAvailable:true,avecOrtho:null,presenceResolve:null,dailyCountersAvailable:true,sommeilEchelle:5,sommeilSaving:false,modeTest:false,_sbReal:null,epellConfig:null,dailySessions:{},sessionsToday:0,respirationsToday:0,sessionStarting:false,sessionMarkerId:null,sessionMarkerUpdating:false};
 var RESP={id:null,startedAt:0,timer:null,stopTimeout:null,active:false,starting:false,points:0,maxReached:false};
 var RESP_MAX_SECONDS=300;
@@ -701,6 +755,7 @@ async function loadProfiles(){
     if(dlist.length>0)html+='<div class="p-card-streak">🔥 '+streak+' j. · '+dlist.length+' total</div>';
     html+='</div>';
   }
+
   document.getElementById('profile-loading').style.display='none';
   document.getElementById('profile-grid').innerHTML=html;
   document.getElementById('profile-grid').style.display='grid';
@@ -1096,6 +1151,7 @@ function quitterRespiration(){
 
 function goProfiles(){
   annulerTimerArticulation();
+  if(window.speechSynthesis)window.speechSynthesis.cancel();
   clearTimer();ST.reps={};ST.chronoDone={};
   if(ST.modeTest){quitterModeTest();return;}
   show('s-profiles');
@@ -1317,6 +1373,13 @@ function showCurrentExo(){
   if(bonusBtn)bonusBtn.style.display='none';
 
   var exo=allExos[idx];
+  if(exo.type==='phrases'){
+    if(window.speechSynthesis)window.speechSynthesis.cancel();
+    ST.phraseIndex=0;
+    afficherPhrase(exo);
+    document.getElementById('btn-reset').style.display='block';
+    return;
+  }
   // Réinitialiser les reps de cet exo
   if(exo.type==='reps'){ST.reps[exo.id]=0;}
   else if(exo.type==='sounds'){(exo.sounds||[]).forEach(function(s,si){ST.reps[exo.id+'_'+si]=0;});}
@@ -2183,10 +2246,11 @@ function renderEditors(){
 }
 
 function renderEditor(exo,i,cb){
-  var sounds=exo.sounds||[];
+  var sounds=Array.isArray(exo.sounds)?exo.sounds:[];
   var isSound=exo.type==='sounds';
   var isChrono=exo.type==='chrono';
   var isArticulation=exo.type==='articulation';
+  var isPhrases=exo.type==='phrases';
   var colorDots=COLORS.map(function(c){return '<div class="color-dot'+(exo.color===c?' selected':'')+'" style="background:'+c+'" onclick="setColor('+i+',\''+c+'\')"></div>';}).join('');
   var soundsHtml='';
   sounds.forEach(function(s,si){
@@ -2204,12 +2268,13 @@ function renderEditor(exo,i,cb){
   html+='<div class="field-row-inline">';
   html+='<div class="field-row" style="margin:0"><label>Dose</label><input type="text" id="edose_'+i+'" value="'+esc(exo.dose||'')+'" placeholder="Ex : 10 fois" /></div>';
   html+='<div class="field-row" style="margin:0"><label>Type</label><select id="etype_'+i+'" onchange="toggleType('+i+')">';
-  html+='<option value="reps"'+(isSound||isChrono||isArticulation?'':' selected')+'>Répétitions</option>';
+  html+='<option value="reps"'+(isSound||isChrono||isArticulation||isPhrases?'':' selected')+'>Répétitions</option>';
   html+='<option value="sounds"'+(isSound?' selected':'')+'>Sons groupés</option>';
   html+='<option value="chrono"'+(isChrono?' selected':'')+'>Chronomètre</option>';
+  html+='<option value="phrases"'+(isPhrases?' selected':'')+'>Répétition de phrases</option>';
   if(isArticulation)html+='<option value="articulation" selected>Lieux d’articulation</option>';
   html+='</select></div></div>';
-  html+='<div class="field-row" id="reps-field-'+i+'" style="'+(isSound||isChrono||isArticulation?'display:none':'')+'">';
+  html+='<div class="field-row" id="reps-field-'+i+'" style="'+(isSound||isChrono||isArticulation||isPhrases?'display:none':'')+'">';
   html+='<label>Nombre de cercles</label><input type="number" id="ereps_'+i+'" min="1" max="20" value="'+(exo.reps||10)+'" /></div>';
   html+='<div class="field-row" id="chrono-field-'+i+'" style="'+(isChrono?'':'display:none')+'">';
   html+='<label>Type de chrono</label>';
@@ -2222,6 +2287,10 @@ function renderEditor(exo,i,cb){
   html+='<div class="sounds-editor" id="sounds-editor-'+i+'" style="'+(isSound?'display:block':'')+'">';
   html+=soundsHtml;
   html+='<button class="add-sound-btn" onclick="addSound('+i+')">+ Ajouter un son</button></div>';
+  var phraseData=isPhrases&&exo.sounds&&!Array.isArray(exo.sounds)?exo.sounds:{};
+  html+='<div class="phrases-editor field-row" id="phrases-editor-'+i+'" style="'+(exo.type==='phrases'?'':'display:none')+'">';
+  html+='<label>Sons ciblés</label><input type="text" id="phrase-targets-'+i+'" value="'+esc(phraseData.targets||'')+'" placeholder="Ex. : ch, j" />';
+  html+='<label style="margin-top:8px;">Phrases (une par ligne)</label><textarea id="phrase-list-'+i+'" style="min-height:120px;" placeholder="Le chat cherche son chapeau.">'+esc(Array.isArray(phraseData.phrases)?phraseData.phrases.join('\n'):'')+'</textarea></div>';
   html+='<div class="field-row"><label>Comment faire (consigne)</label><textarea id="ehow_'+i+'">'+esc(exo.how||'')+'</textarea></div>';
   html+='<div class="field-row"><label>Pourquoi (bénéfice)</label><textarea id="ewhy_'+i+'">'+esc(exo.why||'')+'</textarea></div>';
   html+='<div class="field-row"><label>Couleur</label><div class="color-row" id="color-row-'+i+'">'+colorDots+'</div></div>';
@@ -2247,13 +2316,14 @@ function toggleType(i){
   ST.editExos[i].type=val;
   document.getElementById('reps-field-'+i).style.display=(val==='reps')?'':'none';
   document.getElementById('sounds-editor-'+i).style.display=(val==='sounds')?'block':'none';
+  document.getElementById('phrases-editor-'+i).style.display=(val==='phrases')?'block':'none';
   document.getElementById('chrono-field-'+i).style.display=(val==='chrono')?'':'none';
   var chronoType=document.getElementById('echronotype_'+i);
   document.getElementById('chrono-secs-field-'+i).style.display=(val==='chrono'&&chronoType&&chronoType.value!=='stopwatch')?'':'none';
 }
 
 function addSound(i){
-  if(!ST.editExos[i].sounds)ST.editExos[i].sounds=[];
+  if(!Array.isArray(ST.editExos[i].sounds))ST.editExos[i].sounds=[];
   ST.editExos[i].sounds.push({label:'',reps:5});
   var si=ST.editExos[i].sounds.length-1;
   var container=document.getElementById('sounds-editor-'+i);
@@ -2313,6 +2383,9 @@ function collectExoData(i){
       if(lbl)sounds.push({label:lbl,reps:rps});
       si++;
     }
+  } else if(type==='phrases'){
+    var phrases=document.getElementById('phrase-list-'+i).value.split('\n').map(function(phrase){return phrase.trim();}).filter(Boolean);
+    sounds={phrases:phrases,targets:document.getElementById('phrase-targets-'+i).value.trim()};
   }
   var chronoTypeEl=document.getElementById('echronotype_'+i);
   var chronoSecsEl=document.getElementById('echronosecs_'+i);
@@ -2486,36 +2559,143 @@ async function stopStopwatch(exoId,elapsed){
 }
 
 /* ── BIBLIOTHÈQUE ── */
-var CATEGORIES=[
-  {id:'myofonctionnel',label:'Myofonctionnel',types:['reps','sounds','chrono']},
-  {id:'lecture',label:'Lecture',types:['lecture']},
-  {id:'conscience_phonologique',label:'Conscience phonologique',types:['articulation']},
-  {id:'ecriture',label:'Écriture',types:[]},
-  {id:'langage_oral',label:'Langage oral',types:[]},
-  {id:'autre',label:'Autre',types:[]}
+var BIBLIO_CATEGORIES=[
+  {id:'cognition_mathematique',label:'Cognition mathématique',subcategories:[
+    {id:'calcul',label:'Calcul'},{id:'nombre',label:'Nombre'},{id:'problemes',label:'Problèmes'},{id:'raisonnement',label:'Raisonnement'}
+  ]},
+  {id:'langage_oral',label:'Langage oral',subcategories:[
+    {id:'articulation',label:'Articulation'},{id:'comprehension',label:'Compréhension'},{id:'lexique',label:'Lexique'},{id:'morphosyntaxe',label:'Morphosyntaxe'},
+    {id:'parole',label:'Parole'},{id:'phonologie',label:'Phonologie'},{id:'pragmatique',label:'Pragmatique / langage élaboré'},{id:'recit',label:'Récit'}
+  ]},
+  {id:'langage_ecrit',label:'Langage écrit',subcategories:[
+    {id:'graphisme',label:'Graphisme'},{id:'lecture',label:'Lecture'},{id:'morphologie',label:'Morphologie'},{id:'orthographe',label:'Orthographe'}
+  ]},
+  {id:'neurologie',label:'Neurologie',subcategories:[
+    {id:'aphasie',label:'Aphasie'},{id:'fonctions_executives',label:'Fonctions exécutives'},{id:'memoire',label:'Mémoire'},{id:'visuo_spatial',label:'Visuo-spatial'}
+  ]},
+  {id:'omf_tap',label:'OMF / TAP',subcategories:[
+    {id:'omf_levres',label:'Lèvres'},{id:'omf_langue',label:'Langue'},{id:'omf_joues',label:'Joues'},{id:'omf_voile',label:'Voile du palais'}
+  ]},
+  {id:'fluence',label:'Fluence',subcategories:[{id:'fluence',label:'Fluence'}]}
 ];
 
-var biblioCatActive='myofonctionnel';
+var BIBLIO_SUBCATEGORIES=[];
+BIBLIO_CATEGORIES.forEach(function(category){
+  category.subcategories.forEach(function(subcategory){
+    subcategory.parentId=category.id;
+    BIBLIO_SUBCATEGORIES.push(subcategory);
+  });
+});
+var biblioCategoryActive=null;
+var biblioSubcategoryActive=null;
 
 function catParType(type){
-  for(var i=0;i<CATEGORIES.length;i++){
-    if(CATEGORIES[i].types.indexOf(type)>=0)return CATEGORIES[i].id;
-  }
+  if(type==='lecture')return 'lecture';
+  if(type==='articulation')return 'conscience_phonologique';
+  if(type==='phrases')return 'parole';
+  if(type==='reps'||type==='sounds'||type==='chrono')return 'myofonctionnel';
   return 'autre';
+}
+
+function normaliserClassification(value){
+  return String(value||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+
+function sousCategorieParId(id){
+  for(var i=0;i<BIBLIO_SUBCATEGORIES.length;i++){
+    if(BIBLIO_SUBCATEGORIES[i].id===id)return BIBLIO_SUBCATEGORIES[i];
+  }
+  return null;
+}
+
+function classifierExercice(exo){
+  if(exo.type==='phrases')return sousCategorieParId('parole');
+  var savedCategory=String(exo.categorie||'');
+  var savedSubcategory=sousCategorieParId(savedCategory);
+  if(savedSubcategory)return savedSubcategory;
+
+  var text=normaliserClassification([
+    exo.name,exo.how,exo.why,exo.type,
+    (exo.sounds||[]).map(function(sound){return sound.label;}).join(' ')
+  ].join(' '));
+
+  if(/\b(epellation|epeler|orthographe|grammaire|dict[ee]e|ecriture|morphologie)\b/.test(text))return sousCategorieParId(text.indexOf('morphologie')>=0?'morphologie':'orthographe');
+  if(/\b(lecture|lire|syllabe a lire|lecture de syllabes|lecture de mots)\b/.test(text)||exo.type==='lecture')return sousCategorieParId('lecture');
+  if(/\b(rime|rimes|syllabe|syllabes|phoneme|phonemes|conscience phonologique|phonologie|coarticulation)\b/.test(text)||savedCategory==='conscience_phonologique')return sousCategorieParId('phonologie');
+  if(/\b(additions?|soustractions?|multiplications?|divisions?|calculs?|operation|operations)\b/.test(text))return sousCategorieParId('calcul');
+  if(/\b(nombre|nombres|numeration|chiffre|chiffres|quantite|quantites)\b/.test(text))return sousCategorieParId('nombre');
+  if(/\b(probleme|problemes|enonce|enonces)\b/.test(text))return sousCategorieParId('problemes');
+  if(/\b(raisonnement|logique|sequence|sequencage)\b/.test(text))return sousCategorieParId('raisonnement');
+  if(/\b(levre|levres|labial|labiale|labiales)\b/.test(text))return sousCategorieParId('omf_levres');
+  if(/\b(langue|lingual|linguale|linguales)\b/.test(text))return sousCategorieParId('omf_langue');
+  if(/\b(joue|joues|buccinateur|buccinateurs)\b/.test(text))return sousCategorieParId('omf_joues');
+  if(/\b(voile|palais|velaire)\b/.test(text))return sousCategorieParId('omf_voile');
+  if(/\b(aphasie|aphasique)\b/.test(text))return sousCategorieParId('aphasie');
+  if(/\b(fonction executive|fonctions executives|inhibition|planification|flexibilite cognitive)\b/.test(text))return sousCategorieParId('fonctions_executives');
+  if(/\b(memoire|memorisation|memoriser|rappel)\b/.test(text))return sousCategorieParId('memoire');
+  if(/\b(visuo spatial|visuo spatial|spatial|orientation spatiale|puzzle)\b/.test(text))return sousCategorieParId('visuo_spatial');
+  if(/\b(graphisme|graphomotricite|trac[ee]|dessin|geste graphique)\b/.test(text))return sousCategorieParId('graphisme');
+  if(/\b(denomination|vocabulaire|lexique|mot|mots|champ lexical)\b/.test(text))return sousCategorieParId('lexique');
+  if(/\b(comprehension|consigne|comprendre)\b/.test(text))return sousCategorieParId('comprehension');
+  if(/\b(morphosyntaxe|syntaxe|phrase|phrases|grammatical)\b/.test(text))return sousCategorieParId('morphosyntaxe');
+  if(/\b(pragmatique|implicite|inference|langage elabore)\b/.test(text))return sousCategorieParId('pragmatique');
+  if(/\b(recit|histoire|narration|raconter)\b/.test(text))return sousCategorieParId('recit');
+  if(/\b(fluence|begaiement|debit de parole)\b/.test(text))return sousCategorieParId('fluence');
+  if(/\b(parole|debit|voix|prosodie)\b/.test(text))return sousCategorieParId('parole');
+  if(/\b(articulation|prononciation|son|sons)\b/.test(text))return sousCategorieParId('articulation');
+
+  if(savedCategory==='lecture')return sousCategorieParId('lecture');
+  if(savedCategory==='ecriture')return sousCategorieParId('graphisme');
+  if(savedCategory==='langage_oral')return sousCategorieParId('lexique');
+  if(savedCategory==='myofonctionnel')return sousCategorieParId('omf_langue');
+  if(savedCategory==='conscience_phonologique')return sousCategorieParId('phonologie');
+  if(exo.type==='articulation')return sousCategorieParId('articulation');
+  if(exo.type==='reps'||exo.type==='sounds'||exo.type==='chrono')return sousCategorieParId('omf_langue');
+  return sousCategorieParId('articulation');
 }
 
 async function showBibliotheque(){
   show('s-biblio');
+  biblioCategoryActive=null;
+  biblioSubcategoryActive=null;
   buildBiblioTabs();
   await loadBiblioContent();
 }
 
 function buildBiblioTabs(){
   var html='';
-  CATEGORIES.forEach(function(cat){
-    html+='<div class="biblio-tab'+(cat.id===biblioCatActive?' active':'')+'" onclick="switchBiblioTab(\''+cat.id+'\')">'+cat.label+'</div>';
+  BIBLIO_CATEGORIES.forEach(function(category){
+    var isOpen=category.id===biblioCategoryActive;
+    html+='<div class="biblio-category">';
+    html+='<button type="button" class="biblio-category-toggle" aria-expanded="'+(isOpen?'true':'false')+'"'+(isOpen?' aria-controls="biblio-subcats-'+category.id+'"':'')+' onclick="switchBiblioTab(\''+category.id+'\')">';
+    html+='<span>'+category.label+'</span><span class="biblio-category-arrow" aria-hidden="true">▼</span></button>';
+    if(isOpen){
+      html+='<div class="biblio-subcategories" id="biblio-subcats-'+category.id+'">';
+      category.subcategories.forEach(function(subcategory){
+        html+='<button type="button" class="biblio-subcategory'+(subcategory.id===biblioSubcategoryActive?' active':'')+'" onclick="selectBiblioSubcategory(\''+subcategory.id+'\')">'+subcategory.label+'</button>';
+      });
+      html+='</div>';
+    }
+    html+='</div>';
   });
   document.getElementById('biblio-tabs').innerHTML=html;
+}
+
+function switchBiblioTab(categoryId){
+  biblioCategoryActive=biblioCategoryActive===categoryId?null:categoryId;
+  biblioSubcategoryActive=biblioCategoryActive==='langage_oral'?'langage_oral':null;
+  buildBiblioTabs();
+  if(biblioSubcategoryActive)loadBiblioContent();
+  else document.getElementById('biblio-content').innerHTML='<div class="biblio-empty">Choisissez une sous-catégorie pour afficher les exercices.</div>';
+}
+
+async function selectBiblioSubcategory(subcategoryId){
+  var subcategory=sousCategorieParId(subcategoryId);
+  if(!subcategory)return;
+  biblioCategoryActive=subcategory.parentId;
+  biblioSubcategoryActive=subcategory.id;
+  buildBiblioTabs();
+  await loadBiblioContent();
 }
 
 async function switchEditTab(tab){
@@ -2548,7 +2728,7 @@ async function saveArticulationProgram(){
       color:'#7F77DD',
       type:'articulation',
       xp:5,
-      categorie:'conscience_phonologique',
+      categorie:'phonologie',
       position:ST.editExos.length,
       image_url:''
     })});
@@ -2609,12 +2789,6 @@ async function saveAllEdits(){
   show('s-ortho');loadOrtho();
 }
 
-async function switchBiblioTab(catId){
-  biblioCatActive=catId;
-  buildBiblioTabs();
-  await loadBiblioContent();
-}
-
 function carteBibliothequeArticulation(patients){
   var html='<div class="biblio-exo">';
   html+='<div class="biblio-exo-header"><div><div class="biblio-exo-name">Lieux d’articulation – Coarticulation</div>';
@@ -2663,7 +2837,7 @@ async function ajouterArticulationAuPatient(){
     color:'#7F77DD',
     type:'articulation',
     xp:5,
-    categorie:'conscience_phonologique',
+    categorie:'phonologie',
     position:positions.length?Math.max.apply(Math,positions)+1:0,
     image_url:''
   })});
@@ -2675,6 +2849,11 @@ async function ajouterArticulationAuPatient(){
 }
 
 async function loadBiblioContent(){
+  var isLangageOralRoot=biblioSubcategoryActive==='langage_oral'&&biblioCategoryActive==='langage_oral';
+  if(!biblioSubcategoryActive){
+    document.getElementById('biblio-content').innerHTML='<div class="biblio-empty">Choisissez une sous-catégorie pour afficher les exercices.</div>';
+    return;
+  }
   document.getElementById('biblio-content').innerHTML='<div class="loading">Chargement...</div>';
   // Charger tous les exercices de l'ortho connectée
   var allPatients=await sb('patients?select=id,name&ortho_id=eq.'+SESSION_UID);
@@ -2682,29 +2861,25 @@ async function loadBiblioContent(){
     document.getElementById('biblio-content').innerHTML='<div class="biblio-empty">Impossible de charger les patients. Réessayez.</div>';
     return;
   }
-  if(!allPatients.length){
-    if(biblioCatActive==='conscience_phonologique'){
-      document.getElementById('biblio-content').innerHTML=carteBibliothequeArticulation([]);
-      return;
-    }
-    document.getElementById('biblio-content').innerHTML='<div class="biblio-empty">Aucun exercice créé pour le moment.</div>';
-    return;
-  }
   var pids=allPatients.map(function(p){return p.id;});
-  var pidMap={};
-  allPatients.forEach(function(p){pidMap[p.id]=p.name;});
 
   // Charger tous les exercices de tous les patients
   var allExos=[];
   for(var i=0;i<pids.length;i++){
     var exos=await sb('exercices?patient_id=eq.'+pids[i]+'&select=id,name,how,why,dose,type,color,categorie,patient_id,xp,image_url');
-    if(exos)allExos=allExos.concat(exos);
+    if(!Array.isArray(exos)){
+      document.getElementById('biblio-content').innerHTML='<div class="biblio-empty">Impossible de charger tous les exercices. Réessayez.</div>';
+      return;
+    }
+    allExos=allExos.concat(exos);
   }
 
-  // Filtrer par catégorie active
+  // Classer les exercices historiques sans modifier les programmes déjà assignés.
   var filtered=allExos.filter(function(e){
-    var cat=e.categorie||catParType(e.type);
-    return cat===biblioCatActive&&e.type!=='articulation';
+    var normalizedName=normaliserClassification(e.name).replace(/[^a-z0-9]+/g,' ').trim();
+    var isArticulationTemplate=normalizedName==='lieux d articulation coarticulation';
+    var subcategory=classifierExercice(e);
+    return (isLangageOralRoot?subcategory.parentId==='langage_oral':subcategory.id===biblioSubcategoryActive)&&!isArticulationTemplate;
   });
 
   // Dédupliquer par nom (garder le premier de chaque nom)
@@ -2716,23 +2891,28 @@ async function loadBiblioContent(){
   });
   unique.sort(function(a,b){return a.name.localeCompare(b.name);});
 
-  var html=biblioCatActive==='conscience_phonologique'?carteBibliothequeArticulation(allPatients):'';
+  var html=biblioSubcategoryActive==='phonologie'?carteBibliothequeArticulation(allPatients):'';
+  if(isLangageOralRoot||biblioSubcategoryActive==='parole')html+=carteBibliothequePhrases(allPatients);
   if(!unique.length){
-    document.getElementById('biblio-content').innerHTML=html||'<div class="biblio-empty">Aucun exercice dans cette catégorie.</div>';
+    document.getElementById('biblio-content').innerHTML=html||'<div class="biblio-empty">Aucun exercice dans cette sous-catégorie.</div>';
     return;
   }
 
   unique.forEach(function(exo){
-    var cat=exo.categorie||catParType(exo.type);
+    var subcategory=classifierExercice(exo);
     html+='<div class="biblio-exo">';
     html+='<div class="biblio-exo-header">';
     html+='<div>';
     html+='<div class="biblio-exo-name"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+esc(exo.color||'#888')+';margin-right:6px;vertical-align:middle;"></span>'+esc(exo.name)+'</div>';
     html+='<div class="biblio-exo-meta">'+esc(exo.dose||'')+(exo.xp?' · '+exo.xp+' '+libellePoints(exo.xp):'')+'</div>';
     html+='</div>';
-    html+='<select class="biblio-cat-select" onchange="changerCategorie(\''+exo.id+'\',this.value)">';
-    CATEGORIES.forEach(function(c){
-      html+='<option value="'+c.id+'"'+(c.id===cat?' selected':'')+'>'+c.label+'</option>';
+    html+='<select class="biblio-cat-select" aria-label="Sous-catégorie de '+esc(exo.name)+'" onchange="changerCategorie(\''+exo.id+'\',this.value)">';
+    BIBLIO_CATEGORIES.forEach(function(category){
+      html+='<optgroup label="'+category.label+'">';
+      category.subcategories.forEach(function(option){
+        html+='<option value="'+option.id+'"'+(option.id===subcategory.id?' selected':'')+'>'+option.label+'</option>';
+      });
+      html+='</optgroup>';
     });
     html+='</select>';
     html+='</div>';
@@ -2743,8 +2923,74 @@ async function loadBiblioContent(){
   document.getElementById('biblio-content').innerHTML=html;
 }
 
+function carteBibliothequePhrases(patients){
+  var html='<div class="biblio-exo"><div class="biblio-exo-name">Répétition de phrases</div>';
+  html+='<div class="biblio-exo-how" style="margin-top:6px;">Faites travailler des sons ciblés à partir d’une liste de phrases lues une par une au patient.</div>';
+  if(patients.length){
+    html+='<div class="field-row" style="margin-top:12px;"><label for="phrases-patient">Patient</label><select id="phrases-patient" class="biblio-cat-select" style="width:100%;padding:8px;"><option value="">Choisir un patient…</option>';
+    patients.forEach(function(patient){html+='<option value="'+esc(patient.id)+'">'+esc(patient.name)+'</option>';});
+    html+='</select></div>';
+    html+='<div class="field-row"><label for="phrases-targets">Sons ciblés</label><input id="phrases-targets" type="text" placeholder="Ex. : ch, j" /></div>';
+    html+='<div class="field-row"><label for="phrases-list">Phrases (une par ligne)</label><textarea id="phrases-list" style="width:100%;min-height:150px;font-size:14px;padding:10px;border:1px solid #d0cfc8;border-radius:8px;outline:none;font-family:inherit;line-height:1.8;" placeholder="Le chat cherche son chapeau.&#10;Julie joue dans le jardin."></textarea></div>';
+    html+='<button type="button" class="btn-sm primary" onclick="ajouterRepetitionPhrases()">Ajouter au programme</button>';
+    html+='<div id="phrases-assign-status" role="status" style="font-size:12px;margin-top:8px;"></div>';
+  }else{
+    html+='<div class="biblio-exo-meta" style="margin-top:10px;">Créez un patient pour pouvoir lui affecter cet exercice.</div>';
+  }
+  return html+'</div>';
+}
+
+async function ajouterRepetitionPhrases(){
+  var status=document.getElementById('phrases-assign-status');
+  var patient=document.getElementById('phrases-patient');
+  var targets=document.getElementById('phrases-targets').value.trim();
+  var phrases=document.getElementById('phrases-list').value.split('\n').map(function(phrase){return phrase.trim();}).filter(Boolean);
+  if(!patient||!patient.value){
+    status.textContent='Choisissez un patient.';
+    return;
+  }
+  if(!targets){
+    status.textContent='Indiquez les sons ciblés.';
+    return;
+  }
+  if(!phrases.length){
+    status.textContent='Saisissez au moins une phrase.';
+    return;
+  }
+  var existing=await sb('exercices?patient_id=eq.'+patient.value+'&select=position&order=position');
+  if(!Array.isArray(existing)){
+    status.textContent='Impossible de charger le programme du patient. Réessayez.';
+    return;
+  }
+  var result=await sb('exercices',{method:'POST',body:JSON.stringify({
+    patient_id:patient.value,
+    name:'Répétition de phrases',
+    dose:phrases.length+' phrases',
+    how:'Écoute chaque phrase, puis répète-la à voix haute.',
+    why:'Travailler les sons ciblés : '+targets+'.',
+    color:'#378ADD',
+    type:'phrases',
+    sounds:{phrases:phrases,targets:targets},
+    xp:10,
+    categorie:'parole',
+    position:existing.length?Math.max.apply(null,existing.map(function(exo){return Number(exo.position)||0;}))+1:0,
+    image_url:''
+  })});
+  if(!result||!result[0]){
+    status.textContent='L’ajout a échoué. Vérifiez la connexion puis réessayez.';
+    return;
+  }
+  status.textContent='Exercice ajouté au programme.';
+}
+
 async function changerCategorie(exoId,newCat){
-  await sb('exercices?id=eq.'+exoId,{method:'PATCH',body:JSON.stringify({categorie:newCat})});
+  if(!sousCategorieParId(newCat))return;
+  var result=await sb('exercices?id=eq.'+exoId,{method:'PATCH',body:JSON.stringify({categorie:newCat})});
+  if(result===null){
+    alert('Impossible de modifier la sous-catégorie de cet exercice. Réessayez.');
+    await loadBiblioContent();
+    return;
+  }
   await loadBiblioContent();
 }
 
