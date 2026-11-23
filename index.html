@@ -155,6 +155,12 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a
 .profil-rang-row-name{font-size:13px;font-weight:500;color:#1a1a18;}
 .profil-rang-row-req{font-size:11px;color:#9b9b96;}
 .profil-rang-row-check{font-size:16px;color:#1D9E75;}
+.profil-achievements{background:#fff;border:1px solid #e0dfd8;border-radius:14px;padding:16px;margin-top:12px;}
+.profil-achievement-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #f0efe8;}
+.profil-achievement-row:last-child{border-bottom:none;}
+.profil-achievement-row.locked{opacity:0.4;}
+.profil-achievement-title{font-size:13px;font-weight:500;}
+.profil-achievement-req{font-size:11px;color:#9b9b96;}
 
 .xp-badge{display:inline-flex;align-items:center;gap:4px;background:#FEF9E7;color:#7a5c00;border-radius:6px;padding:2px 7px;font-size:11px;font-weight:600;}
 .chrono-display{font-size:48px;font-weight:700;text-align:center;padding:16px 0 8px;color:#1a1a18;font-variant-numeric:tabular-nums;}
@@ -3559,6 +3565,10 @@ var RANGS=[
   {nom:'Diamant',emoji:'💎',min:500,max:1999},
   {nom:'Trophée',emoji:'🏆',min:2000,max:Infinity}
 ];
+var ACHIEVEMENTS_LAOUNI=[
+  {nom:'Jetski',emoji:'🚤',min:5000},
+  {nom:'Overboard',emoji:'🏄',min:8000}
+];
 
 function libellePoints(nombre){var n=Number(nombre);return n===0||n===1?'Point':'Points';}
 
@@ -3650,6 +3660,23 @@ async function showProfil(){
     html+='</div>';
   });
   html+='</div>';
+
+  if(ST.pname.trim().toLocaleLowerCase('fr-FR')==='laouni'){
+    html+='<div class="profil-achievements">';
+    html+='<div style="font-size:13px;font-weight:700;margin-bottom:4px;">Achievements</div>';
+    ACHIEVEMENTS_LAOUNI.forEach(function(a){
+      var atteint=totalXP>=a.min;
+      html+='<div class="profil-achievement-row'+(atteint?'':' locked')+'">';
+      html+='<div style="font-size:20px;width:28px;text-align:center;">'+a.emoji+'</div>';
+      html+='<div style="flex:1;">';
+      html+='<div class="profil-achievement-title">'+a.nom+'</div>';
+      html+='<div class="profil-achievement-req">'+a.min+' '+libellePoints(a.min)+'</div>';
+      html+='</div>';
+      if(atteint)html+='<div class="profil-rang-row-check">✓</div>';
+      html+='</div>';
+    });
+    html+='</div>';
+  }
 
   document.getElementById('profil-content').innerHTML=html;
 }
