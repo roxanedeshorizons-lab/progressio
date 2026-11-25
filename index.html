@@ -3657,24 +3657,7 @@ async function showProfil(){
     html+='</div>';
   });
   html+='</div>';
-
-  if(ST.pname.trim().toLocaleLowerCase('fr-FR')==='laouni'){
-    html+='<div class="profil-achievements">';
-    html+='<div style="font-size:13px;font-weight:700;margin-bottom:4px;">Achievements</div>';
-    ACHIEVEMENTS_LAOUNI.forEach(function(a){
-      var atteint=totalXP>=a.min;
-      html+='<div class="profil-achievement-row'+(atteint?'':' locked')+'">';
-      html+='<div style="font-size:20px;width:28px;text-align:center;">'+a.emoji+'</div>';
-      html+='<div style="flex:1;">';
-      html+='<div class="profil-achievement-title">'+a.nom+'</div>';
-      html+='<div class="profil-achievement-req">'+a.min+' '+libellePoints(a.min)+'</div>';
-      html+='</div>';
-      if(atteint)html+='<div class="profil-rang-row-check">✓</div>';
-      html+='</div>';
-    });
-    html+='</div>';
-  }
-
+ 
   document.getElementById('profil-content').innerHTML=html;
 }
 
